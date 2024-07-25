@@ -13,6 +13,9 @@ import NotFound from './pages/NotFound';
 import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar';
 import styled from 'styled-components';
+import FindPassword from './pages/FindPassword';
+import FindPasswordSend from './pages/FindPasswordsend';
+import EmailCheck from './pages/emailcheck';
 
 const AppContainer = styled.div`
   display: flex;
@@ -40,6 +43,9 @@ function App() {
             <Route path="/Setting" element={<Setting />} />
             <Route path="/MakePlanRoom1" element={<MakePlanRoom1 />} />
             <Route path="/MakePlanRoom2" element={<MakePlanRoom2 />} />
+            <Route path="/findpassword" element={<FindPassword />} />
+                <Route path="/find-password-send" element={<FindPasswordSend />} />
+                <Route path="/emailcheck" element={<EmailCheck />} />
             <Route path="/*" element={<NotFound />} />
           </Routes>
         </ContentContainer>
