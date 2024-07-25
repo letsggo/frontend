@@ -10,25 +10,27 @@ import { format } from 'date-fns';
 import moment from 'moment';
 
 /*컨테이너 및 구역 나눔*/
+const FullContainner = styled.div`
+  margin: 0 auto;
+  justify-content: center;
+  width: 900px;
+  max-width: 1200px;
+  box-sizing: border-box;
+`;
+
 const PlanContainer = styled.div`
   display: flex;
-  width: 100%;
-  heigth: 100%;
-  margin-left: 5%;
-  margin-right: 5%;
 `;
 
 const ContentContainer = styled.div`
   flex: 1;
   display: flex;
-  margin-right: 5%;
   flex-direction: column;
 `;
 
-const Period = styled.div`
-  width: 100%;
-`;
+const TimeContainer = styled.div``;
 
+/* PlanTop 및 PlanBottom */
 const PlanTop = styled.div`
   display: flex;
   div {
@@ -41,6 +43,7 @@ const PlanBottom = styled.div`
     font-size: 18px;
   }
 `;
+
 /*이미지, 텍스트*/
 const Img = styled.img`
   width: 500px;
@@ -90,7 +93,7 @@ const StyledCalendar = styled(Calendar)`
   }
 `;
 const DateDisplay = styled.div`
-  margin-top: 20px;
+  margin: 20px 0px;
   display: flex;
   align-items: center;
 `;
@@ -108,6 +111,7 @@ const Separator = styled.div`
 const TimeDisplay = styled.div`
   display: flex;
   align-items: center;
+  margin: 15px 0px;
 `;
 const StyledTimePicker = styled(TimePicker)`
   .react-time-picker__wrapper {
@@ -159,7 +163,19 @@ const NextButton = styled.button`
   height: 50px; /* 버튼 높이 조정 */
   text-align: center;
   font-size: 16px;
-  margin-top: 50px;
+  margin-top: 20px;
+  border-radius: 30px;
+  border: 1px solid #4caf50;
+  background-color: #4caf50;
+  color: white;
+  cursor: pointer;
+  outline: none;
+  transition: background-color 0.3s ease, border-color 0.3s ease; /* 배경색과 테두리 색상 변화에 애니메이션 추가 */
+
+  &:hover {
+    background-color: #45a049;
+    border-color: #45a049;
+  }
 `;
 
 /*시간, 기간 위치*/
@@ -195,7 +211,7 @@ function MakePlanRoom1() {
     navigate('/MakePlanroom2');
   };
   return (
-    <>
+    <FullContainner>
       <h1>여행 계획방 만들기 (1/2)</h1>
       <PlanContainer>
         <ContentContainer>
@@ -227,13 +243,17 @@ function MakePlanRoom1() {
           <PlanBottom>
             <Text>
               <div>여행 제목</div>
-              <input type="text" />
+              <input type="text" placeholder="여행 제목을 입력하세요." />
               <div>여행 설명</div>
-              <textarea cols="55" rows="10" />
+              <textarea
+                cols="55"
+                rows="10"
+                placeholder="여행 설명을 입력하세요."
+              />
             </Text>
           </PlanBottom>
         </ContentContainer>
-        <Period>
+        <TimeContainer>
           <div>여행 기간</div>
           <DateDisplay>
             <DateText>{format(startDate, 'yyyy/MM/dd')}</DateText>
@@ -284,10 +304,10 @@ function MakePlanRoom1() {
               </TimeDisplay>
             )}
           </Time>
-        </Period>
+        </TimeContainer>
       </PlanContainer>
       <NextButton onClick={handleLink}>다음으로 &gt;</NextButton>
-    </>
+    </FullContainner>
   );
 }
 
