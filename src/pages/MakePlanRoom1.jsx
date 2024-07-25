@@ -13,6 +13,7 @@ import moment from 'moment';
 const PlanContainer = styled.div`
   display: flex;
   width: 100%;
+  heigth: 100%;
   margin-left: 5%;
   margin-right: 5%;
 `;
@@ -158,7 +159,7 @@ const NextButton = styled.button`
   height: 50px; /* 버튼 높이 조정 */
   text-align: center;
   font-size: 16px;
-  margin-top: 20px;
+  margin-top: 50px;
 `;
 
 /*시간, 기간 위치*/
