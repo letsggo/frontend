@@ -5,6 +5,8 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import SignUp from './pages/SignUp';
 import MyPage from './pages/MyPage';
+import MyLocationList from './pages/MyLocationList';
+import Setting from './pages/Setting';
 import MakePlanRoom1 from './pages/MakePlanRoom1';
 import MakePlanRoom2 from './pages/MakePlanRoom2';
 import NotFound from './pages/NotFound';
@@ -38,6 +40,10 @@ function App() {
             <Route path="/MakePlanRoom1" element={<MakePlanRoom1 />} />
             <Route path="/MakePlanRoom2" element={<MakePlanRoom2 />} />
             <Route path="/StartPlanRoom" element={<StartPlanRoom />} />
+            <Route path="/MyLocationList" element={<MyLocationList />} />
+            <Route path="/Setting" element={<Setting />} />
+            <Route path="/MakePlanRoom1" element={<MakePlanRoom1 />} />
+            <Route path="/MakePlanRoom2" element={<MakePlanRoom2 />} />
             <Route path="/*" element={<NotFound />} />
           </Routes>
         </ContentContainer>

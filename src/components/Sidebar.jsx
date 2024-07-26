@@ -42,9 +42,9 @@ const NavLink = styled(Link)`
   padding: 10px;
   border-radius: 4px;
   background-color: #e9ecef;
-  width: 50px; /* 정사각형을 위한 폭 */
-  height: 50px; /* 정사각형을 위한 높이 */
-  font-size: 20px; /* 글씨 크기 조정 */
+  width: 50px;
+  height: 50px;
+  font-size: 20px;
   text-align: center;
 
   &:hover {
