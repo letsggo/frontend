@@ -6,7 +6,7 @@ const PlanContainer = styled.div`
     margin-left: 15%;
 `;
 
-function PlanRoom2(){
+function MakePlanRoom2(){
     return(
         <PlanContainer>
             <h1>여행 계획방 만들기 (2/2)</h1>
@@ -14,4 +14,4 @@ function PlanRoom2(){
     )
 }
 
-export default PlanRoom2;
+export default MakePlanRoom2;
