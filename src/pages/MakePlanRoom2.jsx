@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { useNavigate } from 'react-router-dom';
 
 /* 기본 스타일 설정 */
 const Container = styled.div`
   width: 90%;
-  width: 900px;
   max-width: 1200px;
   margin: 0 auto;
   box-sizing: border-box;
@@ -12,8 +12,8 @@ const Container = styled.div`
 
 const FlexContainer = styled.div`
   display: flex;
-  justify-content: space-between; /* 좌우 공간 균등 배분 */
-  gap: 20px; /* 항목 간 간격 */
+  justify-content: space-between;
+  gap: 20px;
 `;
 
 const MapSection = styled.div`
@@ -22,6 +22,8 @@ const MapSection = styled.div`
 
 const InfoSection = styled.div`
   flex: 1;
+  display: flex;
+  flex-direction: column; /* 세로 방향으로 배치 */
 `;
 
 const SectionTitle = styled.h2`
@@ -29,32 +31,113 @@ const SectionTitle = styled.h2`
   margin-bottom: 10px;
 `;
 
+const InputContainer = styled.div`
+  position: relative;
+  width: 100%;
+  margin-bottom: 150px;
+`;
+
 const Input = styled.input`
   width: 100%;
   height: 30px;
   font-size: 16px;
-  padding: 5px;
+  padding: 5px 40px 5px 10px;
   box-sizing: border-box;
+  border-radius: 10px;
+  border: none;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  outline: none;
 `;
 
-const Textarea = styled.textarea`
-  width: 100%;
-  height: 100px;
-  font-size: 16px;
-  padding: 5px;
-  box-sizing: border-box;
+const AddButton = styled.button`
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  height: 30px;
+  border: none;
+  background-color: #4caf50;
+  cursor: pointer;
+  border-radius: 5px;
+  padding: 0 10px;
+  font-size: 14px;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;
 
 const MapContainer = styled.div`
   width: 100%;
-  height: 500px; /* 맵의 높이 설정 */
-  background-color: #f0f0f0; /* 기본 배경색 */
-  border: 1px solid #ccc; /* 기본 테두리 */
+  height: 500px;
+  background-color: #f0f0f0;
+  border-radius: 15px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  font-size: 16px;
+  color: #888;
+`;
+
+const RegisteredListContainer = styled.div`
+  flex: 1;
+  max-height: 300px; /* 최대 높이를 설정하여 스크롤이 생기도록 함 */
+  overflow-y: auto; /* 수직 스크롤 허용 */
+  box-sizing: border-box; /* 패딩을 포함하여 높이 계산 */
+`;
+
+const RegisteredAccommodation = styled.div`
+  display: flex;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 10px;
+  background-color: #fff;
+`;
+
+const ImageContainer = styled.div`
+  flex: 0 0 30%;
+  padding-right: 10px;
+`;
+
+const Image = styled.img`
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+`;
+
+const InfoContainer = styled.div`
+  flex: 1;
+`;
+
+const AccommodationTitle = styled.h3`
+  font-size: 16px;
+  margin: 0;
+`;
+
+const AccommodationDescription = styled.p`
+  display: flex;
+  font-size: 14px;
+  margin: 5px 0 0;
+  color: #666;
+  position: relative; /* 삭제 버튼을 절대 위치로 설정하기 위한 기준 */
+`;
+
+const DeleteButton = styled.button`
+  position: absolute;
+  top: 10px; /* 오른쪽 상단으로 위치 조정 */
+  right: 10px;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  font-size: 14px;
 `;
 
 const NextButton = styled.button`
-  width: 100%; /* 버튼 너비 확장 */
-  height: 50px; /* 버튼 높이 조정 */
+  width: 100%;
+  height: 50px;
   text-align: center;
   font-size: 16px;
   margin-top: 20px;
@@ -64,18 +147,12 @@ const NextButton = styled.button`
   color: white;
   cursor: pointer;
   outline: none;
-  transition: background-color 0.3s ease, border-color 0.3s ease; /* 배경색과 테두리 색상 변화에 애니메이션 추가 */
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 
   &:hover {
     background-color: #45a049;
     border-color: #45a049;
   }
-`;
-
-const RegisteredAccommodation = styled.div`
-  border: 1px solid #ddd;
-  padding: 10px;
-  margin-bottom: 10px;
 `;
 
 /* MakePlanRoom2 컴포넌트 */
@@ -85,8 +162,32 @@ function MakePlanRoom2() {
 
   const handleAddAccommodation = () => {
     if (accommodation.trim() === '') return;
-    setRegisteredAccommodations([...registeredAccommodations, accommodation]);
+    setRegisteredAccommodations([
+      ...registeredAccommodations,
+      {
+        name: accommodation,
+        description: '숙소 설명.',
+        imageUrl: 'https://via.placeholder.com/150', // 예제 이미지 URL
+      },
+    ]);
     setAccommodation('');
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault(); // 엔터 키의 기본 동작을 방지
+      handleAddAccommodation();
+    }
+  };
+
+  const handleDeleteAccommodation = (index) => {
+    setRegisteredAccommodations((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const navigate = useNavigate();
+
+  const handleLink = () => {
+    navigate('/StartPlanRoom');
   };
 
   return (
@@ -103,24 +204,40 @@ function MakePlanRoom2() {
         </MapSection>
         <InfoSection>
           <SectionTitle>숙소</SectionTitle>
-          <Input
-            type="text"
-            value={accommodation}
-            onChange={(e) => setAccommodation(e.target.value)}
-            placeholder="숙소를 입력하세요."
-          />
-          <button onClick={handleAddAccommodation}>숙소 추가</button>
+          <InputContainer>
+            <Input
+              type="text"
+              value={accommodation}
+              onChange={(e) => setAccommodation(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="숙소를 입력하세요."
+            />
+            <AddButton onClick={handleAddAccommodation}>🔍</AddButton>
+          </InputContainer>
           <SectionTitle>등록된 숙소</SectionTitle>
-          <div>
+          <RegisteredListContainer>
             {registeredAccommodations.map((acc, index) => (
               <RegisteredAccommodation key={index}>
-                {acc}
+                <ImageContainer>
+                  <Image src={acc.imageUrl} alt={acc.name} />
+                </ImageContainer>
+                <InfoContainer>
+                  <AccommodationTitle>{acc.name}</AccommodationTitle>
+                  <AccommodationDescription>
+                    {acc.description}
+                    <DeleteButton
+                      onClick={() => handleDeleteAccommodation(index)}
+                    >
+                      ❌
+                    </DeleteButton>
+                  </AccommodationDescription>
+                </InfoContainer>
               </RegisteredAccommodation>
             ))}
-          </div>
+          </RegisteredListContainer>
         </InfoSection>
       </FlexContainer>
-      <NextButton>완료</NextButton>
+      <NextButton onClick={handleLink}>완성하기</NextButton>
     </Container>
   );
 }
