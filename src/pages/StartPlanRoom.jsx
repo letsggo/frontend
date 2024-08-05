@@ -1,8 +1,9 @@
 import React , {useState} from "react"; 
 import styled from "styled-components";
 import { useNavigate } from 'react-router-dom';
-import Modal from "./Modal";
+import Modal from "../modals/Modal";
 import Img from './이미지 업로드.png';
+
 
 /*구역 나눔*/
 const Container=styled.div`
@@ -27,6 +28,15 @@ const MainImg=styled.img`
     width:500px;    
     height:300px;
     margin:10px 0;
+`;
+/*제목, 수정*/
+const Title=styled.div`
+    display:flex;
+    div{
+        margin-top:25px;
+        margin-left:20px;
+        font-size:24px;    
+    }
 `;
 /*유저, 초대*/
 const Users=styled.div`
@@ -145,10 +155,14 @@ const CopyLink=styled.button`
     color:black;
 `;
 
-function StartPlanRoom1(){
+function StartPlanRoom1 (){
     const navigate=useNavigate();
     const [modal,setModal]=useState(false);
     const [copy,setCopy]=useState(false);
+
+    const handleEdit=()=>{
+        navigate('/Edit');
+    }
 
     const openModal = () => setModal(true);
     const closeModal = () => setModal(false);
@@ -177,7 +191,10 @@ function StartPlanRoom1(){
     return(
         <Container>
             <Left>
-                <h2>여행 제목</h2>
+                <Title>
+                    <h2>여행 제목</h2>
+                    <div onClick={handleEdit}>⚙️</div>
+                </Title>
                 <div>{`여행기간 : 시작~끝`}</div>
                 <MainImg src={Img} alt={Img}/>
                 <Users>
