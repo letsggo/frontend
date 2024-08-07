@@ -18,7 +18,8 @@ import FindPassword from './pages/FindPassword';
 import FindPasswordSend from './pages/FindPasswordsend';
 import EmailCheck from './pages/emailcheck';
 import StartPlanRoom from './pages/StartPlanRoom';
-import Pr1Navbar from './components/Pr1Navbar'; 
+import PrNavbar from './components/PrNavbar'; 
+import MainNavbar from './components/MainNavbar';
 
 const AppContainer = styled.div`
   display: flex;
@@ -31,13 +32,16 @@ const ContentContainer = styled.div`
 
 function App() {
   const location = useLocation();
-  const usePR1Navbar=['/PlanRoom1'];
+  const MainNavBarPages=['/','/login','/SignUp','/emailcheck','/findpassword'];
+  const sideBarPages=['/Home','/MakePlanRoom1','/MakePlanRoom2','/StartPlanRoom',
+    '/MyPage','/MyPage2','/MyPage3','/Notice','/Setting','/MyLocationList' ];
 
   return (
     <>
-      {usePR1Navbar.includes(location.pathname) ? <Pr1Navbar /> : <Navbar />}
+      {MainNavBarPages.includes(location.pathname) ? <MainNavbar /> :
+         (location.pathname==='/PlanRoom1' ? <PrNavbar /> :  <Navbar />)}
       <AppContainer>
-        {!usePR1Navbar.includes(location.pathname) && <Sidebar />}
+        {sideBarPages.includes(location.pathname) && <Sidebar />}
         <ContentContainer>
           <Routes>
             <Route path="/" element={<Main />} />

@@ -1,4 +1,4 @@
-import React, {useState,useEffect,useCallback} from "react";
+import React, {useState,useEffect,useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from 'styled-components';
 import ToggleList from "../toggleLists/ToggleList";
@@ -193,12 +193,20 @@ const Overlay = styled.div`
     input{
         background-color:#4A4A4A;
         border:none;
+        outline: none;
         color:white;
+         width: 20px;
+        min-width: 20px;
+        max-width: 400px;
+        transition: width 0.1s;
+    }
+    input:focus{
+        outline: none;
     }
     &::before {
         content: '';
         position: absolute;
-        top: 20px; // 화살표 위치 조정
+        top: 16px; // 화살표 위치 조정
         left: -12px; // 왼쪽으로 위치 조정
         width: 0;
         height: 0;
@@ -206,9 +214,6 @@ const Overlay = styled.div`
         border-right: 8px solid transparent; /* 오른쪽 변 투명 */
         border-bottom: 20px solid #4A4A4A; /* 아래쪽 변 색상 */
         transform: translateY(50%) rotate(240deg); /* 대각선으로 회전 */
-    }
-    .custom-cursor {
-        caret-color:4A4A4A;
     }
 `;
 
@@ -221,13 +226,14 @@ function PlanRoom1(){
     const [candidateList,setCandidateList]=useState([]); //우측 후보지 리스트
     const [placeLists, setPlaceLists]=useState([]); //URL로 추가한 장소
     const [placeholder, setPlaceholder]=useState('장소 공유 URL을 입력해주세요');
-    const [inputValue, setInputValue] = useState('');
     const [voteDone, setVoteDone]=useState(false);
+    const [inputValue, setInputValue] = useState('');
     const [voteDetails, setVoteDetails] = useState({});
-    const [message, setMessage] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false); // 채팅 모달 상태
-    const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
-    //const [isKoreanMode, setIsKoreanMode] = useState(false); 
+    const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 })
+    const [chatValue,setChatValue]=useState('');
+    const inputRef = useRef(null);
+    const spanRef = useRef(null);
     const navigate=useNavigate();
 
     const shareVoteDetails = (details) => {
@@ -293,30 +299,32 @@ function PlanRoom1(){
     };
 
     /*커서 채팅*/
+    useEffect(() => {
+        if (isModalOpen && inputRef.current) {
+            inputRef.current.focus(); //input에 커서
+        }
+    }, [isModalOpen]);
+
+    useEffect(() => {  // 입력값에 따라 너비 조정
+        if (spanRef.current) {
+            spanRef.current.textContent = chatValue;
+            const inputWidth = spanRef.current.offsetWidth;
+            if (inputRef.current) {
+                inputRef.current.style.width = `${Math.min(inputWidth, 400)}px`;
+                
+            }
+        }
+    }, [chatValue]);
+    
     const handleKeyDown = useCallback((e) => {
         if (e.key === '/') {
             e.preventDefault();
             setIsModalOpen(true);
-        } else if (isModalOpen) {
-            if (e.key === 'Backspace') {
-                e.preventDefault();
-                if (message.length > 0) {
-                    setMessage((prevMessage) => prevMessage.slice(0, -1)); // 백스페이스 처리
-                }
-            } else if (e.key === 'Enter') {
-                e.preventDefault();
-                setIsModalOpen(false);
-            } else if (e.key === ' ') {
-                e.preventDefault();
-                setMessage((prevMessage) => prevMessage + ' '); // 스페이스 추가
-            } else if (e.key === 'HangulMode' || e.key === 'Hanguel' || e.key === '한영') {
-                e.preventDefault();
-                //setIsKoreanMode((prevMode) => !prevMode); // 한영 모드 전환(미완성)
-            }else{
-                setMessage((prevMessage) => prevMessage + e.key);
-            }
+        } else if (e.key === 'Enter') {
+            e.preventDefault();
+            setIsModalOpen(false);
         }
-    }, [isModalOpen,message]);
+    }, []);
 
     useEffect(() => {
         document.addEventListener('keydown', handleKeyDown);
@@ -405,8 +413,16 @@ function PlanRoom1(){
                 <Overlay style={{ left: cursorPosition.x, top: cursorPosition.y-1000}}>
                     <input
                         type="text"
-                        value={message}
+                        className='input'
+                        onChange={(e) => {setChatValue(e.target.value)
+                            console.log('입력값:',chatValue);}
+                        }
+                        ref={inputRef}
+                        value={chatValue}
                     />
+                    <span ref={spanRef} style={{ position: 'absolute', visibility: 'hidden', whiteSpace: 'pre' }}>
+                        {inputValue || '여기에 입력하세요'}
+                    </span>
                 </Overlay>
             )}
         </div>
