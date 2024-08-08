@@ -13,11 +13,12 @@ import NotFound from './pages/NotFound';
 import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar';
 import styled from 'styled-components';
-
+import Home2 from './pages/home2';
+import Notice from './pages/Notice';
 import FindPassword from './pages/FindPassword';
 import FindPasswordSend from './pages/FindPasswordsend';
 import EmailCheck from './pages/emailcheck';
-
+import PlanRoom2 from './pages/PlanRoom2';
 import StartPlanRoom from './pages/StartPlanRoom';
 
 
@@ -43,16 +44,18 @@ function App() {
             <Route path="/Login" element={<Login />} />
             <Route path="/SignUp" element={<SignUp />} />
             <Route path="/MyPage" element={<MyPage />} />
+            <Route path="/Notice" element={<Notice />} />
+            <Route path="/home2" element={<Home2 />} />
+            <Route path="/PlanRoom2" element={<PlanRoom2 />} />
             <Route path="/MakePlanRoom1" element={<MakePlanRoom1 />} />
             <Route path="/MakePlanRoom2" element={<MakePlanRoom2 />} />
             <Route path="/StartPlanRoom" element={<StartPlanRoom />} />
             <Route path="/MyLocationList" element={<MyLocationList />} />
             <Route path="/Setting" element={<Setting />} />
-            <Route path="/MakePlanRoom1" element={<MakePlanRoom1 />} />
-            <Route path="/MakePlanRoom2" element={<MakePlanRoom2 />} />
             <Route path="/findpassword" element={<FindPassword />} />
-                <Route path="/find-password-send" element={<FindPasswordSend />} />
-                <Route path="/emailcheck" element={<EmailCheck />} />
+            <Route path="/find-password-send" element={<FindPasswordSend />} />
+            <Route path="/emailcheck" element={<EmailCheck />} />
+            
             <Route path="/*" element={<NotFound />} />
           </Routes>
         </ContentContainer>
