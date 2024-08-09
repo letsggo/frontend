@@ -24,6 +24,7 @@ import FindPassword from './pages/FindPassword';
 import FindPasswordSend from './pages/FindPasswordsend';
 import EmailCheck from './pages/emailcheck';
 import StartPlanRoom from './pages/StartPlanRoom';
+import Notice from './pages/Notice';
 import PrNavbar from './components/PrNavbar';
 import MainNavbar from './components/MainNavbar';
 
@@ -81,13 +82,14 @@ function App() {
             <Route path="/StartPlanRoom" element={<StartPlanRoom />} />
             <Route path="/PlanRoomResult" element={<PlanRoomResult />} />
             <Route path="/MyLocationList" element={<MyLocationList />} />
-            <Route path="/Setting" element={<Setting />} />
             <Route path="/MakePlanRoom1" element={<MakePlanRoom1 />} />
             <Route path="/MakePlanRoom2" element={<MakePlanRoom2 />} />
             <Route path="/findpassword" element={<FindPassword />} />
             <Route path="/find-password-send" element={<FindPasswordSend />} />
             <Route path="/emailcheck" element={<EmailCheck />} />
             <Route path="/PlanRoom1" element={<PlanRoom1 />} />
+            <Route path="/Setting" element={<Setting />} />
+            <Route path="/Notice" element={<Notice />} />
             <Route path="/*" element={<NotFound />} />
           </Routes>
         </ContentContainer>
