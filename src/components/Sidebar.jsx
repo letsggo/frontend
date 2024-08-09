@@ -1,9 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
+import { MdHome } from "react-icons/md";
+import { TiHeartFullOutline } from "react-icons/ti";
+import { IoMdSettings } from "react-icons/io";
 
 const SidebarContainer = styled.div`
-  background-color: #f8f9fa;
+  background-color: #F1F1F1;
   padding: 7px;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
   width: 70px;
@@ -34,17 +37,14 @@ const NavItem = styled.li`
 
 const NavLink = styled(Link)`
   text-decoration: none;
-  color: #333;
-  font-weight: bold;
+  color: #1f637f;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 10px;
-  border-radius: 4px;
-  background-color: #e9ecef;
+  padding: 10px;  
   width: 50px;
   height: 50px;
-  font-size: 20px;
+  font-size: 40px;
   text-align: center;
 
   &:hover {
@@ -57,15 +57,15 @@ const Sidebar = () => {
     <SidebarContainer>
       <TopNavList>
         <NavItem>
-          <NavLink to="/Home">홈</NavLink>
+          <NavLink to="/Home"><MdHome /></NavLink>
         </NavItem>
         <NavItem>
-          <NavLink to="/MyLocationList">나의 장소</NavLink>
+          <NavLink to="/MyLocationList"><TiHeartFullOutline /></NavLink>
         </NavItem>
       </TopNavList>
       <BottomNavList>
         <NavItem>
-          <NavLink to="/Setting">설정</NavLink>
+          <NavLink to="/Setting"><IoMdSettings /></NavLink>
         </NavItem>
       </BottomNavList>
     </SidebarContainer>

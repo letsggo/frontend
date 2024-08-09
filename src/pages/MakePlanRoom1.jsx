@@ -306,7 +306,7 @@ function MakePlanRoom1() {
           </Time>
         </TimeContainer>
       </PlanContainer>
-      <NextButton onClick={handleLink}>다음으로 &gt;</NextButton>
+      <NextButton onClick={handleLink}>다음으로</NextButton>
     </FullContainner>
   );
 }
