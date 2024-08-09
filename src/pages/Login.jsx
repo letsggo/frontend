@@ -117,6 +117,7 @@ const LoginPage = () => {
                     const { token, username } = response.data;
                     localStorage.setItem('token', token);
                     localStorage.setItem('username', username);
+                    navigate('/home2'); // home2 페이지로 이동
                     window.location.href = "/";
                 }
             })

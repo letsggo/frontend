@@ -66,7 +66,7 @@ const FindPasswordSend = () => {
             <p style={emailDisplay}>{email}</p>
             <p style={instruction}>위의 이메일로 전송된 메일을 확인해주세요!</p>
             
-            <Link to="/home" style={backButton}>가볼까 홈으로</Link>
+            <Link to="/Home" style={backButton}>가볼까 홈으로</Link>
             
             <button style={resendButton} onClick={handleResendEmail}>
                 이메일 재전송
