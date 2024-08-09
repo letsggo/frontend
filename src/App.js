@@ -1,5 +1,10 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  useLocation,
+} from 'react-router-dom';
 import Main from './pages/Main';
 import Home from './pages/Home';
 import Login from './pages/Login';
@@ -9,6 +14,7 @@ import MyLocationList from './pages/MyLocationList';
 import Setting from './pages/Setting';
 import MakePlanRoom1 from './pages/MakePlanRoom1';
 import MakePlanRoom2 from './pages/MakePlanRoom2';
+import PlanRoomResult from './pages/PlanRoomResult';
 import PlanRoom1 from './pages/PlanRoom1';
 import NotFound from './pages/NotFound';
 import Navbar from './components/Navbar';
@@ -18,7 +24,7 @@ import FindPassword from './pages/FindPassword';
 import FindPasswordSend from './pages/FindPasswordsend';
 import EmailCheck from './pages/emailcheck';
 import StartPlanRoom from './pages/StartPlanRoom';
-import PrNavbar from './components/PrNavbar'; 
+import PrNavbar from './components/PrNavbar';
 import MainNavbar from './components/MainNavbar';
 
 const AppContainer = styled.div`
@@ -32,14 +38,35 @@ const ContentContainer = styled.div`
 
 function App() {
   const location = useLocation();
-  const MainNavBarPages=['/','/login','/SignUp','/emailcheck','/findpassword'];
-  const sideBarPages=['/Home','/MakePlanRoom1','/MakePlanRoom2','/StartPlanRoom',
-    '/MyPage','/MyPage2','/MyPage3','/Notice','/Setting','/MyLocationList' ];
+  const MainNavBarPages = [
+    '/',
+    '/login',
+    '/SignUp',
+    '/emailcheck',
+    '/findpassword',
+  ];
+  const sideBarPages = [
+    '/Home',
+    '/MakePlanRoom1',
+    '/MakePlanRoom2',
+    '/StartPlanRoom',
+    '/MyPage',
+    '/MyPage2',
+    '/MyPage3',
+    '/Notice',
+    '/Setting',
+    '/MyLocationList',
+  ];
 
   return (
     <>
-      {MainNavBarPages.includes(location.pathname) ? <MainNavbar /> :
-         (location.pathname==='/PlanRoom1' ? <PrNavbar /> :  <Navbar />)}
+      {MainNavBarPages.includes(location.pathname) ? (
+        <MainNavbar />
+      ) : location.pathname === '/PlanRoom1' ? (
+        <PrNavbar />
+      ) : (
+        <Navbar />
+      )}
       <AppContainer>
         {sideBarPages.includes(location.pathname) && <Sidebar />}
         <ContentContainer>
@@ -52,6 +79,7 @@ function App() {
             <Route path="/MakePlanRoom1" element={<MakePlanRoom1 />} />
             <Route path="/MakePlanRoom2" element={<MakePlanRoom2 />} />
             <Route path="/StartPlanRoom" element={<StartPlanRoom />} />
+            <Route path="/PlanRoomResult" element={<PlanRoomResult />} />
             <Route path="/MyLocationList" element={<MyLocationList />} />
             <Route path="/Setting" element={<Setting />} />
             <Route path="/MakePlanRoom1" element={<MakePlanRoom1 />} />
