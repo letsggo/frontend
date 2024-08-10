@@ -320,7 +320,7 @@ const openDirections = (start, end) => {
 };
 
 function PlanRoomResult() {
-  const [activeRoute, setActiveRoute] = useState(null);
+  const [activeRoute, setActiveRoute] = useState(1);
   const [showTime, setShowTime] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
