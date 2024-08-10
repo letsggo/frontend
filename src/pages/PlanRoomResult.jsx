@@ -417,17 +417,6 @@ function PlanRoomResult() {
     const itemsPerLine = 3;
     const lineNumber = Math.floor(index / itemsPerLine);
 
-    // 3번째 위치부터 오른쪽 정렬
-    if (lineNumber >= 1) {
-      if (lineNumber % 2 === 0) {
-        // 짝수 번째 줄 (3, 5, 7, ...)
-        return itemsPerLine - (index % itemsPerLine); // 오른쪽부터 정렬
-      } else {
-        // 홀수 번째 줄 (4, 6, 8, ...)
-        return index % itemsPerLine; // 왼쪽부터 정렬
-      }
-    }
-
     // 첫 번째 줄은 중앙 정렬
     return index;
   };
