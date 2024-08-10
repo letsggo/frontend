@@ -14,6 +14,8 @@ import OutImage from '../buttonimage/outbutton.png';
 import prevImage from '../buttonimage/prebutton.png';
 import DownImage from '../buttonimage/down.png';
 import SaveImage from '../buttonimage/save.png';
+import TravelImage from '../buttonimage/travel.png';
+import RouteImage from '../buttonimage/route.png';
 import html2canvas from 'html2canvas';
 import * as XLSX from 'xlsx';
 // 전체
@@ -83,7 +85,7 @@ const SectionTitle = styled.h2`
 
 const StyledMapContainer = styled.div`
   width: 100%;
-  height: 515px;
+  height: 630px;
   background-color: #f0f0f0;
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
   display: flex;
@@ -122,7 +124,8 @@ const Button = styled.button`
 `;
 
 const RouteContainer = styled.div`
-  height: 475px;
+  background: url(${TravelImage}) no-repeat center center;
+  height: 580px;
   background-size: cover;
   padding: 20px;
   position: relative;
@@ -130,16 +133,47 @@ const RouteContainer = styled.div`
   flex-direction: column;
   align-items: center;
   gap: 10px;
-  border: 2px solid black;
+  border: 1px solid lightgray;
+`;
+
+const FlexWrap = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0px 30px 0px 30px;
+  gap: 55px; /* Adjust gap to fit both items and buttons */
+`;
+
+const Circle = styled.div`
+  position: absolute;
+  top: -20px; /* 동그라미 위치 조정 */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 40px;
+  background-color: #f08080;
+  border-radius: 50%;
+  z-index: 2;
+`;
+
+const Item = styled.div`
+  display: ${({ isIncludedInRoute }) => (isIncludedInRoute ? 'flex' : 'none')};
+  position: relative; // 상대적 위치 설정
+  z-index: 1; // 기본적으로 장소가 다른 요소보다 아래에 표시됨
+  margin: 67px 30px; //개별
+  order: ${({ order }) => order}; // 순서 설정
 `;
 
 const RouteButton = styled.div`
-  color: black;
-  font-size: 15px;
+  position: absolute; // 절대 위치로 설정
+  right: -90px; // 장소의 오른쪽으로 위치 조정
+  top: 50%; // 수직 중앙에 위치
+  transform: translateY(-50%); // 수직 중앙 정렬
+  width: 50px;
+  height: 20px;
+  background: url(${RouteImage}) no-repeat center center;
+  background-size: contain;
+  border: none;
   cursor: pointer;
-  background-color: rgb(0, 0, 0, 0);
-  border-radius: 5px;
-  text-align: center;
 `;
 
 const BottomWrapper = styled.div`
@@ -247,24 +281,29 @@ L.Icon.Default.mergeOptions({
 
 // 장소와 동선 데이터 예제
 const locations = [
-  { id: 1, name: '장소 1', position: [37.5665, 126.978] },
-  { id: 2, name: '장소 2', position: [37.5651, 126.9895] },
-  { id: 3, name: '장소 3', position: [37.57, 126.983] },
-  { id: 4, name: '장소 4', position: [37.568, 126.98] },
-  { id: 5, name: '장소 5', position: [37.57, 126.988] },
-  { id: 6, name: '장소 6', position: [37.572, 126.99] },
-  { id: 7, name: '장소 7', position: [37.573, 126.992] },
+  { id: 1, name: '숙소 ', position: [37.5665, 126.978] },
+  { id: 2, name: '여행지 1', position: [37.5651, 126.9895] },
+  { id: 3, name: '여행지 2', position: [37.568, 126.98] },
+  { id: 4, name: '여행지 3', position: [37.57, 126.983] },
+  { id: 5, name: '여행지 4', position: [37.57, 126.988] },
+  { id: 6, name: '여행지 5', position: [37.572, 126.99] },
+  { id: 7, name: '여행지 6', position: [37.573, 126.992] },
 ];
 
 const routes = {
   1: [
     [37.5665, 126.978],
     [37.5651, 126.9895],
+    [37.568, 126.98],
     [37.57, 126.983],
+    [37.57, 126.988],
+    [37.572, 126.99],
+    [37.573, 126.992],
   ],
   2: [
     [37.5665, 126.978],
     [37.5651, 126.9895],
+    [37.568, 126.98],
   ],
   // 추가 동선 데이터
 };
@@ -302,7 +341,7 @@ function PlanRoomResult() {
     setShowTime(!showTime);
   };
 
-  // 동선에 포함된 장소만 필터링
+  // 동선에 포함된 여행지만 필터링
   const activeRouteLocations = activeRoute
     ? routes[activeRoute].map((point) =>
         locations.find(
@@ -340,7 +379,7 @@ function PlanRoomResult() {
   };
 
   const handleSaveAsExcel = () => {
-    // 현재 활성화된 동선에 포함된 장소만 필터링
+    // 현재 활성화된 동선에 포함된 여행지만 필터링
     const filteredLocations = activeRoute
       ? locations.filter((location) =>
           routes[activeRoute].some(
@@ -368,6 +407,26 @@ function PlanRoomResult() {
     setIsSaved(true);
     setIsModalOpen(false);
     setShowDownImage(true);
+  };
+
+  //장소위치조정
+  const getOrder = (index) => {
+    const itemsPerLine = 3;
+    const lineNumber = Math.floor(index / itemsPerLine);
+
+    // 3번째 위치부터 오른쪽 정렬
+    if (lineNumber >= 1) {
+      if (lineNumber % 2 === 0) {
+        // 짝수 번째 줄 (3, 5, 7, ...)
+        return itemsPerLine - (index % itemsPerLine); // 오른쪽부터 정렬
+      } else {
+        // 홀수 번째 줄 (4, 6, 8, ...)
+        return index % itemsPerLine; // 왼쪽부터 정렬
+      }
+    }
+
+    // 첫 번째 줄은 중앙 정렬
+    return index;
   };
 
   return (
@@ -427,64 +486,35 @@ function PlanRoomResult() {
             </ButtonContainer>
             <RouteContainer>
               {activeRoute && (
-                <div>
-                  <div
-                    style={{
-                      display: 'flex',
-                      flexWrap: 'wrap',
-                      margin: '40px',
-                      gap: '50px',
-                      justifyContent: 'center',
-                    }}
-                  >
-                    {locations.map((location) => {
-                      const isIncludedInRoute = activeRouteLocations.some(
-                        (loc) => loc && loc.id === location.id
-                      );
-                      return (
-                        <div
-                          key={location.id}
-                          style={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                          }}
+                <FlexWrap>
+                  {activeRouteLocations.map((location, index) => {
+                    const isIncludedInRoute = location !== undefined;
+                    return (
+                      <React.Fragment key={location.id}>
+                        <Item
+                          isIncludedInRoute={isIncludedInRoute}
+                          order={getOrder(index)} // 순서 설정
                         >
-                          <div
-                            style={{
-                              width: '50px',
-                              height: '50px',
-                              borderRadius: '50%',
-                              backgroundColor: isIncludedInRoute
-                                ? 'gray'
-                                : 'lightgray',
-                              border: 'none',
-                            }}
-                          />
-                          {isIncludedInRoute && <p>{location.name}</p>}
-                        </div>
-                      );
-                    })}
-                  </div>
-                  {showTime && (
-                    <div>
-                      {routes[activeRoute].slice(0, -1).map((start, index) => {
-                        const end = routes[activeRoute][index + 1];
-                        if (end) {
-                          return (
-                            <RouteButton
-                              key={index}
-                              onClick={() => openDirections(start, end)}
-                            >
-                              {`길찾기 ${index + 1}`}
-                            </RouteButton>
-                          );
-                        }
-                        return null;
-                      })}
-                    </div>
-                  )}
-                </div>
+                          <Circle />
+                          <p style={{ position: 'relative', top: '10px' }}>
+                            {location.name}
+                          </p>
+                          {showTime &&
+                            index < activeRouteLocations.length - 1 && (
+                              <RouteButton
+                                onClick={() =>
+                                  openDirections(
+                                    activeRouteLocations[index].position,
+                                    activeRouteLocations[index + 1].position
+                                  )
+                                }
+                              />
+                            )}
+                        </Item>
+                      </React.Fragment>
+                    );
+                  })}
+                </FlexWrap>
               )}
             </RouteContainer>
           </InfoContainer>
