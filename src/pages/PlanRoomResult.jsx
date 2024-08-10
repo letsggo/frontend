@@ -112,6 +112,7 @@ const Button = styled.button`
   margin-top: 10px;
   font-size: 18px;
   border: none;
+  font-weight: 600;
   cursor: pointer;
   background-color: rgba(0, 0, 0, 0);
   &:hover {
@@ -190,32 +191,34 @@ const ToggleLabel = styled.label`
 
 const ToggleSwitch = styled.input`
   appearance: none;
-  width: 34px;
+  width: 40px;
   height: 20px;
-  background: #ccc;
+  background: white;
   border-radius: 20px;
+  border: 1px solid #f08080;
   position: relative;
   outline: none;
   cursor: pointer;
   margin-left: 10px;
 
   &:checked {
-    background: #4caf50;
+    background: white; /* 체크된 상태의 배경색 변경 */
   }
 
   &:checked::before {
-    transform: translateX(14px);
+    transform: translateX(20px);
+    background: #f08080; /* 체크된 상태의 스위치 버튼 색상 변경 */
   }
 
   &::before {
     content: '';
     position: absolute;
-    width: 16px;
-    height: 16px;
+    width: 24px;
+    height: 24px;
     border-radius: 50%;
-    background: white;
-    top: 2px;
-    left: 2px;
+    left: -5px;
+    top: -2px;
+    background: #f08080; /* 스위치 버튼의 기본 색상 변경 */
     transition: transform 0.2s ease;
   }
 `;
@@ -496,7 +499,13 @@ function PlanRoomResult() {
                           order={getOrder(index)} // 순서 설정
                         >
                           <Circle />
-                          <p style={{ position: 'relative', top: '10px' }}>
+                          <p
+                            style={{
+                              position: 'relative',
+                              top: '10px',
+                              fontWeight: '600',
+                            }}
+                          >
                             {location.name}
                           </p>
                           {showTime &&
@@ -520,7 +529,7 @@ function PlanRoomResult() {
           </InfoContainer>
           <BottomWrapper>
             <ToggleLabel>
-              <span>길찾기</span>
+              <span style={{ fontWeight: 'bold' }}>길찾기</span>
               <ToggleSwitch
                 type="checkbox"
                 checked={showTime}
