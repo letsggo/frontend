@@ -10,6 +10,7 @@ import Setting from './pages/Setting';
 import MakePlanRoom1 from './pages/MakePlanRoom1';
 import MakePlanRoom2 from './pages/MakePlanRoom2';
 import PlanRoom1 from './pages/PlanRoom1';
+import PlanRoom2 from './pages/PlanRoom2';
 import NotFound from './pages/NotFound';
 import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar';
@@ -60,6 +61,7 @@ function App() {
             <Route path="/find-password-send" element={<FindPasswordSend />} />
             <Route path="/emailcheck" element={<EmailCheck />} />
             <Route path="/PlanRoom1" element={<PlanRoom1 />} />
+            <Route path="/PlanRoom2" element={<PlanRoom2 />} />
             <Route path="/*" element={<NotFound />} />
           </Routes>
         </ContentContainer>
