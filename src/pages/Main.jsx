@@ -1,5 +1,5 @@
 import React from 'react';
-
+import { useNavigate } from 'react-router-dom';
 const Main = () => {
   const containerStyle = {
     display: 'flex',
@@ -8,7 +8,6 @@ const Main = () => {
     textAlign: 'center',
     padding: '20px',
     backgroundColor: '#f8f9fa',
-    
   };
 
   const headingStyle = {
@@ -72,20 +71,31 @@ const Main = () => {
     width: '100%',
   };
 
+  const navigate = useNavigate();
+
+  const handleOutClick = () => {
+    navigate('/MakePlanRoom1');
+  };
+
   return (
     <div style={containerStyle}>
       <h1 style={headingStyle}>국내 여행을 계획하고 있으신가요?</h1>
-      <p style={paragraphStyle}>가볼까?와 동행자와 함께 여행을 빠르고 쉽게 계획할 수 있어요!</p>
-      <button style={buttonStyle}>여행 계획 하러 가기</button>
-      
-      <div style={videoContainerStyle}>
-        (서비스 소개 영상)
-      </div>
+      <p style={paragraphStyle}>
+        가볼까?와 동행자와 함께 여행을 빠르고 쉽게 계획할 수 있어요!
+      </p>
+      <button style={buttonStyle} onClick={handleOutClick}>
+        여행 계획 하러 가기
+      </button>
+
+      <div style={videoContainerStyle}>(서비스 소개 영상)</div>
 
       <div style={cardContainerStyle}>
         <div style={cardStyle}>
           <h2>여행 동행자와 함께 여행 계획을!</h2>
-          <p>가볼까에서는 모두 다함께 참여할 수 있어요! 더 이상 따로 찾고 따로 계획하지 않아도 돼요!</p>
+          <p>
+            가볼까에서는 모두 다함께 참여할 수 있어요! 더 이상 따로 찾고 따로
+            계획하지 않아도 돼요!
+          </p>
           <button style={buttonStyle}>바로 시작하기</button>
         </div>
         <div style={cardStyle}>
@@ -101,10 +111,12 @@ const Main = () => {
       </div>
 
       <footer style={footerStyle}>
-        UMC 6기 타이거지부 ‘가볼까’<br />
-        메일: 010711yj@swu.ac.kr | 고객센터: 0000-0000<br />
-        서울시 OO구 OO로OO길 OO OOOO (우편번호00000)<br />
-        © GABOLKKA ALL RIGHTS RESERVED.
+        UMC 6기 타이거지부 ‘가볼까’
+        <br />
+        메일: 010711yj@swu.ac.kr | 고객센터: 0000-0000
+        <br />
+        서울시 OO구 OO로OO길 OO OOOO (우편번호00000)
+        <br />© GABOLKKA ALL RIGHTS RESERVED.
       </footer>
     </div>
   );
