@@ -20,7 +20,6 @@ const ListItem = styled.div`
     border-radius: 40px;
   }
 `;
-
 const Plus = styled.button`
   border: none;
   background: none;
@@ -28,7 +27,6 @@ const Plus = styled.button`
   font-weight: 700;
   cursor: pointer;
 `;
-
 const Modal = styled.div`
   background-color:black;
   position: absolute;
@@ -48,7 +46,6 @@ const Modal = styled.div`
     cursor: pointer;
   }
 `;
-
 const Overlay = styled.div`
   position: fixed;
   top: 0;
@@ -58,7 +55,6 @@ const Overlay = styled.div`
   background: rgba(0, 0, 0, 0);
   z-index: 999;
 `;
-
 const ToggleListPlace = ({ placeLists, setPlaceLists }) => {
   const [modalInfo, setModalInfo] = useState({ visible: false, index: null, left: 0, top: 0 });
 

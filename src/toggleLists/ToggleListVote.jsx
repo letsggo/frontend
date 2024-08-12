@@ -70,25 +70,46 @@ const ToggleListVote = ({ selectedLists, setSelectedLists, shareVoteDetails }) =
   const [selectedDetails, setSelectedDetails] = useState({});
   const [voteIng, setVoteIng] = useState(selectedLists.map(() => true));
   const [skippedList, setSkippedList] = useState([]);
+  const [skipVote,setSkipVote]=useState([]);
 
   useEffect(() => {
-    const storedSkippedList = localStorage.getItem('skippedList');
-    if (storedSkippedList) {
-      try {
-        setSkippedList(JSON.parse(storedSkippedList));
-      } catch (error) {
-        console.error("JSON parsing error:", error);
+    const loadSkippedList = () => {
+      const storedSkippedList = localStorage.getItem('skippedList');
+      if (storedSkippedList) {
+        try {
+          const parsedSkippedList = JSON.parse(storedSkippedList);
+          setSkippedList(parsedSkippedList);
+          setSkipVote(parsedSkippedList); // skipVote 초기화
+        } catch (error) {
+          console.error("JSON parsing error:", error);
+          setSkippedList([]);
+          setSkipVote([]); // 에러 발생 시 skipVote도 초기화
+        }
+      } else {
         setSkippedList([]);
+        setSkipVote([]); // 초기화
       }
-    } else {
-      setSkippedList([]);
-    }
-  }, []);
+    };
+
+    loadSkippedList();
+  });
 
   useEffect(() => {
-    const newVoteIng = selectedLists.map((_, index) => !skippedList.includes(index));
-    setVoteIng(newVoteIng);
-  }, [skippedList, selectedLists]);
+    const handleStorageChange = () => {
+      const updatedSkippedList = localStorage.getItem('skippedList');
+      if (updatedSkippedList) {
+        const parsedSkippedList = JSON.parse(updatedSkippedList);
+        setSkippedList(parsedSkippedList);  // 상태 업데이트
+        setSkipVote(parsedSkippedList);     // skipVote 업데이트
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
 
   const handleListClick = (index) => {
     if (openIndexes.includes(index)) {
@@ -124,14 +145,13 @@ const ToggleListVote = ({ selectedLists, setSelectedLists, shareVoteDetails }) =
     localStorage.setItem('voteIng', JSON.stringify(newVoteIng));
   };
 
-
   return (
     <div>
       {selectedLists.map((list, index) => (
         <div key={index}>
           <ListItem>
             <div onClick={() => handleListClick(index)}>{toggleIcon[index] || '▶'}</div>
-            <img src={image} alt="item" />
+            <img src={image} alt={skipVote} />
             {list}
             <Plus className='Plus' voteIng={voteIng[index]} skip={skippedList.includes(index)}>
               {skippedList.includes(index) ? '투표Skip' : (voteIng[index] ? '진행 중' : '완료')}

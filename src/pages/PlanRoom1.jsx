@@ -6,6 +6,7 @@ import ToggleListPlace from "../toggleLists/TogglesListPlace";
 import ToggleListVote from "../toggleLists/ToggleListVote";
 import MyPlaceModal from "../modals/MyPlaceModal";
 import SetPlaceModal from "../modals/SetPlaceModal";
+import KakaoMap from "../components/KakaoMap";
 
 /*구역 나눔*/
 const Container=styled.div`
@@ -24,7 +25,6 @@ const Right=styled.div`
 `;
 /*지도 부분*/
 const Map=styled.div`
-    background-color: gray;
     height: calc(100vh - 60px); 
 `;
 /*##의 장소*/
@@ -264,12 +264,12 @@ function PlanRoom1(){
 
     const handleCandidate=()=>{
         setCandidateList([...candidateList, `나의 후보 리스트 ${candidateList.length+1}`]); 
-    }
+    };
 
     const handlePlace=()=>{
         setPlaceLists([...placeLists, inputValue]); 
-    }
-
+    };
+    /*동선 만들러 가기 버튼 유효성*/
     useEffect(() => {
         const skippedList=JSON.parse(localStorage.getItem('skippedList')) || [];
         const voteIng=JSON.parse(localStorage.getItem('voteIng')) || {};
@@ -282,15 +282,13 @@ function PlanRoom1(){
         const allDetailsFilled = Object.values(voteDetails).every(value => 
             Array.isArray(value) && value.length > 0
         );
-    
-        // 모든 항목이 스킵 또는 완료 상태인지 확인합니다.
+        
         const allSkippedOrDone = Object.keys(voteDetails).every(key => 
             skippedList.includes(key) || voteIng[key] === false
         );
 
         setVoteDone( allSkippedOrDone && allDetailsFilled && candidateList.length > 0);
     }, [voteDetails, candidateList]);
-
 
     const handlePlanRoom2 = () => {
         if (voteDone && candidateList.length > 0) {
@@ -384,7 +382,9 @@ function PlanRoom1(){
                     </SetPlaceModal>
                 </PlaceSet>
             </Left>
-            <Map>지도</Map>
+            <Map>
+                <KakaoMap width="1000px" height="calc(100vh - 60px)" />
+            </Map>
             <Right>
                 <Candidate>
                     <Button onClick={() => setVote(0)} isClicked={vote===0}>후보지 만들기 <Underline isClicked={vote===0}/></Button>

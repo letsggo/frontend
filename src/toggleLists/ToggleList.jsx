@@ -210,38 +210,37 @@ const handleSkipVote = (index) => {
   let newSkippedList = [];
 
   if (existingSkippedList) {
-      try {
-          newSkippedList = JSON.parse(existingSkippedList); // 이전 스킵 리스트 불러오기
-      } catch (error) {
-          console.error("JSON parsing error:", error);
-          newSkippedList = []; // 오류 발생 시 빈 배열로 초기화
-      }
+    try {
+      newSkippedList = JSON.parse(existingSkippedList); // 이전 스킵 리스트 불러오기
+    } catch (error) {
+      console.error("JSON parsing error:", error);
+      newSkippedList = []; // 오류 발생 시 빈 배열로 초기화
+    }
   }
 
   if (newSkippedList.includes(index)) { // 인덱스가 이미 스킵된 경우
-      newSkippedList = newSkippedList.filter(item => item !== index); // 삭제
+    newSkippedList = newSkippedList.filter(item => item !== index); // 삭제
   } else { // 인덱스를 스킵 리스트에 추가
-      newSkippedList.push(index);
+    newSkippedList.push(index);
   }
 
   localStorage.setItem('skippedList', JSON.stringify(newSkippedList)); // 새로운 스킵 리스트 저장
-  
+
   // 새로운 스킵 리스트에 기반하여 상태 업데이트
   setSkipVote((prevSkipVote) => {
-      const updatedSkipVote = [...prevSkipVote]; // 기존 상태 복사
-      updatedSkipVote[index] = !updatedSkipVote[index]; // 현재 인덱스의 상태 반전
-      return updatedSkipVote; // 업데이트된 상태 반환
+    const updatedSkipVote = [...prevSkipVote]; // 기존 상태 복사
+    updatedSkipVote[index] = !updatedSkipVote[index]; // 현재 인덱스의 상태 반전
+    return updatedSkipVote; // 업데이트된 상태 반환
   });
 };
-
-  
+const skippedList = localStorage.getItem('skippedList');
   return (
     <div>
       {selectedLists.map((list, index) => (
         <div key={index}>
           <ListItem>
             <div onClick={() => handleListClick(index)}>{toggleIcon[index] || '▶'}</div>
-            <img src={image} alt={image} />
+            <img src={image} alt={skipVote} />
             {list}
             <Plus onClick={(event) => handleFix(index, event)} className='Plus'>⋮</Plus>
             {modalInfo.visible && modalInfo.index === index && (
@@ -252,7 +251,7 @@ const handleSkipVote = (index) => {
                   {Right && 
                     <>
                       <button onClick={() => setModalRename(true)} >Rename</button><br />
-                      <button onClick={() => handleSkipVote(index)}>{skipVote[index] ? 'Skip 취소' : '투표 Skip' }</button><br />
+                      <button onClick={() => handleSkipVote(index)}>{skippedList.includes(index) ? 'Skip 취소' : '투표 Skip' }</button><br />
                     </>
                   }
                 </Modal>

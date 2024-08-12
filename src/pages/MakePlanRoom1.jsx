@@ -208,8 +208,9 @@ function MakePlanRoom1() {
   const navigate = useNavigate();
 
   const handleLink = () => {
-    navigate('/MakePlanroom2');
+    navigate('/MakePlanRoom2');
   };
+
   return (
     <FullContainner>
       <h1>여행 계획방 만들기 (1/2)</h1>

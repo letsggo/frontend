@@ -11,7 +11,7 @@ const SidebarContainer = styled.div`
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
   width: 70px;
   display: flex;
-  height: 90vh;
+  height: 92vh;
   flex-direction: column;
   justify-content: space-between;
 `;

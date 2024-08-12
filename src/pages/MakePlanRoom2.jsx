@@ -1,6 +1,15 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
+import {
+  MapContainer as LeafletMapContainer,
+  TileLayer,
+  Marker,
+  Polyline,
+  Popup,
+} from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
 
 /* 기본 스타일 설정 */
 const Container = styled.div`
@@ -67,7 +76,7 @@ const AddButton = styled.button`
   justify-content: center;
 `;
 
-const MapContainer = styled.div`
+const StyledMapContainer = styled.div`
   width: 100%;
   height: 500px;
   background-color: #f0f0f0;
@@ -155,6 +164,19 @@ const NextButton = styled.button`
   }
 `;
 
+// 기본 마커 아이콘 설정
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
+  iconUrl: require('leaflet/dist/images/marker-icon.png'),
+  shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
+});
+
+// 장소와 동선 데이터를 예제로 사용
+const locations = [{ id: 1, name: '장소 1', position: [37.5665, 126.978] }];
+
+const route = [[37.5665, 126.978]];
+
 /* MakePlanRoom2 컴포넌트 */
 function MakePlanRoom2() {
   const [accommodation, setAccommodation] = useState('');
@@ -197,10 +219,24 @@ function MakePlanRoom2() {
         <MapSection>
           <SectionTitle>여행 지역</SectionTitle>
           <div>여행을 예정하는 지역을 모두 선택해주세요.</div>
-          <MapContainer>
-            {/* 카카오맵 또는 다른 맵 라이브러리가 여기에 삽입될 구역입니다 */}
-            지도가 표시될 구역
-          </MapContainer>
+          <StyledMapContainer>
+            <LeafletMapContainer
+              center={[37.5665, 126.978]}
+              zoom={15}
+              style={{ height: '100%', width: '100%' }}
+            >
+              <TileLayer
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              />
+              {locations.map((location) => (
+                <Marker key={location.id} position={location.position}>
+                  <Popup>{location.name}</Popup>
+                </Marker>
+              ))}
+              <Polyline positions={route} color="blue" />
+            </LeafletMapContainer>
+          </StyledMapContainer>
         </MapSection>
         <InfoSection>
           <SectionTitle>숙소</SectionTitle>

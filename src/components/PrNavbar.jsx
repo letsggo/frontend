@@ -24,6 +24,7 @@ const NavbarMiddle = styled.div`
     left:45%;
 `;
 const NavbarRight = styled.div`
+    display:flex;
     position: absolute;
     right: 50px;
 `;
@@ -47,7 +48,7 @@ const Modal=styled.div`
     top:20px;
     width:300px;
     height:50px;
-    background-color:grey;
+    background-color:black;
     div{
         margin-left:30px;
         line-height:50px;
