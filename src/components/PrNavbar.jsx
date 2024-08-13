@@ -45,7 +45,7 @@ const Modal=styled.div`
     display:flex;
     position: fixed;
     left:53%;
-    top:20px;
+    top:10px;
     width:300px;
     height:50px;
     background-color:black;

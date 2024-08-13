@@ -2,12 +2,12 @@ import React  from "react";
 import styled from "styled-components";
 
 const ModalOverlay = styled.div`
-    position: fixed;
+    position: fixed !important;;
     top: 70%;
-    left: 0;
+    left: 0px;
     right: 0;
     bottom: 0;
-    z-index: 1000;
+    z-index: 1000 !important;
 `;
 
 const ModalContent = styled.div`
@@ -18,12 +18,7 @@ const ModalContent = styled.div`
     position: relative;
     width:600px;
     height: 100px;
-    //display: flex;
-    //flex-direction: column;
-    //justify-content: center;
-    //align-items: center;
 `;
-
 const CloseButton = styled.button`
     position: absolute;
     top: 10px;
@@ -35,7 +30,7 @@ const CloseButton = styled.button`
     color:white;
 `;
 
-const Modal = ({ isOpen, onClose, children }) => {
+const SetPlaceModal = ({ isOpen, onClose, children }) => {
     if (!isOpen) return null;
 
     return (
@@ -48,4 +43,4 @@ const Modal = ({ isOpen, onClose, children }) => {
     );
 };
 
-export default Modal;
+export default SetPlaceModal;

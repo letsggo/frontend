@@ -5,27 +5,32 @@ import ToggleList from "../toggleLists/ToggleList";
 import ToggleListPlace from "../toggleLists/TogglesListPlace";
 import ToggleListVote from "../toggleLists/ToggleListVote";
 import MyPlaceModal from "../modals/MyPlaceModal";
-import SetPlaceModal from "../modals/SetPlaceModal";
 import KakaoMap from "../components/KakaoMap";
 
 /*구역 나눔*/
 const Container=styled.div`
     margin-top: -20px;
-    display: grid;
-    grid-template-columns: 1fr 3fr 1fr;
     height: calc(100vh - 80px); 
+    display:flex;
 `;
 const Left=styled.div`
     height: calc(100vh - 60px); 
+    position:fixed;
     margin-left:-10px;
+    width:340px;
 `;
 const Right=styled.div`
+    width:340px;
     height: calc(100vh - 60px); 
-    margin-left:10px;
+    position:fixed;
+    right:0;
 `;
 /*지도 부분*/
 const Map=styled.div`
-    height: calc(100vh - 60px); 
+    width:955px;
+    margin-left:340px;
+    position:relative;
+    z-index:1;
 `;
 /*##의 장소*/
 const Place=styled.div`
@@ -116,14 +121,14 @@ const ModalTitle=styled.div`
     top:530px;  
     left:20px;
 `;
-const ModalContent = styled.div`
+const ModalContent1 = styled.div`
   padding: 15px 25px 0 0;
-  width:350px;
+  width:300px;
   overflow-y: auto;
   flex-grow: 1;
 
   &::-webkit-scrollbar {
-    width: 7px;
+    width: 6px;
   }
 
   &::-webkit-scrollbar-thumb {
@@ -172,6 +177,33 @@ const InputButton=styled.div`
         font-weight:600;
         color:white;
     }
+`;
+const ModalOverlay = styled.div`
+    position: fixed !important;;
+    top: 70%;
+    left: 0px;
+    right: 0;
+    bottom: 0;
+    z-index: 1000 !important;
+`;
+const ModalContent = styled.div`
+    background: black;
+    color:white;
+    padding: 20px;
+    border-radius: 8px;
+    position: relative;
+    width:600px;
+    height: 100px;
+`;
+const CloseButton = styled.button`
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: transparent;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    color:white;
 `;
 /*후보지 만들기*/
 const PlusButton=styled.button`
@@ -239,19 +271,17 @@ function PlanRoom1(){
     const shareVoteDetails = (details) => {
         setVoteDetails(details);
     }
-    const openModal  = (one) =>{
-        if(one){
-            setModal1(true);
-        }else{
-            setModal2(true);
-        }
+    const openModal1  = () =>{
+        setModal1(true);
     };
-    const closeModal = (one) =>{
-        if(one){
-            setModal1(false);
-        }else{
-            setModal2(false);
-        }
+    const openModal2  = () =>{
+        setModal2(true);
+    };
+    const closeModal1  = () =>{
+        setModal1(false);
+    };
+    const closeModal2  = () =>{
+        setModal2(false);
     };
 
     const handleListClick = (list) => {
@@ -337,6 +367,10 @@ function PlanRoom1(){
         setCursorPosition({ x: e.clientX, y: e.clientY });
     };
 
+    useEffect(() => {
+        console.log("modal1 상태 변경:", modal1);
+    }, [modal1]);
+
     const lists=[
         '나의 장소 리스트1','나의 장소 리스트2','나의 장소 리스트3','나의 장소 리스트4','나의 장소 리스트5','나의 장소 리스트6',];
 
@@ -351,39 +385,12 @@ function PlanRoom1(){
                 {<ToggleListPlace placeLists={placeLists} setPlaceLists={setPlaceLists} />}
                 {<ToggleList selectedLists={selectedLists} setSelectedLists={setSelectedLists} Right={false}/>}
                 <PlaceSet>
-                    <ListButton onClick={()=>{openModal(true)}}>나의 장소 불러오기</ListButton>
-                    <MyPlaceModal isOpen={modal1} onClose={()=>{closeModal(true)}}>
-                        {user===0 && (
-                            <>
-                                <ModalTitle>나의 장소 불러오기</ModalTitle>
-                                <ModalContent>
-                                    {lists.map((list,index)=>(
-                                        <ModalList key={index} onClick={() => handleListClick(list)}>{list}</ModalList>
-                                    ))}
-                                </ModalContent>
-                            </>
-                        )}
-                        {user!==0 && <div>"나의 장소"에서만 불러올 수 있습니다.</div>}
-                    </MyPlaceModal>
-                    <PlaceButton onClick={()=>{openModal(false)}}>장소 등록</PlaceButton>
-                    <SetPlaceModal isOpen={modal2} onClose={()=>{closeModal(false)}}>
-                        <ModalTitle2>장소 직접 등록하기</ModalTitle2>
-                        <ModalContent2>
-                            카카오맵 또는 네이버 지도에서 불러올 장소의 공유 링크를 입력해주세요
-                            <InputButton>
-                                <input 
-                                    type='url'placeholder={placeholder} 
-                                    onFocus={()=>setPlaceholder('')} 
-                                    onBlur={() => setPlaceholder("url을 입력하세요")}
-                                    onChange={(e)=>setInputValue(e.target.value)}/>
-                                <button onClick={handlePlace}> 입력하기</button>
-                            </InputButton>
-                        </ModalContent2>
-                    </SetPlaceModal>
+                    <ListButton onClick={openModal1}>나의 장소 불러오기</ListButton>
+                    <PlaceButton onClick={openModal2}>장소 등록</PlaceButton>
                 </PlaceSet>
             </Left>
             <Map>
-                <KakaoMap width="1000px" height="calc(100vh - 60px)" />
+                <KakaoMap width="100%" height="calc(100vh - 60px)"/>  
             </Map>
             <Right>
                 <Candidate>
@@ -408,6 +415,7 @@ function PlanRoom1(){
                     </>
                 }
             </Right>
+            {/*모달들*/}
             <div style={{ position: 'relative' }}>
             {isModalOpen && (
                 <Overlay style={{ left: cursorPosition.x, top: cursorPosition.y-1000}}>
@@ -426,6 +434,40 @@ function PlanRoom1(){
                 </Overlay>
             )}
         </div>
+        <MyPlaceModal isOpen={modal1} onClose={closeModal1}>
+            {user===0 && (
+                <>
+                    <ModalTitle>나의 장소 불러오기</ModalTitle>
+                    <ModalContent1>
+                        {lists.map((list,index)=>(
+                            <ModalList key={index} onClick={() => handleListClick(list)}>
+                                {list}
+                            </ModalList>
+                        ))}
+                    </ModalContent1>
+                </>
+            )}
+            {user!==0 && <div>"나의 장소"에서만 불러올 수 있습니다.</div>}
+        </MyPlaceModal>
+        {modal2 &&
+            <ModalOverlay>
+                <ModalContent>
+                    <CloseButton onClick={closeModal2}>X</CloseButton>
+                    <ModalTitle2>장소 직접 등록하기</ModalTitle2>
+                    <ModalContent2>
+                        카카오맵 또는 네이버 지도에서 불러올 장소의 공유 링크를 입력해주세요
+                        <InputButton>
+                            <input 
+                                type='url'placeholder={placeholder} 
+                                onFocus={()=>setPlaceholder('')} 
+                                onBlur={() => setPlaceholder("url을 입력하세요")}
+                                onChange={(e)=>setInputValue(e.target.value)}/>
+                            <button onClick={handlePlace}> 입력하기</button>
+                        </InputButton>
+                    </ModalContent2>
+                </ModalContent>
+            </ModalOverlay>
+        }       
         </Container>
     );
 }

@@ -41,7 +41,7 @@ function KakaoMap({ width, height }) {
     }, [KAKAOMAP_API_KEY]);
 
     return (
-        <div>
+        <div style={{ position: 'relative', zIndex: 0 }}>
             <div id="map" style={{ width: width, height: height }}></div>
         </div>
     );

@@ -1,6 +1,5 @@
 import React from 'react';
 import styled from 'styled-components';
-import KakaoMap from '../components/KakaoMap';
 const Container=styled.div`
 
 `;

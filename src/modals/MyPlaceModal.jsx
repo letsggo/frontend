@@ -4,15 +4,11 @@ import styled from "styled-components";
 const ModalOverlay = styled.div`
     position: fixed;
     top: 55%;
-    left: 0;
+    left: 0px;
     right: 0;
     bottom: 0;
-    // display: flex;
-    // justify-content: center;
-    // align-items: center;
-    z-index: 1000;
+    z-index: 1001;
 `;
-
 const ModalContent = styled.div`
     background: black;
     color:white;
@@ -20,14 +16,13 @@ const ModalContent = styled.div`
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     position: relative;
-    width:350px;
+    width:300px;
     height: 250px;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
 `;
-
 const CloseButton = styled.button`
     position: absolute;
     top: 10px;
@@ -39,7 +34,7 @@ const CloseButton = styled.button`
     color:white;
 `;
 
-const Modal = ({ isOpen, onClose, children }) => {
+const MyPlaceModal = ({ isOpen, onClose, children }) => {
     if (!isOpen) return null;
 
     return (
@@ -52,4 +47,4 @@ const Modal = ({ isOpen, onClose, children }) => {
     );
 };
 
-export default Modal;
+export default MyPlaceModal;

@@ -5,6 +5,7 @@ import Modal from "../modals/Modal";
 import Img from './이미지 업로드.png';
 import { IoSettingsOutline } from "react-icons/io5";
 import { LuLink } from "react-icons/lu";
+import KakaoMap from "../components/KakaoMap";
 
 /*구역 나눔*/
 const Container=styled.div`
@@ -104,11 +105,13 @@ const Region=styled.div`
     background-color:#FFD700;
     border-radius:100px;
     position:fixed;
+    z-index:100;
+`;
+const Region2=styled.div`
+    margin-top:-700px;
 `;
 /*지도*/
 const Map=styled.div`
-    background-color:gray;
-    width:500px;
     height:700px;
     padding:10px;
     margin:10px 0;
@@ -129,9 +132,10 @@ const NaviButton=styled.button`
     border-radius:100px;
 `;
 const EnterButton=styled.button`
-    margin-top:300px;
-    margin-left:110px;
     width:250px; height:60px;
+    position:fixed;
+    left:1000px;
+    top:500px;
     font-size:24px;
     padding: 0 10px;
     color:white;
@@ -139,6 +143,7 @@ const EnterButton=styled.button`
     background-color:#63CAF4;
     border:#63CAF4;
     border-radius:100px;
+    z-index:100;
 `;
 /*모달 내부*/
 const ModalInvite=styled.div`
@@ -217,17 +222,17 @@ function StartPlanRoom1 (){
                     <div class="vertical-line" />
                     <ProfileBox>
                         <ProfileImg src={Img} alt={Img} />
-                        <div>Disney World</div>
+                        <div>친구1</div>
                     </ProfileBox>
                     <ProfileBox>
                         <ProfileImg src={Img} alt={Img} />
-                        <div>디즈니월드</div>
+                        <div>친구2</div>
                     </ProfileBox>
 
                 </ProfileBg>
                 <div>여행설명</div>
                 <Info>
-                    <Region>지역이름</Region><br/>
+                    <Region className="region1">지역이름</Region><br/>
                     <div>설명 설명 설명 설명</div>
                 </Info>
             </Left>
@@ -236,7 +241,8 @@ function StartPlanRoom1 (){
                 <Wrapper>
                     <div>여행 계획방 입장하기</div>
                     <Map id="map">
-                        <Region>지역이름</Region> 
+                        <KakaoMap width='500px' height="700px" />
+                        <Region2><Region className="region2">지역이름</Region> </Region2>
                         <EnterButton onClick={handleEnter}>입장하기▶</EnterButton>
                     </Map>
                 </Wrapper>

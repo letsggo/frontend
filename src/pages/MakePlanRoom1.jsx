@@ -43,7 +43,6 @@ const PlanBottom = styled.div`
     font-size: 18px;
   }
 `;
-
 /*이미지, 텍스트*/
 const Img = styled.img`
   width: 500px;
@@ -177,7 +176,6 @@ const NextButton = styled.button`
     border-color: #45a049;
   }
 `;
-
 /*시간, 기간 위치*/
 const Time = styled.div``;
 
@@ -208,9 +206,8 @@ function MakePlanRoom1() {
   const navigate = useNavigate();
 
   const handleLink = () => {
-    navigate('/MakePlanRoom2');
+    navigate('/MakePlanroom2');
   };
-
   return (
     <FullContainner>
       <h1>여행 계획방 만들기 (1/2)</h1>
