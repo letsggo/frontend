@@ -18,11 +18,11 @@ import {
     Input, 
     Button, 
     StyledH2,
-    WithdrawSection, // 추가된 컴포넌트
-    NoticeBox, // 추가된 컴포넌트
-    NoticeItem, // 추가된 컴포넌트
-    Checkbox, // 추가된 컴포넌트
-    WithdrawButton // 추가된 컴포넌트
+    WithdrawSection, 
+    NoticeBox, 
+    NoticeItem, 
+    Checkbox, 
+    WithdrawButton 
 } from '../styles/MyPagestyle';
 
 const Mypage = () => {
@@ -79,7 +79,7 @@ const Mypage = () => {
             
             {activeTab === 'memberInfo' && (  // 회원정보 버튼이 클릭되었을 때만 표시
                 <ProfileSection>
-                    <h2>회원 정보</h2>
+                    <h1>회원 정보</h1>
                     <ProfilePicture>
                         <PicturePlaceholder>
                             <EditIcon>✏️</EditIcon>

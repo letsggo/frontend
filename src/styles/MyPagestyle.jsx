@@ -18,13 +18,13 @@ export const Title = styled.h1`
 
 export const StyledH2 = styled.h2`
     font-size: 2rem; /* 원하는 글자 크기 */
-    margin: 20px 0; /* 위 아래 여백 조정 */
-    text-align: left; /* 제목을 왼쪽 정렬 */
+    margin: 30px 20px; /* 위 아래 여백 조정 */
+    text-align: center; /* 제목을 왼쪽 정렬 */
     /* 필요에 따라 추가적인 스타일을 적용 */
 `;
 
 export const Tabs = styled.div`
-    margin-bottom: 25px;
+    margin-bottom: 30px;
     text-align: left;
     justify-content: flex-start;
 `;
@@ -46,24 +46,24 @@ export const TabButton = styled.button`
 `;
 
 export const ProfileSection = styled.div`
-    text-align: left;
+    text-align: center;
     background-color: #EDEDED;
-    padding: 140px;
+    padding: 80px 40px 40px 40px; /* 위쪽 여백을 100px로 줄였습니다 */
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* box-shadow 추가 */
 `;
 
 export const ProfilePicture = styled.div`
     display: flex;
-    justify-content: left;
+    justify-content: center;
     align-items: center;
     margin-bottom: 60px; /* 간격 조정 */
 `;
 
 export const PicturePlaceholder = styled.div`
-    width: 70px; /* 원의 크기 */
-    height: 70px;
-    border-radius: 50%;
+    width: 200px; /* 원의 크기 */
+    height: 200px;
+    border-radius:50%;
     background-color: gray;
     display: flex;
     justify-content: center;
@@ -73,8 +73,8 @@ export const PicturePlaceholder = styled.div`
 
 export const EditIcon = styled.div`
     position: absolute; /* 부모 요소에 상대적으로 위치 */
-    bottom: -5px; /* 아래로 살짝 이동 */
-    right: -5px; /* 오른쪽으로 살짝 이동 */
+    bottom: -1px; /* 아래로 살짝 이동 */
+    right: -1px; /* 오른쪽으로 살짝 이동 */
     background-color: white;
     color: black;
     border-radius: 50%;
@@ -85,13 +85,15 @@ export const EditIcon = styled.div`
 export const InfoItem = styled.div`
     margin-bottom: 30px;
     display: flex;
-    justify-content: left;
+    justify-content: center;
     align-items: center;
+    flex-direction: column; /* 세로 정렬을 위해 추가 */
 `;
 
 export const InfoContent = styled.div`
     display: flex;
     align-items: center;
+    justify-content: center; /* 정보 내용 가운데 정렬 */
 
     span {
         margin-right: 10px;
@@ -153,9 +155,9 @@ export const ValidateButton = styled.button`
 
 export const SecuritySection = styled.div`
     background-color: #EDEDED;
-    padding: 50px;
+    padding: 60px;
     border-radius: 8px;
-    text-align: left;
+    text-align: center;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* box-shadow 추가 */
 `;
 
@@ -197,12 +199,22 @@ export const Button = styled.button`
     }
 `;
 
+export const Box = styled.div`
+    width: 100%;
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #F0F0F0; 
+    border-radius: 4px;
+    text-align: left; /* 텍스트 왼쪽 정렬 
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); 
+`;
+
 // 추가된 스타일 컴포넌트
 export const WithdrawSection = styled.div`
     background-color: #EDEDED;
     padding: 50px;
     border-radius: 8px;
-    text-align: left;
+    text-align: center;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* box-shadow 추가 */
 `;
 
