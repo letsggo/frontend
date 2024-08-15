@@ -5,7 +5,7 @@ import InputLogin from "../styles/input-login";
 import SearchIcon from "../assets/images/searchIcon.png";
 import { useNavigate } from 'react-router-dom'; 
 
-const API_URL = 'http://localhost:3000/';
+const API_URL = 'http://43.200.238.249:5000/users/login';
 
 const PageContainer = styled.div`
     display: flex;
@@ -81,6 +81,13 @@ const LoginPage = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            navigate('/Home');
+        }
+    }, [navigate]);
+
+    useEffect(() => {
         setIsDisabled(!(email && password && !emailError && !passwordError));
     }, [email, password, emailError, passwordError]);
 
@@ -110,25 +117,30 @@ const LoginPage = () => {
     const handleLogin = () => {
         const userData = { email, password };
         setIsLoading(true);
-
         axios.post(API_URL, userData)
-            .then(response => {
-                if (response.status === 200) {
-                    const { token, username } = response.data;
-                    localStorage.setItem('token', token);
-                    localStorage.setItem('username', username);
-                    navigate('/home2'); // home2 페이지로 이동
-                    window.location.href = "/";
-                }
-            })
-            .catch(error => {
-                if (error.response && error.response.status === 401) {
-                    alert("아이디 또는 비밀번호를 다시 확인해주세요.");
-                }
-            })
-            .finally(() => {
-                setIsLoading(false);
-            });
+    .then(response => {
+        console.log('로그인 응답 데이터:', response.data);  // 응답 데이터를 콘솔에 출력
+        if (response.status === 200) {
+            const { accessToken, message } = response.data;
+            if (accessToken) {
+                localStorage.setItem('token', accessToken); // accessToken을 token으로 저장
+                // localStorage.setItem('username', username); // username이 없으므로 이 부분 생략 가능
+                navigate('/Home'); // Home 페이지로 이동
+            } else {
+                console.error('토큰이 누락되었습니다.');
+            }
+        }
+    })
+    .catch(error => {
+        if (error.response && error.response.status === 401) {
+            alert("아이디 또는 비밀번호를 다시 확인해주세요.");
+        }
+        console.error('로그인 요청 실패:', error);
+    })
+    .finally(() => {
+        setIsLoading(false);
+    });
+
     };
 
     const handleFindAccount = () => {

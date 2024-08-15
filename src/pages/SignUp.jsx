@@ -5,7 +5,7 @@ import InputSignup from '../styles/input-signup'; // 사용자 정의 입력 컴
 import SearchIcon from "../assets/images/searchIcon.png";
 import { useNavigate } from 'react-router-dom';
 
-const API_URL = 'https://jsonplaceholder.typicode.com/users';
+const API_URL = 'http://43.200.238.249:5000/users/user'; // 서버 URL
 
 const LogoImage = styled.img`
     width: 280px;
@@ -80,7 +80,18 @@ const SignUp = () => {
     const handlePassword = (event) => {
         const value = event.target.value;
         setPassword(value);
-        setPasswordError(value.length < 4 ? "비밀번호는 4자리 이상이어야 합니다." : '');
+        const passwordPattern = /^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[!@#$%^&*?_])/;
+        if (!value) {
+            setPasswordError("비밀번호를 입력해주세요.");
+        } else if (value.length < 4) {
+            setPasswordError("비밀번호는 4자리 이상이어야 합니다.");
+        } else if (value.length > 12) {
+            setPasswordError("비밀번호는 최대 12자리까지 입력 가능합니다.");
+        } else if (!passwordPattern.test(value)) {
+            setPasswordError("비밀번호는 영어, 숫자, 특수문자를 포함해야 합니다.");
+        } else {
+            setPasswordError('');
+        }
     };
 
     const handleConfirmPassword = (event) => {
@@ -92,7 +103,7 @@ const SignUp = () => {
     const handleSignup = async () => {
         if (!emailError && !passwordError && !confirmPasswordError && isAgreed) {
             try {
-                const userData = { email, password };
+                const userData = { email, password, confirmPassword };
                 const response = await axios.post(API_URL, userData);
                 if (response.status === 201) {
                     console.log(response);
