@@ -6,6 +6,7 @@ import ToggleListPlace from "../toggleLists/TogglesListPlace";
 import ToggleListVote from "../toggleLists/ToggleListVote";
 import MyPlaceModal from "../modals/MyPlaceModal";
 import KakaoMap from "../components/KakaoMap";
+import axios from 'axios';
 
 /*구역 나눔*/
 const Container=styled.div`
@@ -264,9 +265,11 @@ function PlanRoom1(){
     const [isModalOpen, setIsModalOpen] = useState(false); // 채팅 모달 상태
     const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 })
     const [chatValue,setChatValue]=useState('');
+    const [lists,setLists]=useState([]);//나의 장소 불러오기
     const inputRef = useRef(null);
     const spanRef = useRef(null);
     const navigate=useNavigate();
+    const token = localStorage.getItem('token');
 
     const shareVoteDetails = (details) => {
         setVoteDetails(details);
@@ -283,7 +286,6 @@ function PlanRoom1(){
     const closeModal2  = () =>{
         setModal2(false);
     };
-
     const handleListClick = (list) => {
         if (selectedLists.includes(list)) {
           setSelectedLists(selectedLists.filter((item) => item !== list)); 
@@ -291,11 +293,9 @@ function PlanRoom1(){
           setSelectedLists([...selectedLists, list]); 
         }
     };
-
     const handleCandidate=()=>{
         setCandidateList([...candidateList, `나의 후보 리스트 ${candidateList.length+1}`]); 
     };
-
     const handlePlace=()=>{
         setPlaceLists([...placeLists, inputValue]); 
     };
@@ -366,14 +366,28 @@ function PlanRoom1(){
     const handleMouseMove = (e) => {
         setCursorPosition({ x: e.clientX, y: e.clientY });
     };
+    // const lists=[
+    //     '나의 장소 리스트1','나의 장소 리스트2','나의 장소 리스트3','나의 장소 리스트4','나의 장소 리스트5','나의 장소 리스트6',];
 
-    useEffect(() => {
-        console.log("modal1 상태 변경:", modal1);
-    }, [modal1]);
-
-    const lists=[
-        '나의 장소 리스트1','나의 장소 리스트2','나의 장소 리스트3','나의 장소 리스트4','나의 장소 리스트5','나의 장소 리스트6',];
-
+    /*백 연결*/
+    useEffect(()=>{
+        const fetchLists=async()=>{
+            try{
+                const response=await axios.get(
+                    'http://43.200.238.249:5000/users/lists',
+                    {
+                        headers: {
+                          Authorization: `Bearer ${token}`,
+                        },
+                      }
+                    );
+                    setLists(response.data);  
+                  } catch (error) {
+                    console.error('Error fetching lists:', error);
+                  }
+                };
+                fetchLists();  
+            }, [token]); 
     return(
         <Container>
             <Left>
@@ -415,7 +429,7 @@ function PlanRoom1(){
                     </>
                 }
             </Right>
-            {/*모달들*/}
+            {/*채팅, 모달들*/}
             <div style={{ position: 'relative' }}>
             {isModalOpen && (
                 <Overlay style={{ left: cursorPosition.x, top: cursorPosition.y-1000}}>

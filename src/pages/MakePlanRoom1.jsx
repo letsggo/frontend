@@ -8,6 +8,7 @@ import 'react-calendar/dist/Calendar.css';
 import 'react-time-picker/dist/TimePicker.css';
 import { format } from 'date-fns';
 import moment from 'moment';
+import axios from 'axios';
 
 /*컨테이너 및 구역 나눔*/
 const FullContainner = styled.div`
@@ -181,16 +182,22 @@ const Time = styled.div``;
 
 function MakePlanRoom1() {
   const [image, setImage] = useState(ImgUpload);
+  const [title, setTitle] = useState(''); // 여행 제목 상태 관리
+  const [explain, setExplain] = useState(''); // 여행 설명 상태 관리
   const [dateRange, setDateRange] = useState([new Date(), new Date()]);
   const [startDate, endDate] = dateRange;
   const [startTime, setStartTime] = useState('00:00');
   const [endTime, setEndTime] = useState('00:00');
   const [showTime, setShowTime] = useState(false);
+  const [imageFile, setImageFile] = useState(null); 
   const fileInputRef = useRef(null);
+  const region='지역'; // MakePlanRoom2 이전에 미리 초기값 설정 (formData 넘기려고..)
+  const status=1;
 
   const handleImageUpload = (event) => {
     const file = event.target.files[0];
     if (file) {
+      setImageFile(file);
       setImage(URL.createObjectURL(file));
     }
   };
@@ -205,9 +212,48 @@ function MakePlanRoom1() {
 
   const navigate = useNavigate();
 
-  const handleLink = () => {
-    navigate('/MakePlanroom2');
+  const handleLink = async (travelId) => {
+    const [startDate, endDate] = dateRange;
+    const token = localStorage.getItem('token'); 
+    console.log('JWT Token:', JSON.stringify(token));
+    // FormData 생성
+    const formData = new FormData();
+    formData.append('title', title); 
+    formData.append('start_date', format(startDate, 'yyyy-MM-dd'));
+    formData.append('end_date', format(endDate, 'yyyy-MM-dd'));
+    formData.append('explain', explain); 
+    formData.append('start_time', showTime ? startTime : '00:00');
+    formData.append('end_time', showTime ? endTime : '00:00');
+    formData.append('region', region); // 추가된 지역
+    formData.append('status', status); 
+
+    if (image) {
+      formData.append('travel_image', imageFile); // 선택된 파일 추가
+
+    try {
+      const response = await axios.post('http://43.200.238.249:5000/travel-plans/makeRoom', formData, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      const travelId = response.data.travel_id;
+      console.log('응답 데이터(FormData):', response.data);
+      console.log('여행 계획방 ID:', travelId);
+
+      navigate('/MakePlanroom2', { state: { travelId } });
+
+    } catch (error) {
+      console.error('에러 발생:', error.response ? error.response.data : error.message);
+      if (error.response) {
+        console.error('서버 응답 오류:', error.response.data);
+    }
+    }
+  }
   };
+
+
   return (
     <FullContainner>
       <h1>여행 계획방 만들기 (1/2)</h1>
@@ -241,12 +287,13 @@ function MakePlanRoom1() {
           <PlanBottom>
             <Text>
               <div>여행 제목</div>
-              <input type="text" placeholder="여행 제목을 입력하세요." />
+              <input type="text" placeholder="여행 제목을 입력하세요." onChange={(e)=>{setTitle(e.target.value)}}/>
               <div>여행 설명</div>
               <textarea
                 cols="55"
                 rows="10"
                 placeholder="여행 설명을 입력하세요."
+                onChange={(e)=>{setExplain(e.target.value)}}
               />
             </Text>
           </PlanBottom>

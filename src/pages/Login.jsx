@@ -118,31 +118,28 @@ const LoginPage = () => {
         const userData = { email, password };
         setIsLoading(true);
         axios.post(API_URL, userData)
-    .then(response => {
-        console.log('로그인 응답 데이터:', response.data);  // 응답 데이터를 콘솔에 출력
-        if (response.status === 200) {
-            const { accessToken, message } = response.data;
-            if (accessToken) {
-                localStorage.setItem('token', accessToken); // accessToken을 token으로 저장
-                // localStorage.setItem('username', username); // username이 없으므로 이 부분 생략 가능
-                navigate('/Home'); // Home 페이지로 이동
-            } else {
-                console.error('토큰이 누락되었습니다.');
-            }
-        }
-    })
-    .catch(error => {
-        if (error.response && error.response.status === 401) {
-            alert("아이디 또는 비밀번호를 다시 확인해주세요.");
-        }
-        console.error('로그인 요청 실패:', error);
-    })
-    .finally(() => {
-        setIsLoading(false);
-    });
-
+            .then(response => {
+                console.log('로그인 응답 데이터:', response.data);
+                if (response.status === 200) {
+                    const { accessToken } = response.data; // 확인
+                    if (accessToken) {
+                        localStorage.setItem('token', accessToken); // 문자열로 저장
+                        navigate('/Home');
+                    } else {
+                        console.error('토큰이 누락되었습니다.');
+                    }
+                }
+            })
+            .catch(error => {
+                if (error.response && error.response.status === 401) {
+                    alert("아이디 또는 비밀번호를 다시 확인해주세요.");
+                }
+                console.error('로그인 요청 실패:', error);
+            })
+            .finally(() => {
+                setIsLoading(false);
+            });
     };
-
     const handleFindAccount = () => {
         navigate('/findpassword'); // findpassword 페이지로 이동
     };

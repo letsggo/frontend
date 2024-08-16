@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   MapContainer as LeafletMapContainer,
   TileLayer,
@@ -181,7 +181,8 @@ const route = [[37.5665, 126.978]];
 function MakePlanRoom2() {
   const [accommodation, setAccommodation] = useState('');
   const [registeredAccommodations, setRegisteredAccommodations] = useState([]);
-
+  const location = useLocation();
+  
   const handleAddAccommodation = () => {
     if (accommodation.trim() === '') return;
     setRegisteredAccommodations([
@@ -209,7 +210,9 @@ function MakePlanRoom2() {
   const navigate = useNavigate();
 
   const handleLink = () => {
-    navigate('/StartPlanRoom');
+    const travelId = location.state?.travelId; //MakePlanRoom1에서 받은 travelId
+
+    navigate('/StartPlanRoom', { state: { travelId }});
   };
 
   return (

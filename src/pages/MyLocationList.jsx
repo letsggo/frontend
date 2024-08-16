@@ -4,6 +4,8 @@ import styled from 'styled-components';
 import ToggleMyLocation from '../toggleLists/ToggleMyLocation';
 import img from '../modals/카카오맵 로고.png';
 import img2 from '../modals/카카오맵 안내.png';
+import axios from 'axios';  // Axios import
+
 /*모달*/
 const ModalOverlay = styled.div`
     position: fixed;
@@ -150,11 +152,13 @@ const EmptyList=styled.div`
 `;
 
 function MyLocationList() {
-  const [MyLocationLists, setMyLocationLists]=useState(['즐겨찾기1','즐겨찾기2','즐겨찾기3']); //임의 데이터
+  const [MyLocationLists, setMyLocationLists]=useState(['즐겨찾기']); 
   const [isEmpty,setIsEmpty]=useState(true);
   const [isOpen,setIsOpen]=useState(false);
   const [input,setInput]=useState('');//새로 입력받은 즐겨찾기 장소 링큰
   const [placeholder, setPlaceholder]=useState('공개로 설정된 즐겨찾기 URL을 입력해주세요');
+  const token=localStorage.getItem('token');
+
   useState(()=>{
       if(MyLocationLists==='[]'){
         setIsEmpty(true);
@@ -169,12 +173,30 @@ function MyLocationList() {
   const closeModal=()=>{
     setIsOpen(false);
   };
-  const handlePlace=()=>{
-    setMyLocationLists([...MyLocationLists, input]); 
+  const handlePlace=(newPlaces)=>{
+    setMyLocationLists([...MyLocationLists, newPlaces]); 
   };
-  const handleSubmit=()=>{
-    handlePlace();
-    closeModal();
+  const handleSubmit = async () => {
+    console.log('handleSubmit');
+    console.log('Sending request with token:', token);
+    console.log('Sending request to URL:', input);
+    try {
+      console.log('try axios');
+      const response = await axios.post(
+        'http://43.200.238.249:5000/users/add-myPlace', 
+        { url: input },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`  
+          }
+        }
+      );
+      console.log('Response received:', response);
+      handlePlace(response.data.placeList);  // 받아온 장소 목록으로 업데이트
+      closeModal();
+    } catch (error) {
+      console.error('Error fetching places:', error);
+    }
   };
   
   return (

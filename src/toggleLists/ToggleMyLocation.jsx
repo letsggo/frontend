@@ -45,6 +45,9 @@ const Plus = styled.button`
   font-size: 20px;
   font-weight: 700;
   cursor: pointer;
+  position:fixed;
+  left:570px;
+  margin-top:5px;
 `;
 const Modal = styled.div`
   background-color:black;
@@ -72,6 +75,17 @@ const Overlay = styled.div`
   height: 100%;
   background: rgba(0, 0, 0, 0);
   z-index: 999;
+`;
+const Kakao=styled.div`
+  color:#544444;
+  background-color:#F8DF00;
+  padding: 0px 5px;
+  border-radius:5px;
+  font-weight:600;
+  height:35px;
+  line-height:35px;
+  position:fixed;
+  left:420px;
 `;
 
 
@@ -158,6 +172,7 @@ const ToggleMyLocation = ({ selectedLists, setSelectedLists }) => {
             <div onClick={() => handleListClick(index)}>{toggleIcon[index] || '▶'}</div>
             <img src={image} alt={image} />
             {list}
+            <Kakao>카카오 연동</Kakao>
             <Plus onClick={(event) => handleFix(index, event)} className='Plus'>⋮</Plus>
             {modalInfo.visible && modalInfo.index === index && (
               <>

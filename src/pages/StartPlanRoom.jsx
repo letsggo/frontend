@@ -1,4 +1,4 @@
-import React , {useState} from "react"; 
+import React , {useState,useEffect} from "react"; 
 import styled from "styled-components";
 import { useNavigate } from 'react-router-dom';
 import Modal from "../modals/Modal";
@@ -6,6 +6,9 @@ import Img from './이미지 업로드.png';
 import { IoSettingsOutline } from "react-icons/io5";
 import { LuLink } from "react-icons/lu";
 import KakaoMap from "../components/KakaoMap";
+import axios from 'axios';
+import { useLocation } from 'react-router-dom';
+import { format } from 'date-fns';
 
 /*구역 나눔*/
 const Container=styled.div`
@@ -161,10 +164,58 @@ const CopyLink=styled.button`
     color:black;
 `;
 
-function StartPlanRoom1 (){
+function StartPlanRoom (){
+    const location = useLocation();
     const navigate=useNavigate();
     const [modal,setModal]=useState(false);
     const [copy,setCopy]=useState(false);
+    const [travelPlan, setTravelPlan] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [inviteLink, setInviteLink] = useState('');
+
+    const token=localStorage.getItem('token');
+    const travelId = location.state?.travelId;
+
+    useEffect(() => {
+        if (travelId) {
+            const fetchTravelPlanDetails = async () => {
+                try {
+                    console.log('Fetching travel plan details...');
+                    const response = await axios.get(`http://43.200.238.249:5000/travel-plans/makeRoom/${travelId}`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                        },
+                    });
+                    setTravelPlan(response.data);
+                    setLoading(false);
+                } catch (error) {
+                    console.error('Error fetching travel plan details:',  error.response ? error.response.data : error.message);
+                }
+            };
+            fetchTravelPlanDetails();
+        }else {
+            console.log('No travelId provided');
+            setLoading(false); // travelId가 없을 때도 로딩 완료 처리
+        }
+    }, [travelId, token]);
+
+    const generateInviteLink = async () => {
+        try {
+            const response = await axios.post('http://43.200.238.249:5000/create', 
+            { travel_id: travelId },
+            {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            const link = response.data.inviteLink;
+            setInviteLink(link);
+            handleCopy();
+        } catch (error) {
+            console.error('Error generating invite link:', error);
+        }
+    };
 
     const handleEdit=()=>{
         navigate('/Edit');
@@ -173,9 +224,8 @@ function StartPlanRoom1 (){
     const openModal = () => setModal(true);
     const closeModal = () => setModal(false);
 
-    const currentURL=window.location.href;
     const handleCopy=()=>{
-        navigator.clipboard.writeText(currentURL)
+        navigator.clipboard.writeText(inviteLink)
         .then(()=>{
             setCopy(true);
             setTimeout(function() {
@@ -191,24 +241,35 @@ function StartPlanRoom1 (){
         navigate('/PlanRoomResult');
     };
     const handleEnter=()=>{
-        navigate('/PlanRoom1');
+        navigate('/PlanRoom1', { state: { travelId }});
     };
+    
+    if (loading) {
+        return <div>Loading...</div>; // 데이터가 로드될 때까지 로딩 화면 표시
+    }
 
+    if (!travelPlan) {
+        return <div>No travel plan found</div>; // travelPlan이 없을 때
+    }
+    const date1=new Date(travelPlan.start_date);
+    const startDate = format(date1, 'yyyy-MM-dd');
+    const date2=new Date(travelPlan.end_date);
+    const endDate = format(date2, 'yyyy-MM-dd');
     return(
         <Container>
             <Left>
                 <Title>
-                    <h2>여행 제목</h2>
+                    <h2>{travelPlan.title}</h2>
                     <div onClick={handleEdit}><IoSettingsOutline /></div>
                 </Title>
-                <div>{`여행기간 : 시작~끝`}</div>
-                <MainImg src={Img} alt={Img}/>
+                <div>{`여행기간 : ${startDate}~${endDate}`}</div>
+                <MainImg src={travelPlan.travel_image} alt={Img}/>
                 <Users>
                     <div>{`함께하는 사람 (총 @명)`}</div>
                     <Invite onClick={openModal}>초대하기<LuLink /></Invite>
                     <Modal isOpen={modal} onClose={closeModal}>
                             <ModalInvite>초대하기</ModalInvite><br />
-                            <CopyLink onClick={handleCopy}>링크 복사하기</CopyLink>
+                            <CopyLink onClick={generateInviteLink}>링크 복사하기</CopyLink>
                     </Modal>
                     <Modal isOpen={copy} onClose={closeModal}>
                             <div>초대하기 링크가 복사되었습니다!</div>
@@ -232,8 +293,8 @@ function StartPlanRoom1 (){
                 </ProfileBg>
                 <div>여행설명</div>
                 <Info>
-                    <Region className="region1">지역이름</Region><br/>
-                    <div>설명 설명 설명 설명</div>
+                    <Region className="region1">{travelPlan.region}</Region><br/>
+                    <div>{travelPlan.explain}</div>
                 </Info>
             </Left>
             <Right>
@@ -242,7 +303,7 @@ function StartPlanRoom1 (){
                     <div>여행 계획방 입장하기</div>
                     <Map id="map">
                         <KakaoMap width='500px' height="700px" />
-                        <Region2><Region className="region2">지역이름</Region> </Region2>
+                        <Region2><Region className="region2">{travelPlan.region}</Region> </Region2>
                         <EnterButton onClick={handleEnter}>입장하기▶</EnterButton>
                     </Map>
                 </Wrapper>
@@ -253,4 +314,4 @@ function StartPlanRoom1 (){
     )
 }
 
-export default StartPlanRoom1;
+export default StartPlanRoom;
