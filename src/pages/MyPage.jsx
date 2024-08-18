@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate  } from'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
     Container, 
     Title, 
@@ -24,15 +24,17 @@ import {
     NoticeItem, 
     Checkbox, 
     WithdrawButton 
-} from'../styles/MyPagestyle';
-import axios from'axios';
+} from '../styles/MyPagestyle';
+import axios from 'axios';
 
 const Mypage = () => {
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('memberInfo');
-    const [nickname, setNickname] = useState('example111');
-    const [phone, setPhone] = useState('010-0000-0000');
-    const [email, setEmail] = useState('example@naver.com');
+    const [nickname, setNickname] = useState('');
+    const [phone, setPhone] = useState('');
+    const [email, setEmail] = useState('');
+    const [profileImage, setProfileImage] = useState(null);
+    const [profileImageFile, setProfileImageFile] = useState(null); // To handle file upload
     const [isEditingNickname, setIsEditingNickname] = useState(false);
     const [isEditingPhone, setIsEditingPhone] = useState(false);
     const [isEditingEmail, setIsEditingEmail] = useState(false);
@@ -41,6 +43,30 @@ const Mypage = () => {
     const [currentPassword, setCurrentPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmNewPassword, setConfirmNewPassword] = useState('');
+
+    useEffect(() => {
+        const fetchUserInfo = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await axios.get('http://43.200.238.249:5000/users/info', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                    },
+                });
+
+                const userInfo = response.data;
+                setNickname(userInfo.name || '닉네임을 입력해주세요');
+                setPhone(userInfo.phone || '전화번호를 입력해주세요');
+                setEmail(userInfo.email || '이메일을 입력해주세요');
+                setProfileImage(userInfo.profile_image);
+            } catch (error) {
+                console.error('Error fetching user information:', error.response?.data || error.message);
+                alert('회원 정보를 가져오는 중 오류가 발생했습니다.');
+            }
+        };
+
+        fetchUserInfo();
+    }, []);
 
     const handleNicknameEdit = () => {
         setIsEditingNickname(!isEditingNickname);
@@ -90,7 +116,6 @@ const Mypage = () => {
         }
     };
     
-
     const handleChangePassword = async () => {
         if (newPassword !== confirmNewPassword) {
             alert('새 비밀번호와 확인 비밀번호가 일치하지 않습니다.');
@@ -124,6 +149,40 @@ const Mypage = () => {
         }
     };
 
+    const handleProfileImageChange = (e) => {
+        const file = e.target.files[0];
+        setProfileImageFile(file);
+        setProfileImage(URL.createObjectURL(file)); 
+    };
+
+    const handleSaveProfile = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const formData = new FormData();
+            formData.append('name', nickname);
+            formData.append('phone', phone);
+            if (profileImageFile) {
+                formData.append('profileImage', profileImageFile);
+            }
+
+            const response = await axios.patch('http://43.200.238.249:5000/users/info/edit', formData, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+
+            if (response.status === 200) {
+                alert('회원 정보가 성공적으로 수정되었습니다.');
+            } else {
+                alert('회원 정보 수정 중 오류가 발생했습니다.');
+            }
+        } catch (error) {
+            console.error('Error updating profile information:', error.response?.data || error.message);
+            alert('회원 정보 수정 중 오류가 발생했습니다.');
+        }
+    };
+
     return (
         <Container><Title>마이페이지</Title><Tabs><TabButton 
                     onClick={() => setActiveTab('memberInfo')} 
@@ -143,8 +202,16 @@ const Mypage = () => {
                 </TabButton></Tabs>
             
             {activeTab === 'memberInfo' && (
-                <ProfileSection><h2>회원 정보</h2><ProfilePicture><PicturePlaceholder>
-                    <EditIcon>✏️</EditIcon></PicturePlaceholder></ProfilePicture>
+                <ProfileSection><h2>회원 정보</h2><ProfilePicture>
+                    {profileImage ? (
+                        <img src={profileImage} alt="Profile" />
+                    ) : (
+                        <PicturePlaceholder>
+                            <EditIcon>✏️</EditIcon>
+                        </PicturePlaceholder>
+                    )}
+                    <input type="file" accept="image/*" onChange={handleProfileImageChange} />
+                    </ProfilePicture>
                     <InfoItem><label>닉네임</label><InfoContent>
                             {isEditingNickname ? (
                                 <input type="text"value={nickname}onChange={(e) => setNickname(e.target.value)} 
@@ -164,20 +231,7 @@ const Mypage = () => {
                         </InfoContent></InfoItem><InfoItem>
                         <label>이메일 주소</label>
                         <InfoContent>
-                            {isEditingEmail ? (
-                                <input 
-                                    type="email" 
-                                    value={email} 
-                                    onChange={(e) => setEmail(e.target.value)} 
-                                    onBlur={handleEmailEdit}
-                                    style={{ marginRight: '10px' }}
-                                />
-                            ) : (
-                                <>
-                                    <span>{email}</span>
-                                    <EditButton onClick={handleEmailEdit}>✎</EditButton>
-                                </>
-                            )}
+                            <span>{email}</span> 
                             {isEmailValidated ? (
                                 <ValidateButton>인증완료</ValidateButton>
                             ) : (
@@ -188,6 +242,7 @@ const Mypage = () => {
                             )}
                         </InfoContent>
                     </InfoItem>
+                    <Button onClick={handleSaveProfile}>회원 정보 저장하기</Button>
                 </ProfileSection>
             )}
             {activeTab === 'securitySettings' && (
