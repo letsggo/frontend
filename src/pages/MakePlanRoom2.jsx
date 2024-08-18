@@ -30,13 +30,18 @@ const Container = styled.div`
   justify-content: center;
   width: 1000px;
   max-width: 1200px;
+  height: 850px;
   box-sizing: border-box;
+  > h1 {
+    margin: 0;
+  }
 `;
 
 const FlexContainer = styled.div`
   display: flex;
   justify-content: space-between;
   gap: 20px;
+  height: 100%;
 `;
 
 const MapSection = styled.div`
@@ -61,7 +66,7 @@ const InputContainer = styled.div`
   border-radius: 20px;
   position: relative;
   width: 100%;
-  height: 50%;
+  height: 48%;
 `;
 
 const Input = styled.input`
@@ -92,20 +97,62 @@ const AddButton = styled.button`
 const SearchResultsContainer = styled.div`
   position: absolute; /* InputContainer 내에서 절대 위치 설정 */
   width: 100%;
-  height: 80%;
-  max-height: 80%; /* 최대 높이 설정 */
+  height: 83%;
+  max-height: 83%; /* 최대 높이 설정 */
   overflow-y: auto; /* 스크롤 활성화 */
   z-index: 10; /* z-index 추가 */
 `;
 
 const SearchResultItem = styled.div`
-  padding: 10px;
-  border-bottom: 1px solid #ddd;
+  display: flex;
+  align-items: center; /* 수직 중앙 정렬 */
+  border: none;
+  box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  padding: 15px;
+  margin: 10px;
   cursor: pointer;
+  background: #fff;
+  transition: background 0.3s ease;
+  position: relative;
 
   &:hover {
     background: #f0f0f0;
   }
+`;
+
+const SearchResultImage = styled.img`
+  width: 60px;
+  height: 60px;
+  object-fit: cover; /* 비율 유지하며 잘림 방지 */
+  border-radius: 8px;
+  margin-right: 10px;
+`;
+
+const SearchResultContent = styled.div`
+  display: flex;
+  flex-direction: column; /* 제목과 설명을 세로 방향으로 배치 */
+`;
+
+const SearchResultTitle = styled.h4`
+  font-size: 14px;
+  margin: 0 0 5px 0;
+  color: #333;
+`;
+
+const SearchResultDescription = styled.p`
+  font-size: 14px;
+  margin: 0 0 0 25px;
+  color: #666;
+`;
+
+const VectorIcon0 = styled.img`
+  position: absolute;
+  left: 19%;
+  top: 68%;
+  transform: translateY(-50%);
+  width: 16px; /* 아이콘 크기 조정 */
+  height: 20px; /* 아이콘 크기 조정 */
 `;
 
 //지도//
@@ -259,9 +306,9 @@ const RegisteredAccommodation = styled.div`
   border: none;
   box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.2);
   border-radius: 8px;
-  padding: 10px;
+  padding: 5px;
   width: 150px;
-  height: 230px;
+  height: 250px;
   margin: 5px;
   position: relative; /* 삭제 버튼을 절대 위치로 설정하기 위한 기준 */
   flex-shrink: 0; /* 항목이 축소되지 않도록 설정 */
@@ -272,8 +319,8 @@ const ImageContainer = styled.div`
 `;
 
 const Image = styled.img`
-  width: 100%;
-  height: auto;
+  width: 150px;
+  height: 150px;
   border-radius: 8px;
 `;
 
@@ -282,21 +329,21 @@ const InfoContainer = styled.div`
 `;
 
 const AccommodationTitle = styled.h3`
-  font-size: 16px;
+  font-size: 14px;
   margin: 5px 0px;
 `;
 
 const AccommodationDescription = styled.p`
   display: flex;
-  font-size: 14px;
-  margin: 10px 30px;
+  font-size: 12px;
+  margin: 5px 0 0 30px;
   color: #666;
 `;
 
 const VectorIcon = styled.img`
   background: url(${VectorImage}) no-repeat center center;
   position: absolute;
-  left: 4px;
+  left: 1px;
   top: 85%;
   transform: translateY(-50%); /* 수직 중앙 정렬 */
   background-size: 19px 25px; /* 이미지 크기 조정 */
@@ -308,8 +355,8 @@ const VectorIcon = styled.img`
 const DeleteButton = styled.button`
   background: url(${DeletebuttonImage}) no-repeat center center;
   position: absolute;
-  right: 0px;
-  top: 8%;
+  right: -3px;
+  top: 7%;
   transform: translateY(-50%); /* 수직 중앙 정렬 */
   background-size: 30px 30px; /* 이미지 크기 조정 */
   padding: 20px;
@@ -509,8 +556,17 @@ function MakePlanRoom2() {
                   key={index}
                   onClick={() => handleAddAccommodation(item)}
                 >
-                  <h4>{item.title}</h4>
-                  <p>{item.address}</p>
+                  <SearchResultImage
+                    src={item.firstimage || 'https://via.placeholder.com/60'}
+                    alt={item.title}
+                  />
+                  <SearchResultContent>
+                    <SearchResultTitle>{item.title}</SearchResultTitle>
+                    <SearchResultDescription>
+                      {item.address}
+                    </SearchResultDescription>
+                  </SearchResultContent>
+                  <VectorIcon0 src={VectorImage} alt="Vector Icon" />
                 </SearchResultItem>
               ))}
             </SearchResultsContainer>
