@@ -102,8 +102,12 @@ const MapPiece = styled.img`
   width: 50px;
   height: auto;
   cursor: pointer;
-  &:hover,
-  &:active {
+  filter: ${({ isSelected }) =>
+    isSelected
+      ? 'brightness(1.5) sepia(1.7) hue-rotate(5deg) saturate(2)'
+      : 'none'};
+
+  &:hover {
     filter: brightness(1.5) sepia(1.7) hue-rotate(5deg) saturate(2); /* 색상을 노란색으로 변경 */
   }
 `;
@@ -329,6 +333,17 @@ function MakePlanRoom2() {
   const location = useLocation();
   const navigate = useNavigate();
 
+  const [selectedMapPieces, setSelectedMapPieces] = useState([]); // 선택된 지도 조각들을 상태로 관리
+
+  const handleMapClick = (index) => {
+    setSelectedMapPieces(
+      (prevSelected) =>
+        prevSelected.includes(index)
+          ? prevSelected.filter((i) => i !== index) // 이미 선택된 경우 해제
+          : [...prevSelected, index] // 선택되지 않은 경우 추가
+    );
+  };
+
   const handleAddAccommodation = () => {
     if (accommodation.trim() === '') return;
     setRegisteredAccommodations([
@@ -366,24 +381,96 @@ function MakePlanRoom2() {
           <SectionTitle>여행 지역</SectionTitle>
           <div>여행을 예정하는 지역을 모두 선택해주세요</div>
           <StyledMapContainer>
-            <MapImage1 src={Image1} />
-            <MapImage2 src={Image2} />
-            <MapImage3 src={Image3} />
-            <MapImage4 src={Image4} />
-            <MapImage5 src={Image5} />
-            <MapImage6 src={Image6} />
-            <MapImage7 src={Image7} />
-            <MapImage8 src={Image8} />
-            <MapImage9 src={Image9} />
-            <MapImage10 src={Image10} />
-            <MapImage11 src={Image11} />
-            <MapImage12 src={Image12} />
-            <MapImage13 src={Image13} />
-            <MapImage14 src={Image14} />
-            <MapImage15 src={Image15} />
-            <MapImage16 src={Image16} />
-            <MapImage17 src={Image17} />
-            <MapImage18 src={Image18} />
+            <MapImage1
+              src={Image1}
+              isSelected={selectedMapPieces.includes(1)}
+              onClick={() => handleMapClick(1)}
+            />
+            <MapImage2
+              src={Image2}
+              isSelected={selectedMapPieces.includes(2)}
+              onClick={() => handleMapClick(2)}
+            />
+            <MapImage3
+              src={Image3}
+              isSelected={selectedMapPieces.includes(3)}
+              onClick={() => handleMapClick(3)}
+            />
+            <MapImage4
+              src={Image4}
+              isSelected={selectedMapPieces.includes(4)}
+              onClick={() => handleMapClick(4)}
+            />
+            <MapImage5
+              src={Image5}
+              isSelected={selectedMapPieces.includes(5)}
+              onClick={() => handleMapClick(5)}
+            />
+            <MapImage6
+              src={Image6}
+              isSelected={selectedMapPieces.includes(6)}
+              onClick={() => handleMapClick(6)}
+            />
+            <MapImage7
+              src={Image7}
+              isSelected={selectedMapPieces.includes(7)}
+              onClick={() => handleMapClick(7)}
+            />
+            <MapImage8
+              src={Image8}
+              isSelected={selectedMapPieces.includes(8)}
+              onClick={() => handleMapClick(8)}
+            />
+            <MapImage9
+              src={Image9}
+              isSelected={selectedMapPieces.includes(9)}
+              onClick={() => handleMapClick(9)}
+            />
+            <MapImage10
+              src={Image10}
+              isSelected={selectedMapPieces.includes(10)}
+              onClick={() => handleMapClick(10)}
+            />
+            <MapImage11
+              src={Image11}
+              isSelected={selectedMapPieces.includes(11)}
+              onClick={() => handleMapClick(11)}
+            />
+            <MapImage12
+              src={Image12}
+              isSelected={selectedMapPieces.includes(12)}
+              onClick={() => handleMapClick(12)}
+            />
+            <MapImage13
+              src={Image13}
+              isSelected={selectedMapPieces.includes(13)}
+              onClick={() => handleMapClick(13)}
+            />
+            <MapImage14
+              src={Image14}
+              isSelected={selectedMapPieces.includes(14)}
+              onClick={() => handleMapClick(14)}
+            />
+            <MapImage15
+              src={Image15}
+              isSelected={selectedMapPieces.includes(15)}
+              onClick={() => handleMapClick(15)}
+            />
+            <MapImage16
+              src={Image16}
+              isSelected={selectedMapPieces.includes(16)}
+              onClick={() => handleMapClick(16)}
+            />
+            <MapImage17
+              src={Image17}
+              isSelected={selectedMapPieces.includes(17)}
+              onClick={() => handleMapClick(17)}
+            />
+            <MapImage18
+              src={Image18}
+              isSelected={selectedMapPieces.includes(18)}
+              onClick={() => handleMapClick(18)}
+            />
           </StyledMapContainer>
         </MapSection>
         <InfoSection>

@@ -31,11 +31,13 @@ import MainNavbar from './components/MainNavbar';
 
 const AppContainer = styled.div`
   display: flex;
+  margin-top: 60px;
 `;
 
 const ContentContainer = styled.div`
   flex: 1;
   padding: 20px;
+  margin-left: 70px;
 `;
 
 function App() {
@@ -50,7 +52,7 @@ function App() {
   const sideBarPages = [
     '/Home',
     '/MakePlanRoom1',
-    '/MakePlanroom2',
+    '/MakePlanRoom2',
     '/StartPlanRoom',
     '/MyPage',
     '/MyPage2',
