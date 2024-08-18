@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import TimePicker from 'react-time-picker';
 import 'react-calendar/dist/Calendar.css';
 import 'react-time-picker/dist/TimePicker.css';
-import { format, isWithinInterval } from 'date-fns';
+import { format } from 'date-fns';
 import moment from 'moment';
 import axios from 'axios';
 import NextImage from '../buttonimage/nextbutton.png';
@@ -280,7 +280,7 @@ const NextButton = styled.button`
   width: 100%;
   height: 60px;
   background: url(${NextImage}) no-repeat center center;
-  background-size: 1000px 55px; /* 이미지 크기를 버튼 크기에 맞춤 */
+  background-size: contain; /* 이미지 크기를 버튼 크기에 맞춤 */
   border: none; /* 버튼 테두리 제거 */
   cursor: pointer; /* 커서 모양을 포인터로 변경 */
 `;
