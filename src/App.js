@@ -52,7 +52,7 @@ function App() {
   const sideBarPages = [
     '/Home',
     '/MakePlanRoom1',
-    '/MakePlanRoom2',
+    '/MakePlanroom2',
     '/StartPlanRoom',
     '/MyPage',
     '/MyPage2',

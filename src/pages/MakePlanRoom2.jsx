@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import axios from 'axios';
 import { useNavigate, useLocation } from 'react-router-dom';
 import AddbuttonImage from '../buttonimage/addbutton.png';
 import DeletebuttonImage from '../buttonimage/deletebutton.png';
@@ -24,11 +25,11 @@ import Image16 from '../mapimage/16.png';
 import Image17 from '../mapimage/17.png';
 import Image18 from '../mapimage/18.png';
 
-/* 기본 스타일 설정 */
 const Container = styled.div`
-  width: 90%;
-  max-width: 1200px;
   margin: 0 auto;
+  justify-content: center;
+  width: 1000px;
+  max-width: 1200px;
   box-sizing: border-box;
 `;
 
@@ -60,7 +61,7 @@ const InputContainer = styled.div`
   border-radius: 20px;
   position: relative;
   width: 100%;
-  height: 40%;
+  height: 50%;
 `;
 
 const Input = styled.input`
@@ -80,7 +81,7 @@ const AddButton = styled.button`
   background: url(${AddbuttonImage}) no-repeat center center;
   position: absolute;
   right: 10px;
-  top: 10%;
+  top: 8%;
   transform: translateY(-50%); /* 수직 중앙 정렬 */
   background-size: 30px 30px; /* 이미지 크기 조정 */
   padding: 20px;
@@ -88,6 +89,26 @@ const AddButton = styled.button`
   border: none;
 `;
 
+const SearchResultsContainer = styled.div`
+  position: absolute; /* InputContainer 내에서 절대 위치 설정 */
+  width: 100%;
+  height: 80%;
+  max-height: 80%; /* 최대 높이 설정 */
+  overflow-y: auto; /* 스크롤 활성화 */
+  z-index: 10; /* z-index 추가 */
+`;
+
+const SearchResultItem = styled.div`
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+  cursor: pointer;
+
+  &:hover {
+    background: #f0f0f0;
+  }
+`;
+
+//지도//
 const StyledMapContainer = styled.div`
   width: 466px;
   height: 676.734px;
@@ -96,7 +117,6 @@ const StyledMapContainer = styled.div`
   border-radius: 8px;
   position: relative; /* 자식 요소들의 절대 위치를 기준으로 설정 */
 `;
-
 const MapPiece = styled.img`
   position: absolute;
   width: 50px;
@@ -111,7 +131,6 @@ const MapPiece = styled.img`
     filter: brightness(1.5) sepia(1.7) hue-rotate(5deg) saturate(2); /* 색상을 노란색으로 변경 */
   }
 `;
-
 const MapImage1 = styled(MapPiece)`
   top: 51%;
   left: 67.5%;
@@ -119,49 +138,42 @@ const MapImage1 = styled(MapPiece)`
   height: 44.668px;
   z-index: 10;
 `;
-
 const MapImage2 = styled(MapPiece)`
   top: 29.5%;
   left: 51%;
   width: 194.844px;
   height: 202.12px;
 `;
-
 const MapImage3 = styled(MapPiece)`
   top: 0;
   left: 31%;
   width: 263.247px;
   height: 207.967px;
 `;
-
 const MapImage4 = styled(MapPiece)`
   top: 62.5%;
   left: 3.5%;
   width: 208.921px;
   height: 167.137px;
 `;
-
 const MapImage5 = styled(MapPiece)`
   top: 53.5%;
   left: 45%;
   width: 171.927px;
   height: 165.463px;
 `;
-
 const MapImage6 = styled(MapPiece)`
   top: 65.5%;
   left: 76%;
   width: 43.647px;
   height: 50.399px;
 `;
-
 const MapImage7 = styled(MapPiece)`
   top: 7.3%;
   left: 16%;
   width: 151.702px;
   height: 172.971px;
 `;
-
 const MapImage8 = styled(MapPiece)`
   top: 37.8%;
   left: 30%;
@@ -169,77 +181,67 @@ const MapImage8 = styled(MapPiece)`
   height: 47.256px;
   z-index: 10;
 `;
-
 const MapImage9 = styled(MapPiece)`
   top: 29.3%;
   left: 8%;
   width: 174.025px;
   height: 152.846px;
 `;
-
 const MapImage10 = styled(MapPiece)`
   top: 27.5%;
   left: 38%;
   width: 142.311px;
   height: 166.093px;
 `;
-
 const MapImage11 = styled(MapPiece)`
   top: 90.5%;
   left: 0;
   width: 96.646px;
   height: 61.995px;
 `;
-
 const MapImage12 = styled(MapPiece)`
   top: 15.5%;
   left: 10.5%;
   width: 77.112px;
   height: 50.411px;
 `;
-
 const MapImage13 = styled(MapPiece)`
   top: 57%;
   left: 83%;
   width: 34.402px;
   height: 54.089px;
 `;
-
 const MapImage14 = styled(MapPiece)`
   top: 16%;
   left: 25.5%;
   width: 36.926px;
   height: 29.632px;
 `;
-
 const MapImage15 = styled(MapPiece)`
   top: 43.3%;
   left: 38%;
   width: 23.386px;
   height: 32.168px;
 `;
-
 const MapImage16 = styled(MapPiece)`
   top: 66.8%;
   left: 23.3%;
   width: 26.361px;
   height: 25.989px;
 `;
-
 const MapImage17 = styled(MapPiece)`
   top: 49.5%;
   left: 15.5%;
   width: 163.824px;
   height: 110.81px;
 `;
-
 const MapImage18 = styled(MapPiece)`
   top: 21.4%;
   left: 93.2%;
   width: 32.773px;
   height: 22.09px;
 `;
-
+//등록된숙소
 const RegisteredListContainer = styled.div`
   display: flex;
   flex-direction: row;
@@ -330,6 +332,7 @@ const NextButton = styled.button`
 function MakePlanRoom2() {
   const [accommodation, setAccommodation] = useState('');
   const [registeredAccommodations, setRegisteredAccommodations] = useState([]);
+  const [searchResults, setSearchResults] = useState([]); // 검색 결과 상태 추가
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -344,23 +347,38 @@ function MakePlanRoom2() {
     );
   };
 
-  const handleAddAccommodation = () => {
-    if (accommodation.trim() === '') return;
+  const handleSearch = async () => {
+    try {
+      const response = await axios.get(
+        `http://43.200.238.249:5000/travel-plans/search?q=${encodeURIComponent(
+          accommodation
+        )}`
+      );
+      // 검색 결과를 콘솔에 출력합니다.
+      console.log('Search results:', response.data);
+      setSearchResults(response.data); // 상태 업데이트
+    } catch (error) {
+      console.error('Error fetching search results:', error);
+    }
+  };
+
+  const handleAddAccommodation = (item) => {
     setRegisteredAccommodations([
       ...registeredAccommodations,
       {
-        name: accommodation,
-        description: '숙소 설명.',
-        imageUrl: 'https://via.placeholder.com/150', // 예제 이미지 URL
+        name: item.title,
+        description: item.address,
+        imageUrl: item.firstimage || 'https://via.placeholder.com/150', // 이미지 URL 설정
       },
     ]);
     setAccommodation('');
+    setSearchResults([]); // 검색 결과 초기화
   };
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') {
-      e.preventDefault(); // 엔터 키의 기본 동작을 방지
-      handleAddAccommodation();
+      e.preventDefault();
+      handleSearch(); // 검색 수행
     }
   };
 
@@ -369,7 +387,7 @@ function MakePlanRoom2() {
   };
 
   const handleLink = () => {
-    const travelId = location.state?.travelId; // MakePlanRoom1에서 받은 travelId
+    const travelId = location.state?.travelId;
     navigate('/StartPlanRoom', { state: { travelId } });
   };
 
@@ -484,7 +502,18 @@ function MakePlanRoom2() {
               onKeyDown={handleKeyDown}
               placeholder="숙소명"
             />
-            <AddButton onClick={handleAddAccommodation}></AddButton>
+            <AddButton onClick={handleSearch}></AddButton>
+            <SearchResultsContainer>
+              {searchResults.map((item, index) => (
+                <SearchResultItem
+                  key={index}
+                  onClick={() => handleAddAccommodation(item)}
+                >
+                  <h4>{item.title}</h4>
+                  <p>{item.address}</p>
+                </SearchResultItem>
+              ))}
+            </SearchResultsContainer>
           </InputContainer>
           <SectionTitle>등록된 숙소</SectionTitle>
           <RegisteredListContainer>

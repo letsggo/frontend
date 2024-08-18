@@ -368,7 +368,7 @@ function MakePlanRoom1() {
         console.log('응답 데이터(FormData):', response.data);
         console.log('여행 계획방 ID:', travelId);
 
-        navigate('/MakePlanRoom2', { state: { travelId } });
+        navigate('/MakePlanroom2', { state: { travelId } });
       } catch (error) {
         console.error(
           '에러 발생:',
