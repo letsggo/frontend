@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import axios from 'axios';
 import {
   MapContainer as LeafletMapContainer,
   TileLayer,
@@ -340,6 +341,34 @@ function PlanRoomResult() {
   const [isExcelDownload, setIsExcelDownload] = useState(false);
   const [isImageDownload, setIsImageDownload] = useState(false);
 
+  const [travelPlan, setTravelPlan] = useState(null);
+  const { travelId } = useParams(); // URL 파라미터에서 travelId 가져오기
+
+  // 서버에서 여행 계획 데이터를 가져오는 useEffect
+  useEffect(() => {
+    const fetchTravelPlan = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get(
+          `http://43.200.238.249:5000/travel-plans/makeRoom/${travelId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        setTravelPlan(response.data);
+      } catch (error) {
+        console.error(
+          '여행 계획 데이터 가져오기 오류:',
+          error.response ? error.response.data : error.message
+        );
+      }
+    };
+
+    fetchTravelPlan();
+  }, [travelId]);
+
   const handleRouteClick = (routeId) => {
     setActiveRoute(routeId);
   };
@@ -448,8 +477,15 @@ function PlanRoomResult() {
       <HeaderWrapper>
         <Prevbt onClick={handlePrevLink} />
         <TitleWrapper>
-          <Title>국내 여행 제목</Title>
-          <Subtitle>2024/04/04 ~ 2024/04/06</Subtitle>
+          <Title>{travelPlan ? travelPlan.title : '국내 여행 제목'}</Title>
+          <Subtitle>
+            {travelPlan
+              ? `${travelPlan.start_date.slice(
+                  0,
+                  10
+                )} ~ ${travelPlan.end_date.slice(0, 10)}`
+              : '날짜를 가져오는 중...'}
+          </Subtitle>
         </TitleWrapper>
         <Out onClick={handleOutClick} />
       </HeaderWrapper>

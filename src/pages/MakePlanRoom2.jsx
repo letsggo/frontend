@@ -160,7 +160,7 @@ const StyledMapContainer = styled.div`
   width: 466px;
   height: 676.734px;
   background-size: contain;
-  margin-top: 20px;
+  margin-top: 50px;
   border-radius: 8px;
   position: relative; /* 자식 요소들의 절대 위치를 기준으로 설정 */
 `;
@@ -433,9 +433,94 @@ function MakePlanRoom2() {
     setRegisteredAccommodations((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const handleLink = () => {
-    const travelId = location.state?.travelId;
-    navigate('/StartPlanRoom', { state: { travelId } });
+  const handleLink = async () => {
+    try {
+      const travelId = location.state?.travelId;
+      const token = localStorage.getItem('token'); // 토큰을 localStorage에서 가져옵니다
+
+      if (!token) {
+        console.error('JWT 토큰이 없습니다');
+        return;
+      }
+
+      console.log('Travel ID:', travelId); // travelId를 콘솔에 출력합니다
+
+      // 모든 등록된 숙소를 서버로 전송
+      await Promise.all(
+        registeredAccommodations.map(async (acc) => {
+          try {
+            const response = await axios.post(
+              'http://43.200.238.249:5000/travel-plans/accommodations',
+              {
+                travel_id: travelId,
+                title: acc.name,
+                address: acc.description,
+                firstimage: acc.imageUrl,
+              },
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`, // 실제 JWT 토큰을 Authorization 헤더에 설정합니다
+                },
+              }
+            );
+            console.log('숙소가 성공적으로 등록되었습니다:', response.data);
+          } catch (err) {
+            console.error(
+              '숙소 등록 중 오류 발생:',
+              err.response ? err.response.data : err.message
+            );
+          }
+        })
+      );
+
+      // 선택된 지역을 서버로 전송
+      const regionMap = {
+        1: '대구광역시',
+        2: '경상북도',
+        3: '강원도',
+        4: '전라남도',
+        5: '경상남도',
+        6: '부산광역시',
+        7: '경기도',
+        8: '세종특별자치시',
+        9: '충청남도',
+        10: '충청북도',
+        11: '제주도',
+        12: '인천광역시',
+        13: '울산광역시',
+        14: '서울특별시',
+        15: '대전광역시',
+        16: '광주광역시',
+        17: '전라북도',
+        18: '울릉도,독도',
+      };
+
+      // 선택된 지역들을 쉼표로 구분된 문자열로 변환
+      const selectedRegionsString = selectedMapPieces
+        .map((piece) => regionMap[piece])
+        .join(', ');
+
+      const response = await axios.put(
+        `http://43.200.238.249:5000/travel-plans/makeRoom/${travelId}`,
+        {
+          region: selectedRegionsString,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      console.log('지역이 성공적으로 등록되었습니다:', response.data);
+      // 서버로 전송 후 페이지 이동
+      navigate('/StartPlanRoom', { state: { travelId } });
+    } catch (error) {
+      console.error(
+        '숙소 및 지역 등록 중 오류 발생:',
+        error.response ? error.response.data : error.message
+      );
+    }
   };
 
   return (
