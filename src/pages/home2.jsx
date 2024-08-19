@@ -12,7 +12,11 @@ const Home2 = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get('');
+                const response = await axios.get('/travel-plans/myRooms', {
+                    headers: {
+                        Authorization: `Bearer <YOUR_JWT_TOKEN>`,
+                    },
+                });
                 setTravel(response.data);
             } catch (error) {
                 console.error('Error:', error);
@@ -28,9 +32,9 @@ const Home2 = () => {
 
     const sortedTravel = [...travel].sort((a, b) => {
         if (sortOption === 'latest') {
-            return new Date(b.date) - new Date(a.date);
+            return new Date(b.start_date) - new Date(a.start_date);
         } else if (sortOption === 'name') {
-            return a.name.localeCompare(b.name);
+            return a.title.localeCompare(b.title);
         }
         return 0;
     });

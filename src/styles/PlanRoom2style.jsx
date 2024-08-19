@@ -17,10 +17,10 @@ export const planroomStyle = css`
 
   .map-container {
     width: 50%; 
-    height: 450px; 
+    height: 400px; 
     background-color: lightgray; 
     position: relative; 
-    overflow: hidden; 
+     
   }
 
   .map {

@@ -13,6 +13,7 @@ import L from 'leaflet';
 import OutImage from '../buttonimage/outbutton.png';
 import prevImage from '../buttonimage/prebutton.png';
 import DownImage from '../buttonimage/down.png';
+import ExdownImage from '../buttonimage/exdown.png';
 import SaveImage from '../buttonimage/save.png';
 import TravelImage from '../buttonimage/travel.png';
 import RouteImage from '../buttonimage/route.png';
@@ -236,8 +237,8 @@ const Save = styled.button`
 const Modal = styled.div`
   display: ${(props) => (props.open ? 'block' : 'none')};
   position: fixed;
-  top: 70%;
-  left: 80%;
+  top: 80%;
+  left: 70%;
   transform: translate(-50%, -50%);
   width: 400px;
   padding: 20px;
@@ -270,6 +271,19 @@ const DownImageContainer = styled.div`
   width: 300px;
   height: 300px;
   background: url(${DownImage}) no-repeat center center;
+  background-size: contain;
+  z-index: 1000;
+`;
+
+const ExdownImageContainer = styled.div`
+  display: ${(props) => (props.show ? 'flex' : 'none')};
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 300px;
+  height: 300px;
+  background: url(${ExdownImage}) no-repeat center center;
   background-size: contain;
   z-index: 1000;
 `;
@@ -323,18 +337,8 @@ function PlanRoomResult() {
   const [activeRoute, setActiveRoute] = useState(1);
   const [showTime, setShowTime] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isSaved, setIsSaved] = useState(false);
-  const [showDownImage, setShowDownImage] = useState(false);
-
-  useEffect(() => {
-    let timer;
-    if (showDownImage) {
-      timer = setTimeout(() => {
-        setShowDownImage(false);
-      }, 1000);
-    }
-    return () => clearTimeout(timer); // Cleanup the timer on component unmount
-  }, [showDownImage]);
+  const [isExcelDownload, setIsExcelDownload] = useState(false);
+  const [isImageDownload, setIsImageDownload] = useState(false);
 
   const handleRouteClick = (routeId) => {
     setActiveRoute(routeId);
@@ -343,6 +347,26 @@ function PlanRoomResult() {
   const handleToggleChange = () => {
     setShowTime(!showTime);
   };
+
+  useEffect(() => {
+    let timer;
+    if (isImageDownload) {
+      timer = setTimeout(() => {
+        setIsImageDownload(false);
+      }, 1000);
+    }
+    return () => clearTimeout(timer);
+  }, [isImageDownload]);
+
+  useEffect(() => {
+    let timer;
+    if (isExcelDownload) {
+      timer = setTimeout(() => {
+        setIsExcelDownload(false);
+      }, 1000);
+    }
+    return () => clearTimeout(timer);
+  }, [isExcelDownload]);
 
   // 동선에 포함된 여행지만 필터링
   const activeRouteLocations = activeRoute
@@ -364,7 +388,7 @@ function PlanRoomResult() {
   };
 
   const handleSaveClick = () => {
-    setIsModalOpen(true);
+    setIsModalOpen((prevState) => !prevState); // 현재 상태의 반대로 설정
   };
 
   const handleSaveAsImage = () => {
@@ -376,9 +400,8 @@ function PlanRoomResult() {
       link.download = 'travel-plan.png';
       link.click();
     });
-    setIsSaved(true);
     setIsModalOpen(false);
-    setShowDownImage(true);
+    setIsImageDownload(true);
   };
 
   const handleSaveAsExcel = () => {
@@ -407,9 +430,8 @@ function PlanRoomResult() {
     // 엑셀 파일 생성 및 다운로드
     XLSX.writeFile(wb, 'travel-plan.xlsx');
 
-    setIsSaved(true);
     setIsModalOpen(false);
-    setShowDownImage(true);
+    setIsExcelDownload(true);
   };
 
   //장소위치조정
@@ -534,7 +556,8 @@ function PlanRoomResult() {
         <ModalButton onClick={handleSaveAsImage}>사진으로 저장</ModalButton>
         <ModalButton onClick={handleSaveAsExcel}>엑셀로 저장</ModalButton>
       </Modal>
-      <DownImageContainer show={showDownImage} />
+      <DownImageContainer show={isImageDownload} />
+      <ExdownImageContainer show={isExcelDownload} />
     </Container>
   );
 }
