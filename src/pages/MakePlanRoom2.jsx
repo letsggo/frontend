@@ -500,8 +500,6 @@ function MakePlanRoom2() {
         .map((piece) => regionMap[piece])
         .join(', ');
 
-      console.log('선택된 지역:', selectedRegionsString); // 선택된 지역을 콘솔에 출력
-
       const response = await axios.put(
         `http://43.200.238.249:5000/travel-plans/makeRoom/${travelId}`,
         {
