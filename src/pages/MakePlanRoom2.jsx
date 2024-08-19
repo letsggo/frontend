@@ -1,28 +1,47 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import axios from 'axios';
 import { useNavigate, useLocation } from 'react-router-dom';
-import {
-  MapContainer as LeafletMapContainer,
-  TileLayer,
-  Marker,
-  Polyline,
-  Popup,
-} from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
-import L from 'leaflet';
+import AddbuttonImage from '../buttonimage/addbutton.png';
+import DeletebuttonImage from '../buttonimage/deletebutton.png';
+import VectorImage from '../buttonimage/vector.png';
+import NextImage from '../buttonimage/nextbutton.png';
+import Image1 from '../mapimage/1.png';
+import Image2 from '../mapimage/2.png';
+import Image3 from '../mapimage/3.png';
+import Image4 from '../mapimage/4.png';
+import Image5 from '../mapimage/5.png';
+import Image6 from '../mapimage/6.png';
+import Image7 from '../mapimage/7.png';
+import Image8 from '../mapimage/8.png';
+import Image9 from '../mapimage/9.png';
+import Image10 from '../mapimage/10.png';
+import Image11 from '../mapimage/11.png';
+import Image12 from '../mapimage/12.png';
+import Image13 from '../mapimage/13.png';
+import Image14 from '../mapimage/14.png';
+import Image15 from '../mapimage/15.png';
+import Image16 from '../mapimage/16.png';
+import Image17 from '../mapimage/17.png';
+import Image18 from '../mapimage/18.png';
 
-/* 기본 스타일 설정 */
 const Container = styled.div`
-  width: 90%;
-  max-width: 1200px;
   margin: 0 auto;
+  justify-content: center;
+  width: 1000px;
+  max-width: 1200px;
+  height: 850px;
   box-sizing: border-box;
+  > h1 {
+    margin: 0;
+  }
 `;
 
 const FlexContainer = styled.div`
   display: flex;
   justify-content: space-between;
   gap: 20px;
+  height: 100%;
 `;
 
 const MapSection = styled.div`
@@ -33,6 +52,7 @@ const InfoSection = styled.div`
   flex: 1;
   display: flex;
   flex-direction: column; /* 세로 방향으로 배치 */
+  width: 500px;
 `;
 
 const SectionTitle = styled.h2`
@@ -41,79 +61,266 @@ const SectionTitle = styled.h2`
 `;
 
 const InputContainer = styled.div`
+  margin: 10px 0px;
+  border: 1px solid #4ec3f3;
+  border-radius: 20px;
   position: relative;
   width: 100%;
-  margin-bottom: 150px;
+  height: 48%;
 `;
 
 const Input = styled.input`
-  width: 100%;
-  height: 30px;
+  margin: 10px;
+  width: 95%;
+  height: 40px;
   font-size: 16px;
   padding: 5px 40px 5px 10px;
   box-sizing: border-box;
-  border-radius: 10px;
   border: none;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  border-bottom: 2px solid #4ec3f3;
+  box-shadow: 0px 2px 0px rgba(0, 0, 0, 0.1);
   outline: none;
 `;
 
 const AddButton = styled.button`
+  background: url(${AddbuttonImage}) no-repeat center center;
   position: absolute;
-  top: 50%;
   right: 10px;
-  transform: translateY(-50%);
-  height: 30px;
+  top: 8%;
+  transform: translateY(-50%); /* 수직 중앙 정렬 */
+  background-size: 30px 30px; /* 이미지 크기 조정 */
+  padding: 20px;
+  align-items: center;
   border: none;
-  background-color: #4caf50;
-  cursor: pointer;
-  border-radius: 5px;
-  padding: 0 10px;
-  font-size: 14px;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 `;
 
-const StyledMapContainer = styled.div`
+const SearchResultsContainer = styled.div`
+  position: absolute; /* InputContainer 내에서 절대 위치 설정 */
   width: 100%;
-  height: 500px;
-  background-color: #f0f0f0;
-  border-radius: 15px;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  overflow: hidden;
-  font-size: 16px;
-  color: #888;
+  height: 83%;
+  max-height: 83%; /* 최대 높이 설정 */
+  overflow-y: auto; /* 스크롤 활성화 */
+  z-index: 10; /* z-index 추가 */
 `;
 
+const SearchResultItem = styled.div`
+  display: flex;
+  align-items: center; /* 수직 중앙 정렬 */
+  border: none;
+  box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  padding: 15px;
+  margin: 10px;
+  cursor: pointer;
+  background: #fff;
+  transition: background 0.3s ease;
+  position: relative;
+
+  &:hover {
+    background: #f0f0f0;
+  }
+`;
+
+const SearchResultImage = styled.img`
+  width: 60px;
+  height: 60px;
+  object-fit: cover; /* 비율 유지하며 잘림 방지 */
+  border-radius: 8px;
+  margin-right: 10px;
+`;
+
+const SearchResultContent = styled.div`
+  display: flex;
+  flex-direction: column; /* 제목과 설명을 세로 방향으로 배치 */
+`;
+
+const SearchResultTitle = styled.h4`
+  font-size: 14px;
+  margin: 0 0 5px 0;
+  color: #333;
+`;
+
+const SearchResultDescription = styled.p`
+  font-size: 14px;
+  margin: 0 0 0 25px;
+  color: #666;
+`;
+
+const VectorIcon0 = styled.img`
+  position: absolute;
+  left: 19%;
+  top: 68%;
+  transform: translateY(-50%);
+  width: 16px; /* 아이콘 크기 조정 */
+  height: 20px; /* 아이콘 크기 조정 */
+`;
+
+//지도//
+const StyledMapContainer = styled.div`
+  width: 466px;
+  height: 676.734px;
+  background-size: contain;
+  margin-top: 20px;
+  border-radius: 8px;
+  position: relative; /* 자식 요소들의 절대 위치를 기준으로 설정 */
+`;
+const MapPiece = styled.img`
+  position: absolute;
+  width: 50px;
+  height: auto;
+  cursor: pointer;
+  filter: ${({ isSelected }) =>
+    isSelected
+      ? 'brightness(1.5) sepia(1.7) hue-rotate(5deg) saturate(2)'
+      : 'none'};
+
+  &:hover {
+    filter: brightness(1.5) sepia(1.7) hue-rotate(5deg) saturate(2); /* 색상을 노란색으로 변경 */
+  }
+`;
+const MapImage1 = styled(MapPiece)`
+  top: 51%;
+  left: 67.5%;
+  width: 32.551px;
+  height: 44.668px;
+  z-index: 10;
+`;
+const MapImage2 = styled(MapPiece)`
+  top: 29.5%;
+  left: 51%;
+  width: 194.844px;
+  height: 202.12px;
+`;
+const MapImage3 = styled(MapPiece)`
+  top: 0;
+  left: 31%;
+  width: 263.247px;
+  height: 207.967px;
+`;
+const MapImage4 = styled(MapPiece)`
+  top: 62.5%;
+  left: 3.5%;
+  width: 208.921px;
+  height: 167.137px;
+`;
+const MapImage5 = styled(MapPiece)`
+  top: 53.5%;
+  left: 45%;
+  width: 171.927px;
+  height: 165.463px;
+`;
+const MapImage6 = styled(MapPiece)`
+  top: 65.5%;
+  left: 76%;
+  width: 43.647px;
+  height: 50.399px;
+`;
+const MapImage7 = styled(MapPiece)`
+  top: 7.3%;
+  left: 16%;
+  width: 151.702px;
+  height: 172.971px;
+`;
+const MapImage8 = styled(MapPiece)`
+  top: 37.8%;
+  left: 30%;
+  width: 38.047px;
+  height: 47.256px;
+  z-index: 10;
+`;
+const MapImage9 = styled(MapPiece)`
+  top: 29.3%;
+  left: 8%;
+  width: 174.025px;
+  height: 152.846px;
+`;
+const MapImage10 = styled(MapPiece)`
+  top: 27.5%;
+  left: 38%;
+  width: 142.311px;
+  height: 166.093px;
+`;
+const MapImage11 = styled(MapPiece)`
+  top: 90.5%;
+  left: 0;
+  width: 96.646px;
+  height: 61.995px;
+`;
+const MapImage12 = styled(MapPiece)`
+  top: 15.5%;
+  left: 10.5%;
+  width: 77.112px;
+  height: 50.411px;
+`;
+const MapImage13 = styled(MapPiece)`
+  top: 57%;
+  left: 83%;
+  width: 34.402px;
+  height: 54.089px;
+`;
+const MapImage14 = styled(MapPiece)`
+  top: 16%;
+  left: 25.5%;
+  width: 36.926px;
+  height: 29.632px;
+`;
+const MapImage15 = styled(MapPiece)`
+  top: 43.3%;
+  left: 38%;
+  width: 23.386px;
+  height: 32.168px;
+`;
+const MapImage16 = styled(MapPiece)`
+  top: 66.8%;
+  left: 23.3%;
+  width: 26.361px;
+  height: 25.989px;
+`;
+const MapImage17 = styled(MapPiece)`
+  top: 49.5%;
+  left: 15.5%;
+  width: 163.824px;
+  height: 110.81px;
+`;
+const MapImage18 = styled(MapPiece)`
+  top: 21.4%;
+  left: 93.2%;
+  width: 32.773px;
+  height: 22.09px;
+`;
+//등록된숙소
 const RegisteredListContainer = styled.div`
-  flex: 1;
-  max-height: 300px; /* 최대 높이를 설정하여 스크롤이 생기도록 함 */
-  overflow-y: auto; /* 수직 스크롤 허용 */
-  box-sizing: border-box; /* 패딩을 포함하여 높이 계산 */
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  width: 100%;
+  max-width: auto;
+  overflow-x: auto;
+  overflow-y: hidden;
+  box-sizing: border-box;
 `;
 
 const RegisteredAccommodation = styled.div`
   display: flex;
-  border: 1px solid #ddd;
+  flex-direction: column;
+  border: none;
+  box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.2);
   border-radius: 8px;
-  padding: 10px;
-  margin-bottom: 10px;
-  background-color: #fff;
+  padding: 5px;
+  width: 150px;
+  height: 250px;
+  margin: 5px;
+  position: relative; /* 삭제 버튼을 절대 위치로 설정하기 위한 기준 */
+  flex-shrink: 0; /* 항목이 축소되지 않도록 설정 */
 `;
 
 const ImageContainer = styled.div`
   flex: 0 0 30%;
-  padding-right: 10px;
 `;
 
 const Image = styled.img`
-  width: 100%;
-  height: auto;
+  width: 150px;
+  height: 150px;
   border-radius: 8px;
 `;
 
@@ -122,84 +329,103 @@ const InfoContainer = styled.div`
 `;
 
 const AccommodationTitle = styled.h3`
-  font-size: 16px;
-  margin: 0;
+  font-size: 14px;
+  margin: 5px 0px;
 `;
 
 const AccommodationDescription = styled.p`
   display: flex;
-  font-size: 14px;
-  margin: 5px 0 0;
+  font-size: 12px;
+  margin: 5px 0 0 30px;
   color: #666;
-  position: relative; /* 삭제 버튼을 절대 위치로 설정하기 위한 기준 */
+`;
+
+const VectorIcon = styled.img`
+  background: url(${VectorImage}) no-repeat center center;
+  position: absolute;
+  left: 1px;
+  top: 85%;
+  transform: translateY(-50%); /* 수직 중앙 정렬 */
+  background-size: 19px 25px; /* 이미지 크기 조정 */
+  padding: 18px;
+  align-items: center;
+  border: none;
 `;
 
 const DeleteButton = styled.button`
+  background: url(${DeletebuttonImage}) no-repeat center center;
   position: absolute;
-  top: 10px; /* 오른쪽 상단으로 위치 조정 */
-  right: 10px;
+  right: -3px;
+  top: 7%;
+  transform: translateY(-50%); /* 수직 중앙 정렬 */
+  background-size: 30px 30px; /* 이미지 크기 조정 */
+  padding: 20px;
+  align-items: center;
   border: none;
-  padding: 5px 10px;
-  cursor: pointer;
-  font-size: 14px;
 `;
 
+/*페이지 이동 버튼*/
 const NextButton = styled.button`
+  margin: 40px 0 0 0;
   width: 100%;
-  height: 50px;
-  text-align: center;
-  font-size: 16px;
-  margin-top: 20px;
-  border-radius: 30px;
-  border: 1px solid #4caf50;
-  background-color: #4caf50;
-  color: white;
-  cursor: pointer;
-  outline: none;
-  transition: background-color 0.3s ease, border-color 0.3s ease;
-
-  &:hover {
-    background-color: #45a049;
-    border-color: #45a049;
-  }
+  height: 65px;
+  background: url(${NextImage}) no-repeat center center;
+  background-size: contain; /* 이미지 크기를 버튼 크기에 맞춤 */
+  border: none; /* 버튼 테두리 제거 */
+  cursor: pointer; /* 커서 모양을 포인터로 변경 */
 `;
-
-// 기본 마커 아이콘 설정
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
-  iconUrl: require('leaflet/dist/images/marker-icon.png'),
-  shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
-});
-
-// 장소와 동선 데이터를 예제로 사용
-const locations = [{ id: 1, name: '장소 1', position: [37.5665, 126.978] }];
-
-const route = [[37.5665, 126.978]];
 
 /* MakePlanRoom2 컴포넌트 */
 function MakePlanRoom2() {
   const [accommodation, setAccommodation] = useState('');
   const [registeredAccommodations, setRegisteredAccommodations] = useState([]);
+  const [searchResults, setSearchResults] = useState([]); // 검색 결과 상태 추가
   const location = useLocation();
-  
-  const handleAddAccommodation = () => {
-    if (accommodation.trim() === '') return;
+  const navigate = useNavigate();
+
+  const [selectedMapPieces, setSelectedMapPieces] = useState([]); // 선택된 지도 조각들을 상태로 관리
+
+  const handleMapClick = (index) => {
+    setSelectedMapPieces(
+      (prevSelected) =>
+        prevSelected.includes(index)
+          ? prevSelected.filter((i) => i !== index) // 이미 선택된 경우 해제
+          : [...prevSelected, index] // 선택되지 않은 경우 추가
+    );
+  };
+
+  const handleSearch = async () => {
+    try {
+      const response = await axios.get(
+        `http://43.200.238.249:5000/travel-plans/search?q=${encodeURIComponent(
+          accommodation
+        )}`
+      );
+      // 검색 결과를 콘솔에 출력합니다.
+      console.log('Search results:', response.data);
+      setSearchResults(response.data); // 상태 업데이트
+    } catch (error) {
+      console.error('Error fetching search results:', error);
+    }
+  };
+
+  const handleAddAccommodation = (item) => {
     setRegisteredAccommodations([
       ...registeredAccommodations,
       {
-        name: accommodation,
-        description: '숙소 설명.',
-        imageUrl: 'https://via.placeholder.com/150', // 예제 이미지 URL
+        name: item.title,
+        description: item.address,
+        imageUrl: item.firstimage || 'https://via.placeholder.com/150', // 이미지 URL 설정
       },
     ]);
     setAccommodation('');
+    setSearchResults([]); // 검색 결과 초기화
   };
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') {
-      e.preventDefault(); // 엔터 키의 기본 동작을 방지
-      handleAddAccommodation();
+      e.preventDefault();
+      handleSearch(); // 검색 수행
     }
   };
 
@@ -207,12 +433,9 @@ function MakePlanRoom2() {
     setRegisteredAccommodations((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const navigate = useNavigate();
-
   const handleLink = () => {
-    const travelId = location.state?.travelId; //MakePlanRoom1에서 받은 travelId
-
-    navigate('/StartPlanRoom', { state: { travelId }});
+    const travelId = location.state?.travelId;
+    navigate('/StartPlanRoom', { state: { travelId } });
   };
 
   return (
@@ -221,37 +444,132 @@ function MakePlanRoom2() {
       <FlexContainer>
         <MapSection>
           <SectionTitle>여행 지역</SectionTitle>
-          <div>여행을 예정하는 지역을 모두 선택해주세요.</div>
+          <div>여행을 예정하는 지역을 모두 선택해주세요</div>
           <StyledMapContainer>
-            <LeafletMapContainer
-              center={[37.5665, 126.978]}
-              zoom={15}
-              style={{ height: '100%', width: '100%' }}
-            >
-              <TileLayer
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-              />
-              {locations.map((location) => (
-                <Marker key={location.id} position={location.position}>
-                  <Popup>{location.name}</Popup>
-                </Marker>
-              ))}
-              <Polyline positions={route} color="blue" />
-            </LeafletMapContainer>
+            <MapImage1
+              src={Image1}
+              isSelected={selectedMapPieces.includes(1)}
+              onClick={() => handleMapClick(1)}
+            />
+            <MapImage2
+              src={Image2}
+              isSelected={selectedMapPieces.includes(2)}
+              onClick={() => handleMapClick(2)}
+            />
+            <MapImage3
+              src={Image3}
+              isSelected={selectedMapPieces.includes(3)}
+              onClick={() => handleMapClick(3)}
+            />
+            <MapImage4
+              src={Image4}
+              isSelected={selectedMapPieces.includes(4)}
+              onClick={() => handleMapClick(4)}
+            />
+            <MapImage5
+              src={Image5}
+              isSelected={selectedMapPieces.includes(5)}
+              onClick={() => handleMapClick(5)}
+            />
+            <MapImage6
+              src={Image6}
+              isSelected={selectedMapPieces.includes(6)}
+              onClick={() => handleMapClick(6)}
+            />
+            <MapImage7
+              src={Image7}
+              isSelected={selectedMapPieces.includes(7)}
+              onClick={() => handleMapClick(7)}
+            />
+            <MapImage8
+              src={Image8}
+              isSelected={selectedMapPieces.includes(8)}
+              onClick={() => handleMapClick(8)}
+            />
+            <MapImage9
+              src={Image9}
+              isSelected={selectedMapPieces.includes(9)}
+              onClick={() => handleMapClick(9)}
+            />
+            <MapImage10
+              src={Image10}
+              isSelected={selectedMapPieces.includes(10)}
+              onClick={() => handleMapClick(10)}
+            />
+            <MapImage11
+              src={Image11}
+              isSelected={selectedMapPieces.includes(11)}
+              onClick={() => handleMapClick(11)}
+            />
+            <MapImage12
+              src={Image12}
+              isSelected={selectedMapPieces.includes(12)}
+              onClick={() => handleMapClick(12)}
+            />
+            <MapImage13
+              src={Image13}
+              isSelected={selectedMapPieces.includes(13)}
+              onClick={() => handleMapClick(13)}
+            />
+            <MapImage14
+              src={Image14}
+              isSelected={selectedMapPieces.includes(14)}
+              onClick={() => handleMapClick(14)}
+            />
+            <MapImage15
+              src={Image15}
+              isSelected={selectedMapPieces.includes(15)}
+              onClick={() => handleMapClick(15)}
+            />
+            <MapImage16
+              src={Image16}
+              isSelected={selectedMapPieces.includes(16)}
+              onClick={() => handleMapClick(16)}
+            />
+            <MapImage17
+              src={Image17}
+              isSelected={selectedMapPieces.includes(17)}
+              onClick={() => handleMapClick(17)}
+            />
+            <MapImage18
+              src={Image18}
+              isSelected={selectedMapPieces.includes(18)}
+              onClick={() => handleMapClick(18)}
+            />
           </StyledMapContainer>
         </MapSection>
         <InfoSection>
           <SectionTitle>숙소</SectionTitle>
+          <div>숙소가 결정된 경우, 등록해주세요</div>
           <InputContainer>
             <Input
               type="text"
               value={accommodation}
               onChange={(e) => setAccommodation(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="숙소를 입력하세요."
+              placeholder="숙소명"
             />
-            <AddButton onClick={handleAddAccommodation}>🔍</AddButton>
+            <AddButton onClick={handleSearch}></AddButton>
+            <SearchResultsContainer>
+              {searchResults.map((item, index) => (
+                <SearchResultItem
+                  key={index}
+                  onClick={() => handleAddAccommodation(item)}
+                >
+                  <SearchResultImage
+                    src={item.firstimage || 'https://via.placeholder.com/60'}
+                    alt={item.title}
+                  />
+                  <SearchResultContent>
+                    <SearchResultTitle>{item.title}</SearchResultTitle>
+                    <SearchResultDescription>
+                      {item.address}
+                    </SearchResultDescription>
+                  </SearchResultContent>
+                  <VectorIcon0 src={VectorImage} alt="Vector Icon" />
+                </SearchResultItem>
+              ))}
+            </SearchResultsContainer>
           </InputContainer>
           <SectionTitle>등록된 숙소</SectionTitle>
           <RegisteredListContainer>
@@ -263,12 +581,11 @@ function MakePlanRoom2() {
                 <InfoContainer>
                   <AccommodationTitle>{acc.name}</AccommodationTitle>
                   <AccommodationDescription>
+                    <VectorIcon />
                     {acc.description}
                     <DeleteButton
                       onClick={() => handleDeleteAccommodation(index)}
-                    >
-                      ❌
-                    </DeleteButton>
+                    ></DeleteButton>
                   </AccommodationDescription>
                 </InfoContainer>
               </RegisteredAccommodation>
@@ -276,7 +593,7 @@ function MakePlanRoom2() {
           </RegisteredListContainer>
         </InfoSection>
       </FlexContainer>
-      <NextButton onClick={handleLink}>완성하기</NextButton>
+      <NextButton onClick={handleLink}></NextButton>
     </Container>
   );
 }

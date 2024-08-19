@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState,useEffect } from 'react';
 import styled from 'styled-components';
+import image from './이미지 업로드.png';
 import axios from 'axios';
 
 const ListItem = styled.div`
@@ -82,8 +83,7 @@ const Overlay = styled.div`
 `;
 
 const Kakao = styled.div`
-  //color: #544444;
-  color:red;
+  color: #544444;
   background-color: #f8df00;
   padding: 0px 5px;
   border-radius: 5px;
@@ -93,6 +93,7 @@ const Kakao = styled.div`
   position: fixed;
   left: 420px;
 `;
+
 
 const ToggleMyLocation = () => {
   const [openIndexes, setOpenIndexes] = useState([]);
@@ -106,80 +107,78 @@ const ToggleMyLocation = () => {
 
   const fetchLists = async () => {
     try {
-      const response = await axios.get('http://43.200.238.249:5000/users/lists', {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
+        const response = await axios.get('http://43.200.238.249:5000/users/lists', {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
 
-      const nameIdMap = response.data.reduce((acc, list) => {
-        acc[list.list_name] = list.list_id;
-        return acc;
-      }, {});
-      setListNameId(nameIdMap);
+        // listName과 listId를 매핑
+        const nameIdMap = response.data.reduce((acc, list) => {
+            acc[list.list_name] = list.list_id;
+            return acc;
+        }, {});
+        setListNameId(nameIdMap);
 
-      setSelectedLists(response.data.map(list => ({
-        list_name: list.list_name,
-        image: "https://example.com/default-image.png" // 이미지 URL 설정
-      })));
+        // selectedLists 설정
+        setSelectedLists(response.data.map(list => ({
+            list_name: list.list_name,
+            image: "https://example.com/default-image.png"
+        })));
 
-      setOpenIndexes(new Array(response.data.length).fill(false));
-      setDetailLists({});
+        // 초기 상태 설정
+        setOpenIndexes(new Array(response.data.length).fill(false));
+        setDetailLists({});
     } catch (error) {
-      console.error('Error fetching lists:', error);
+        console.error('Error fetching lists:', error);
     }
-  };
+};
 
+useEffect(() => {
+    fetchLists();
+}, []);
 
-  // useEffect(() => {
-  //   fetchLists();
-  //   console.log('detailLists:',detailLists);
-  //   console.log('selectedlists:',selectedLists);
-  //   console.log('listNameId:',listNameId);
-  // }, [detailLists,selectedLists,listNameId]);
-
-  const fetchListDetails = async (listId, listName) => {
-    try {
+const fetchListDetails = async (listId, listName) => {
+  try {
       const response = await axios.get(`http://43.200.238.249:5000/users/lists/${listId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
+          headers: {
+              Authorization: `Bearer ${token}`
+          }
       });
       const details = response.data;
-      const placeNames = details.places.map(place => place.place_name);
-
       setDetailLists(prevDetails => ({
-        ...prevDetails,
-        [listName]: placeNames
+          ...prevDetails,
+          [listName]: details
       }));
-    } catch (error) {
+  } catch (error) {
       console.error('Error fetching list details:', error.response ? error.response.data : error.message);
-    }
-  };
+  }
+};
 
-  const handleListClick = (index) => {
-    console.log('before:',openIndexes[index]);
-    setOpenIndexes(prevIndexes => {
-      const newIndexes = [...prevIndexes];
-      newIndexes[index] = !newIndexes[index];
-      return newIndexes;
-    });
-    console.log('after:',openIndexes[index]);
-    setIcon(prevIcon => ({
+
+const handleListClick = (index) => {
+  const listName = selectedLists[index]?.list_name; // 클릭된 항목의 리스트 이름
+  const isOpen = openIndexes.includes(index);
+
+  // 아이콘 상태 업데이트
+  setIcon(prevIcon => ({
       ...prevIcon,
-      [index]: openIndexes[index] ? '▶' : '▼'
-    }));
-  
-    // 상세 데이터 요청
-    const listName = selectedLists[index]?.list_name;
-    if (listName && !detailLists[listName]) {
+      [index]: isOpen ? '▶' : '▼'
+  }));
+
+  // 열림/닫힘 상태 업데이트
+  setOpenIndexes(prevIndexes =>
+      isOpen ? prevIndexes.filter(i => i !== index) : [...prevIndexes, index]
+  );
+
+  // 상세 데이터가 없으면 데이터 요청
+  if (listName && !detailLists[listName]) {
       const listId = listNameId[listName];
       if (listId) {
-        fetchListDetails(listId, listName);
+          fetchListDetails(listId, listName);
       }
-    }
-  };
-  
+  }
+};
 
   const handleEdit = (detailIndex, listName, event) => {
     event.stopPropagation();
@@ -205,43 +204,46 @@ const ToggleMyLocation = () => {
     });
   };
 
-  const handleDelete = async (isEdit, listId) => {
-    console.log('detailLists:',detailLists);
-    console.log('selectedlists:',selectedLists);
-    console.log('listNameId:',listNameId);
+  const handleDelete = async (isEdit,list_id) => {
+    //list_id=118;
+    console.log('listId:',list_id);
     try {
-      const response = await axios.delete(`http://43.200.238.249:5000/users/lists/${listId}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+        const response = await fetch(`http://43.200.238.249:5000/users/lists/${list_id}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to delete the list');
         }
-      });
 
-      if (!response.ok) {
-        throw new Error('Failed to delete the list');
-      }
+        // 성공적으로 삭제되었을 때 상태 업데이트
+        if (isEdit) {
+            const newDetailList = [...(detailLists[modalEdit.listName] || [])];
+            newDetailList.splice(modalEdit.index, 1);
+            setDetailLists({
+                ...detailLists,
+                [modalEdit.listName]: newDetailList
+            });
+        } else {
+            const newSelectedLists = selectedLists.filter((_, idx) => idx !== modalInfo.index);
+            setSelectedLists(newSelectedLists);
+            setOpenIndexes(prev => prev.map((val, idx) => idx === modalInfo.index ? false : val));
+        }
 
-      if (isEdit) {
-        const newDetailList = [...(detailLists[modalEdit.listName] || [])];
-        newDetailList.splice(modalEdit.index, 1);
-        setDetailLists(prev => ({
-          ...prev,
-          [modalEdit.listName]: newDetailList
-        }));
-      } else {
-        const newSelectedLists = selectedLists.filter((_, idx) => idx !== modalInfo.index);
-        setSelectedLists(newSelectedLists);
-        setOpenIndexes(prev => prev.map((val, idx) => idx === modalInfo.index ? false : val));
-      }
+        const result = await response.json();
+        console.log(result.message); // 서버로부터의 응답 메시지를 로그에 출력
 
-      const result = await response.json();
-      console.log(result.message);
     } catch (error) {
-      console.error('Error deleting the list:', error);
+        console.error('Error deleting the list:', error);
+        // 필요 시 사용자에게 오류를 알리는 로직 추가 가능
     }
 
     closeModal(isEdit);
-  };
+};
 
   const handleRefresh = () => {
     setSelectedLists([]);
@@ -257,12 +259,8 @@ const ToggleMyLocation = () => {
     }
   };
 
-  useEffect(() => {
-    console.log('Detail Lists:', detailLists);
-  }, [detailLists]);
-
   if (!selectedLists || selectedLists.length === 0) {
-    return null;
+    return null; // selectedLists가 없으면 아무것도 렌더링하지 않음
   }
 
   return (
@@ -270,10 +268,10 @@ const ToggleMyLocation = () => {
       {selectedLists.map((list, index) => (
         <div key={index}>
           <ListItem>
-            <div onClick={() => handleListClick(index)}>
+            <div onClick={() => handleListClick(list.list_name, index)}>
               {toggleIcon[index] || '▶'}
             </div>
-            <img src={list.image} alt="Location Thumbnail" />
+            <img src={image} alt="Location Thumbnail" />
             {list.list_name || '장소 이름 없음'}
             <Kakao>카카오 연동</Kakao>
             <Plus onClick={(event) => handleFix(index, event)} className='Plus'>⋮</Plus>
@@ -281,7 +279,7 @@ const ToggleMyLocation = () => {
               <>
                 <Overlay onClick={() => closeModal(false)} />
                 <Modal left={modalInfo.left} top={modalInfo.top}>
-                  <button onClick={() => handleDelete(false, listNameId[list.list_name])}>Delete</button><br />
+                  <button onClick={() => handleDelete(false,listNameId[index])}>Delete</button><br />
                   <button onClick={handleRefresh}>Refresh</button>
                 </Modal>
               </>
@@ -289,24 +287,20 @@ const ToggleMyLocation = () => {
           </ListItem>
           {openIndexes[index] && (
             <SubList>
-              {detailLists[list.list_name] && detailLists[list.list_name].length > 0 ? (
-                (detailLists[list.list_name] || []).map((detail, detailIndex) => (
-                  <Place key={detailIndex}>
-                    {detail || '장소 이름 없음'}
-                    <Plus onClick={(event) => handleEdit(detailIndex, list.list_name, event)}>⋮</Plus>
-                    {modalEdit.visible && modalEdit.index === detailIndex && modalEdit.listName === list.list_name && (
-                      <>
-                        <Overlay onClick={() => closeModal(true)} />
-                        <Modal left={modalEdit.left} top={modalEdit.top}>
-                          <button onClick={() => handleDelete(true, detailLists[list.list_name][detailIndex]?.list_id)}>Delete</button>
-                        </Modal>
-                      </>
-                    )}
-                  </Place>
-                ))
-              ) : (
-                <Place>장소 이름 없음</Place>
-              )}
+              {(detailLists[list.list_name] || []).map((detail, detailIndex) => (
+                <Place key={detailIndex}>
+                  {detail || '장소 이름 없음'}
+                  <Plus onClick={(event) => handleEdit(detailIndex, list.list_name, event)}>⋮</Plus>
+                  {modalEdit.visible && modalEdit.index === detailIndex && modalEdit.listName === list.list_name && (
+                    <>
+                      <Overlay onClick={() => closeModal(true)} />
+                      <Modal left={modalEdit.left} top={modalEdit.top}>
+                        <button onClick={() => handleDelete(true)}>Delete</button>
+                      </Modal>
+                    </>
+                  )}
+                </Place>
+              ))}
             </SubList>
           )}
         </div>
@@ -316,3 +310,5 @@ const ToggleMyLocation = () => {
 };
 
 export default ToggleMyLocation;
+
+;
