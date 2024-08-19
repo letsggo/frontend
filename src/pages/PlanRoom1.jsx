@@ -1,18 +1,22 @@
 import React, {useState,useEffect,useCallback, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import styled from 'styled-components';
 import ToggleList from "../toggleLists/ToggleList";
 import ToggleListPlace from "../toggleLists/TogglesListPlace";
 import ToggleListVote from "../toggleLists/ToggleListVote";
 import MyPlaceModal from "../modals/MyPlaceModal";
+import MyCandiModal from "../modals/MyCandiModal"
 import KakaoMap from "../components/KakaoMap";
 import axios from 'axios';
 
 /*구역 나눔*/
 const Container=styled.div`
-    margin-top: -20px;
+    margin-top: -80px;
+    margin-left: -75px;
     height: calc(100vh - 80px); 
     display:flex;
+    width:100%;
+    overflow:hidden;
 `;
 const Left=styled.div`
     height: calc(100vh - 60px); 
@@ -25,6 +29,7 @@ const Right=styled.div`
     height: calc(100vh - 60px); 
     position:fixed;
     right:0;
+    z-index:1000;
 `;
 /*지도 부분*/
 const Map=styled.div`
@@ -41,22 +46,25 @@ const Place=styled.div`
     margin-top:10px;
     margin-bottom: 10px; 
 `;
-const Button=styled.button`
+const Button= styled.button.attrs(props => ({
+  }))`
     background:none;
     border:none;
     font-size:16px;
     font-weight:700;
     position:relative;
-    color:${(props)=>(props.isClicked ? 'black' : 'gray')} 
+    border:none;
+    color:${props=>props.isClicked ? 'black' : 'gray'} 
 `;
-const Underline = styled.div`
+const Underline = styled.div.attrs(props => ({
+  }))`
     position:absolute;
     left: 0;
     right: 0; 
     bottom:-5px; 
     height: 5px;
     width:100%;
-    background-color: ${(props)=>(props.isClicked ? 'black' : 'transparent')} 
+    background-color: ${props=>props.isClicked ? 'black' : 'transparent'} 
 `;
 const PlaceSet=styled.div`
     position:fixed;
@@ -86,6 +94,7 @@ const PlaceButton=styled.button`
 const GoToVoteButton=styled.button`
     position:fixed;
     top:92%;
+    left:80%;
     width:280px;
     height:45px;
     margin-left:20px;
@@ -121,6 +130,13 @@ const ModalTitle=styled.div`
     position:fixed;
     top:530px;  
     left:20px;
+    color:white;
+`;
+const ModalTitle3=styled.div`
+    position:fixed;
+    top:200px;  
+    left:1300px;
+    color:white;
 `;
 const ModalContent1 = styled.div`
   padding: 15px 25px 0 0;
@@ -223,6 +239,7 @@ const Overlay = styled.div`
     background-color:#4A4A4A;
     border-radius: 10px;
     z-index: 1000;
+    overflow:hidden;
     input{
         background-color:#4A4A4A;
         border:none;
@@ -255,8 +272,9 @@ function PlanRoom1(){
     const [vote,setVote]=useState(0);
     const [modal1,setModal1]=useState(false);
     const [modal2,setModal2]=useState(false);
+    const [modal3,setModal3]=useState(false);
     const [selectedLists, setSelectedLists] = useState([]); //좌측 기존 리스트
-    const [candidateList,setCandidateList]=useState([]); //우측 후보지 리스트
+    const [selectedLists2, setSelectedLists2] = useState([]);//우측 후보지 리스트
     const [placeLists, setPlaceLists]=useState([]); //URL로 추가한 장소
     const [placeholder, setPlaceholder]=useState('장소 공유 URL을 입력해주세요');
     const [voteDone, setVoteDone]=useState(false);
@@ -270,6 +288,8 @@ function PlanRoom1(){
     const spanRef = useRef(null);
     const navigate=useNavigate();
     const token = localStorage.getItem('token');
+    const location=useLocation();
+    const travelId = location.state?.travelId;
 
     const shareVoteDetails = (details) => {
         setVoteDetails(details);
@@ -280,25 +300,44 @@ function PlanRoom1(){
     const openModal2  = () =>{
         setModal2(true);
     };
+    const openModal3  = () =>{
+        setModal3(true);
+    };
     const closeModal1  = () =>{
         setModal1(false);
     };
     const closeModal2  = () =>{
         setModal2(false);
     };
-    const handleListClick = (list) => {
-        if (selectedLists.includes(list)) {
-          setSelectedLists(selectedLists.filter((item) => item !== list)); 
-        } else {
-          setSelectedLists([...selectedLists, list]); 
-        }
+    const closeModal3  = () =>{
+        setModal3(false);
     };
-    const handleCandidate=()=>{
-        setCandidateList([...candidateList, `나의 후보 리스트 ${candidateList.length+1}`]); 
+    const handleListClick = (listName) => {
+        setSelectedLists(prevSelectedLists => {
+            if (prevSelectedLists.includes(listName)) {
+              return prevSelectedLists.filter(item => item !== listName);
+            } else {
+              return [...prevSelectedLists, listName];
+            }
+          });
     };
-    const handlePlace=()=>{
-        setPlaceLists([...placeLists, inputValue]); 
+    const handleListClick2 = (listName) => {
+        setSelectedLists2(prevSelectedLists => {
+            if (prevSelectedLists.includes(listName)) {
+              return prevSelectedLists.filter(item => item !== listName);
+            } else {
+              return [...prevSelectedLists, listName];
+            }
+          });
+        setVote(1);
+        Promise.resolve().then(() => {
+          setVote(0);
+        });
     };
+    useEffect(() => {
+        console.log('selectedLists2:', selectedLists2);
+    }, [selectedLists2]);
+
     /*동선 만들러 가기 버튼 유효성*/
     useEffect(() => {
         const skippedList=JSON.parse(localStorage.getItem('skippedList')) || [];
@@ -317,11 +356,11 @@ function PlanRoom1(){
             skippedList.includes(key) || voteIng[key] === false
         );
 
-        setVoteDone( allSkippedOrDone && allDetailsFilled && candidateList.length > 0);
-    }, [voteDetails, candidateList]);
+        setVoteDone( allSkippedOrDone && allDetailsFilled && selectedLists2.length > 0);
+    }, [voteDetails, selectedLists2]);
 
     const handlePlanRoom2 = () => {
-        if (voteDone && candidateList.length > 0) {
+        if (voteDone && selectedLists2.length > 0) {
           navigate('/PlanRoom2');
         }
     };
@@ -355,8 +394,8 @@ function PlanRoom1(){
     }, []);
 
     useEffect(() => {
-        document.addEventListener('keydown', handleKeyDown);
-        document.addEventListener('mousemove', handleMouseMove);
+        document.addEventListener('keydown', handleKeyDown, { passive: true });
+        document.addEventListener('mousemove', handleMouseMove, { passive: true });
         return () => {
             document.removeEventListener('keydown', handleKeyDown);
             document.addEventListener('mousemove', handleMouseMove);
@@ -366,12 +405,11 @@ function PlanRoom1(){
     const handleMouseMove = (e) => {
         setCursorPosition({ x: e.clientX, y: e.clientY });
     };
-    // const lists=[
-    //     '나의 장소 리스트1','나의 장소 리스트2','나의 장소 리스트3','나의 장소 리스트4','나의 장소 리스트5','나의 장소 리스트6',];
-
+    
     /*백 연결*/
     useEffect(()=>{
         const fetchLists=async()=>{
+            console.log(token)
             try{
                 const response=await axios.get(
                     'http://43.200.238.249:5000/users/lists',
@@ -381,13 +419,61 @@ function PlanRoom1(){
                         },
                       }
                     );
-                    setLists(response.data);  
+                    console.log('lists:',response.data);
+                    const listNameId = response.data.reduce((acc, item) => {
+                        acc[item.list_name] = item.list_id;
+                        return acc;
+                      }, {});
+                      console.log('listNameId:',listNameId);
+                    setLists(listNameId);  
                   } catch (error) {
                     console.error('Error fetching lists:', error);
                   }
                 };
                 fetchLists();  
             }, [token]); 
+
+    const handlePlace = async () => {
+        try {
+
+            const response = await axios.post(
+                'http://43.200.238.249:5000/travel-plans/my-locations',
+                {
+                    url: inputValue,
+                    travel_id: travelId
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
+            );
+            console.log(response.data);
+            setPlaceLists([...placeLists, response.data.location_name]); 
+        } catch (error) {
+            console.error('오류가 발생했습니다:', error);
+        }
+    };
+    const handleVote=async () => {
+        try {
+
+            const response = await axios.post(
+                'http://43.200.238.249:5000/travel-plans/candidates/vote',
+                {
+                    url: inputValue,
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
+            );
+            console.log(response.data);
+            setPlaceLists([...placeLists, response.data.location_name]); 
+        } catch (error) {
+            console.error('오류가 발생했습니다:', error);
+        }
+    };
     return(
         <Container>
             <Left>
@@ -413,16 +499,16 @@ function PlanRoom1(){
                 </Candidate>
                 { vote===0 && 
                     <>
-                    <PlusButton onClick={handleCandidate}>새로운 후보지 추가 +</PlusButton>
-                    <ToggleList selectedLists={candidateList} setSelectedLists={setCandidateList} Right={true}/>
+                    <PlusButton onClick={openModal3}>새로운 후보지 추가 +</PlusButton>
+                    <ToggleList selectedLists={selectedLists2} setSelectedLists={setSelectedLists2} Right={true}/>
                     <GoToVoteButton onClick={()=>{setVote(1)}}>투표 하러가기</GoToVoteButton>
                     </>
                 }
                 { vote===1 && 
                     <>
-                    <ToggleListVote selectedLists={candidateList} setSelectedLists={setCandidateList} shareVoteDetails={shareVoteDetails} />
+                    <ToggleListVote selectedLists={selectedLists2} setSelectedLists={selectedLists2} shareVoteDetails={shareVoteDetails} />
                     <MakeRouteButton
-                        disabled={!voteDone || candidateList.length === 0}
+                        disabled={!voteDone || selectedLists2.length === 0}
                         onClick={handlePlanRoom2}>
                         동선 만들러 가기
                     </MakeRouteButton>
@@ -432,7 +518,7 @@ function PlanRoom1(){
             {/*채팅, 모달들*/}
             <div style={{ position: 'relative' }}>
             {isModalOpen && (
-                <Overlay style={{ left: cursorPosition.x, top: cursorPosition.y-1000}}>
+                <Overlay style={{ left: cursorPosition.x-1300, top: cursorPosition.y-100}}>
                     <input
                         type="text"
                         className='input'
@@ -453,23 +539,39 @@ function PlanRoom1(){
                 <>
                     <ModalTitle>나의 장소 불러오기</ModalTitle>
                     <ModalContent1>
-                        {lists.map((list,index)=>(
-                            <ModalList key={index} onClick={() => handleListClick(list)}>
-                                {list}
-                            </ModalList>
+                        {Object.keys(lists).map((listName, index) => (
+                        <ModalList key={index} onClick={() => handleListClick(listName)}>
+                            {listName}
+                        </ModalList>
                         ))}
                     </ModalContent1>
                 </>
             )}
             {user!==0 && <div>"나의 장소"에서만 불러올 수 있습니다.</div>}
         </MyPlaceModal>
+    
+        <MyCandiModal isOpen={modal3} onClose={closeModal3}>
+            {selectedLists.length===0?
+                <div>추가된 나의 장소가 없습니다.</div>: (
+                <>
+                <ModalTitle3>후보지 리스트 등록하기</ModalTitle3>
+                    <ModalContent1>
+                        {selectedLists.map((listName, index) => (
+                        <ModalList key={index} onClick={() => handleListClick2(listName)}>
+                            {listName}
+                        </ModalList>
+                        ))}
+                    </ModalContent1>
+                </>
+            )}
+        </MyCandiModal>
         {modal2 &&
             <ModalOverlay>
                 <ModalContent>
                     <CloseButton onClick={closeModal2}>X</CloseButton>
                     <ModalTitle2>장소 직접 등록하기</ModalTitle2>
                     <ModalContent2>
-                        카카오맵 또는 네이버 지도에서 불러올 장소의 공유 링크를 입력해주세요
+                        네이버 지도에서 불러올 장소의 공유 링크를 입력해주세요
                         <InputButton>
                             <input 
                                 type='url'placeholder={placeholder} 

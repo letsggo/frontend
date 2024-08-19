@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import axios from "axios";
-import styled from "styled-components";
-import InputLogin from "../styles/input-login";
-import SearchIcon from "../assets/images/searchIcon.png";
-import { useNavigate } from 'react-router-dom'; 
-
-const API_URL = 'http://43.200.238.249:5000/users/login';
+import useAxios from '../useAxios'; 
+import styled from 'styled-components';
+import InputLogin from '../styles/input-login';
+import SearchIcon from '../assets/images/searchIcon.png';
+import { useNavigate } from 'react-router-dom';
 
 const PageContainer = styled.div`
     display: flex;
@@ -72,6 +70,7 @@ const LogoImage = styled.img`
 `;
 
 const LoginPage = () => {
+    const axiosInstance = useAxios();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [emailError, setEmailError] = useState('');
@@ -117,13 +116,14 @@ const LoginPage = () => {
     const handleLogin = () => {
         const userData = { email, password };
         setIsLoading(true);
-        axios.post(API_URL, userData)
+        axiosInstance.post('/users/login', userData)
             .then(response => {
                 console.log('로그인 응답 데이터:', response.data);
                 if (response.status === 200) {
-                    const { accessToken } = response.data; // 확인
-                    if (accessToken) {
-                        localStorage.setItem('token', accessToken); // 문자열로 저장
+                    const { accessToken, refreshToken } = response.data; // 리프레시 토큰도 받음
+                    if (accessToken && refreshToken) {
+                        localStorage.setItem('token', accessToken);
+                        localStorage.setItem('refreshToken', refreshToken); // 리프레시 토큰 저장
                         navigate('/Home');
                     } else {
                         console.error('토큰이 누락되었습니다.');
@@ -140,12 +140,13 @@ const LoginPage = () => {
                 setIsLoading(false);
             });
     };
+
     const handleFindAccount = () => {
-        navigate('/findpassword'); // findpassword 페이지로 이동
+        navigate('/findpassword'); // 비밀번호 찾기 페이지로 이동
     };
 
     const handleSignup = () => {
-        navigate('/signup');
+        navigate('/signup'); // 회원가입 페이지로 이동
     };
 
     return (

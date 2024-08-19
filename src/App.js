@@ -31,11 +31,13 @@ import MainNavbar from './components/MainNavbar';
 
 const AppContainer = styled.div`
   display: flex;
+  margin-top: 60px;
 `;
 
 const ContentContainer = styled.div`
   flex: 1;
   padding: 20px;
+  margin-left: 70px;
 `;
 
 function App() {
@@ -50,7 +52,7 @@ function App() {
   const sideBarPages = [
     '/Home',
     '/MakePlanRoom1',
-    '/MakePlanRoom2',
+    '/MakePlanroom2',
     '/StartPlanRoom',
     '/MyPage',
     '/MyPage2',
@@ -83,8 +85,6 @@ function App() {
             <Route path="/StartPlanRoom" element={<StartPlanRoom />} />
             <Route path="/PlanRoomResult" element={<PlanRoomResult />} />
             <Route path="/MyLocationList" element={<MyLocationList />} />
-            <Route path="/MakePlanRoom1" element={<MakePlanRoom1 />} />
-            <Route path="/MakePlanRoom2" element={<MakePlanRoom2 />} />
             <Route path="/findpassword" element={<FindPassword />} />
             <Route path="/find-password-send" element={<FindPasswordSend />} />
             <Route path="/emailcheck" element={<EmailCheck />} />

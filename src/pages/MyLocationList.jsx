@@ -181,7 +181,6 @@ function MyLocationList() {
     console.log('Sending request with token:', token);
     console.log('Sending request to URL:', input);
     try {
-      console.log('try axios');
       const response = await axios.post(
         'http://43.200.238.249:5000/users/add-myPlace', 
         { url: input },
@@ -206,7 +205,7 @@ function MyLocationList() {
             <Button onClick={openModal}> + 지도앱에서 즐겨찾기 불러오기</Button><br/><br/>
             <ListBox>
                 {isEmpty && <EmptyList><div>아직 불러온 즐겨찾기 목록이 없습니다.</div></EmptyList>}
-                {!isEmpty && <ToggleMyLocation selectedLists={MyLocationLists} setSelectedLists={setMyLocationLists}/>}
+                {!isEmpty && <ToggleMyLocation selectedList={MyLocationLists}/>}
             </ListBox>
         </List>
         {isOpen && <ModalOverlay>

@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
+import image from './이미지 업로드.png';
 
+// 스타일 컴포넌트 정의
 const ListItem = styled.div`
   padding: 10px;
   width: 96%;
@@ -82,8 +84,7 @@ const Overlay = styled.div`
 `;
 
 const Kakao = styled.div`
-  //color: #544444;
-  color:red;
+  color:#614D4D;
   background-color: #f8df00;
   padding: 0px 5px;
   border-radius: 5px;
@@ -104,12 +105,22 @@ const ToggleMyLocation = () => {
   const [selectedLists, setSelectedLists] = useState([]);
   const token = localStorage.getItem('token');
 
-  const fetchLists = async () => {
+  useEffect(() => {
+    fetchLists();
+  }, []);
+
+  useEffect(() => {
+    console.log('Selected lists updated:', selectedLists);
+  }, [selectedLists]);
+  
+  useEffect(() => {
+    console.log('Detail lists updated:', detailLists);
+  }, [detailLists]);
+  
+  const fetchLists = useCallback(async () => {
     try {
       const response = await axios.get('http://43.200.238.249:5000/users/lists', {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
+        headers: { Authorization: `Bearer ${token}` }
       });
 
       const nameIdMap = response.data.reduce((acc, list) => {
@@ -117,60 +128,51 @@ const ToggleMyLocation = () => {
         return acc;
       }, {});
       setListNameId(nameIdMap);
-
       setSelectedLists(response.data.map(list => ({
         list_name: list.list_name,
-        image: "https://example.com/default-image.png" // 이미지 URL 설정
+        image: image
       })));
-
       setOpenIndexes(new Array(response.data.length).fill(false));
-      setDetailLists({});
     } catch (error) {
-      console.error('Error fetching lists:', error);
+      console.error('Error fetching lists:', error.response ? error.response.data : error.message);
     }
-  };
+  }, [token]);
 
-
-  // useEffect(() => {
-  //   fetchLists();
-  //   console.log('detailLists:',detailLists);
-  //   console.log('selectedlists:',selectedLists);
-  //   console.log('listNameId:',listNameId);
-  // }, [detailLists,selectedLists,listNameId]);
-
-  const fetchListDetails = async (listId, listName) => {
+  const fetchListDetails = useCallback(async (listId, listName) => {
     try {
       const response = await axios.get(`http://43.200.238.249:5000/users/lists/${listId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
+        headers: { Authorization: `Bearer ${token}` }
       });
       const details = response.data;
-      const placeNames = details.places.map(place => place.place_name);
+      console.log('Server response:', details);
 
-      setDetailLists(prevDetails => ({
-        ...prevDetails,
-        [listName]: placeNames
-      }));
+      if (details.places && Array.isArray(details.places)) {
+        const placeNames = details.places.map(place => place.place_name);
+        setDetailLists(prevDetails => ({
+          ...prevDetails,
+          [listName]: placeNames
+        }));
+      } else {
+        console.error('Unexpected response format:', details);
+      }
     } catch (error) {
       console.error('Error fetching list details:', error.response ? error.response.data : error.message);
     }
-  };
+  }, [token]);
 
-  const handleListClick = (index) => {
-    console.log('before:',openIndexes[index]);
+  const handleListClick = useCallback((index) => {
     setOpenIndexes(prevIndexes => {
       const newIndexes = [...prevIndexes];
       newIndexes[index] = !newIndexes[index];
       return newIndexes;
     });
-    console.log('after:',openIndexes[index]);
-    setIcon(prevIcon => ({
-      ...prevIcon,
-      [index]: openIndexes[index] ? '▶' : '▼'
-    }));
-  
-    // 상세 데이터 요청
+
+    setIcon(prevIcon => {
+      const newIcon = { ...prevIcon };
+      newIcon[index] = openIndexes[index] ? '▶' : '▼';
+      return newIcon;
+    });
+
     const listName = selectedLists[index]?.list_name;
     if (listName && !detailLists[listName]) {
       const listId = listNameId[listName];
@@ -178,37 +180,38 @@ const ToggleMyLocation = () => {
         fetchListDetails(listId, listName);
       }
     }
-  };
-  
+  }, [openIndexes, selectedLists, detailLists, listNameId, fetchListDetails]);
 
-  const handleEdit = (detailIndex, listName, event) => {
-    event.stopPropagation();
+  const getModalPosition = useCallback((event, parentElement) => {
     const buttonRect = event.target.getBoundingClientRect();
+    const parentRect = parentElement.getBoundingClientRect();
+    return {
+      left: buttonRect.right - parentRect.left - 100,
+      top: buttonRect.top - parentRect.top,
+    };
+  }, []);
+
+  const handleEdit = useCallback((detailIndex, listName, event) => {
+    event.stopPropagation();
     setModalEdit({
       visible: true,
       index: detailIndex,
       listName,
-      left: buttonRect.left,
-      top: buttonRect.bottom,
+      ...getModalPosition(event, event.target.parentElement),
     });
-  };
+  }, [getModalPosition]);
 
-  const handleFix = (index, event) => {
+  const handleFix = useCallback((index, event) => {
     event.stopPropagation();
-    const buttonRect = event.target.getBoundingClientRect();
-    const parentRect = event.target.parentElement.getBoundingClientRect();
     setModalInfo({
       visible: true,
       index,
-      left: buttonRect.right - parentRect.left -100,
-      top: buttonRect.top - parentRect.top,
+      ...getModalPosition(event, event.target.parentElement),
     });
-  };
+  }, [getModalPosition]);
 
-  const handleDelete = async (isEdit, listId) => {
-    console.log('detailLists:',detailLists);
-    console.log('selectedlists:',selectedLists);
-    console.log('listNameId:',listNameId);
+  const handleDelete = useCallback(async (isEdit, listId) => {
+    console.log(listId);
     try {
       const response = await axios.delete(`http://43.200.238.249:5000/users/lists/${listId}`, {
         headers: {
@@ -217,49 +220,46 @@ const ToggleMyLocation = () => {
         }
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to delete the list');
-      }
+      if (response.status === 200) {
+        if (isEdit) {
+          const newDetailList = [...(detailLists[modalEdit.listName] || [])];
+          newDetailList.splice(modalEdit.index, 1);
+          setDetailLists(prev => ({
+            ...prev,
+            [modalEdit.listName]: newDetailList
+          }));
+        }
 
-      if (isEdit) {
-        const newDetailList = [...(detailLists[modalEdit.listName] || [])];
-        newDetailList.splice(modalEdit.index, 1);
-        setDetailLists(prev => ({
-          ...prev,
-          [modalEdit.listName]: newDetailList
-        }));
-      } else {
         const newSelectedLists = selectedLists.filter((_, idx) => idx !== modalInfo.index);
         setSelectedLists(newSelectedLists);
-        setOpenIndexes(prev => prev.map((val, idx) => idx === modalInfo.index ? false : val));
-      }
 
-      const result = await response.json();
-      console.log(result.message);
+        setOpenIndexes(prev => prev.map((val, idx) => idx === modalInfo.index ? false : val));
+        
+        console.log('selectedLists(delete):', newSelectedLists);
+        console.log('List deleted successfully');
+      } else {
+        throw new Error('Failed to delete the list');
+      }
     } catch (error) {
-      console.error('Error deleting the list:', error);
+      console.error('Error deleting the list:', error.response ? error.response.data : error.message);
     }
 
     closeModal(isEdit);
-  };
+  }, [modalEdit, detailLists, modalInfo, selectedLists, token]);
 
-  const handleRefresh = () => {
+  const handleRefresh = useCallback(() => {
     setSelectedLists([]);
     setOpenIndexes([]);
     closeModal(false);
-  };
+  }, []);
 
-  const closeModal = (isEdit) => {
+  const closeModal = useCallback((isEdit) => {
     if (isEdit) {
       setModalEdit({ visible: false, index: null, left: 0, top: 0 });
     } else {
       setModalInfo({ visible: false, index: null, left: 0, top: 0 });
     }
-  };
-
-  useEffect(() => {
-    console.log('Detail Lists:', detailLists);
-  }, [detailLists]);
+  }, []);
 
   if (!selectedLists || selectedLists.length === 0) {
     return null;
@@ -273,7 +273,7 @@ const ToggleMyLocation = () => {
             <div onClick={() => handleListClick(index)}>
               {toggleIcon[index] || '▶'}
             </div>
-            <img src={list.image} alt="Location Thumbnail" />
+            <img src={image} alt="Location Thumbnail" />
             {list.list_name || '장소 이름 없음'}
             <Kakao>카카오 연동</Kakao>
             <Plus onClick={(event) => handleFix(index, event)} className='Plus'>⋮</Plus>
@@ -290,7 +290,7 @@ const ToggleMyLocation = () => {
           {openIndexes[index] && (
             <SubList>
               {detailLists[list.list_name] && detailLists[list.list_name].length > 0 ? (
-                (detailLists[list.list_name] || []).map((detail, detailIndex) => (
+                detailLists[list.list_name].map((detail, detailIndex) => (
                   <Place key={detailIndex}>
                     {detail || '장소 이름 없음'}
                     <Plus onClick={(event) => handleEdit(detailIndex, list.list_name, event)}>⋮</Plus>
