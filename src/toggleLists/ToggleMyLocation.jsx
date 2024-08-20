@@ -25,6 +25,10 @@ const ListItem = styled.div`
   .Plus {
     margin-left: auto;
   }
+  .right{
+    display: flex;
+    margin-left:150px;
+  }
 `;
 
 const SubList = styled.div`
@@ -42,17 +46,6 @@ const Place = styled.div`
   padding: 10px 30px 10px 50px;
   display: flex;
   justify-content: space-between;
-`;
-
-const Plus = styled.button`
-  border: none;
-  background: none;
-  font-size: 20px;
-  font-weight: 700;
-  cursor: pointer;
-  position: fixed;
-  left: 570px;
-  margin-top: 5px;
 `;
 
 const Modal = styled.div`
@@ -91,10 +84,21 @@ const Kakao = styled.div`
   font-weight: 600;
   height: 35px;
   line-height: 35px;
-  position: fixed;
-  left: 420px;
+  margin-top: 5px;
+  margin-right:10px;
 `;
-
+const Plus = styled.button`
+  border: none;
+  background: none;
+  font-size: 20px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 5px;
+  margin-left:20px;
+`;
+const Name=styled.div`
+  width:100px;
+`;
 const ToggleMyLocation = () => {
   const [openIndexes, setOpenIndexes] = useState([]);
   const [modalInfo, setModalInfo] = useState({ visible: false, index: null, left: 0, top: 0 });
@@ -275,9 +279,11 @@ const ToggleMyLocation = () => {
               {toggleIcon[index] || '▶'}
             </div>
             <img src={image} alt="Location Thumbnail" />
-            {list.list_name || '장소 이름 없음'}
-            <Kakao>카카오 연동</Kakao>
-            <Plus onClick={(event) => handleFix(index, event)} className='Plus'>⋮</Plus>
+            <Name>{list.list_name || '장소 이름 없음'}</Name>
+            <div className='right'>
+              <Kakao>카카오 연동</Kakao>
+              <Plus onClick={(event) => handleFix(index, event)} className='Plus'>⋮</Plus>
+            </div>
             {modalInfo.visible && modalInfo.index === index && (
               <>
                 <Overlay onClick={() => closeModal(false)} />

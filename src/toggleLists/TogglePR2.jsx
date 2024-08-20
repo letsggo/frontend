@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import axios from 'axios'; // axios를 추가로 import합니다.
-import image from './즐겨찾기.svg';
+import image from './이미지 업로드.png';
 
 const ListItem = styled.div`
   padding: 10px;
@@ -64,7 +64,7 @@ const VoteButton = styled.button`
   margin-left: 10px;
 `;
 
-const ToggleListVote = ({ selectedLists, setSelectedLists, shareVoteDetails }) => {
+const TogglePR2 = ({ selectedLists, setSelectedLists, shareVoteDetails }) => {
   const [openIndexes, setOpenIndexes] = useState([]);
   const [toggleIcon, setIcon] = useState({});
   const [detailLists, setDetailLists] = useState({});
@@ -268,8 +268,4 @@ const ToggleListVote = ({ selectedLists, setSelectedLists, shareVoteDetails }) =
   );
 };
 
-export default ToggleListVote;
-
-
-
-
+export default TogglePR2;

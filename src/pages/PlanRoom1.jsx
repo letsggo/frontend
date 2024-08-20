@@ -340,6 +340,10 @@ function PlanRoom1(){
         console.log('selectedLists2:', selectedLists2);
     }, [selectedLists2]);
 
+    useEffect(() => {
+        console.log('selectedLists:', selectedLists);
+    }, [selectedLists]);
+
     /*동선 만들러 가기 버튼 유효성*/
     useEffect(() => {
         const skippedList=JSON.parse(localStorage.getItem('skippedList')) || [];
@@ -363,7 +367,7 @@ function PlanRoom1(){
 
     const handlePlanRoom2 = () => {
         if (voteDone && selectedLists2.length > 0) {
-          navigate('/PlanRoom2');
+          navigate('/PlanRoom2',{state:{travelId}});
         }
     };
 
@@ -435,6 +439,7 @@ function PlanRoom1(){
                 fetchLists();  
             }, [token]); 
 
+    /*장소 등록*/
     const handlePlace = async () => {
         try {
 
