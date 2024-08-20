@@ -33,6 +33,7 @@ const MainImg=styled.img`
     width:500px;    
     height:300px;
     margin:10px 0;
+    border-radius:15px;
 `;
 /*제목, 수정 아이콘*/
 const Title=styled.div`
@@ -172,7 +173,8 @@ function StartPlanRoom (){
     const [travelPlan, setTravelPlan] = useState(null);
     const [loading, setLoading] = useState(true);
     const [inviteLink, setInviteLink] = useState('');
-
+    const [userInfoList,setUserInfoList]=useState([]);
+    const [myInfo,setMyInfo]=useState({});
     const token=localStorage.getItem('token');
     const travelId = location.state?.travelId;
 
@@ -216,6 +218,33 @@ function StartPlanRoom (){
             console.error('Error generating invite link:', error);
         }
     };
+    /*마이페이지 회원정보*/
+    useEffect(() => {
+        console.log('getUserInfo')
+        const getUserInfo = async () => {
+          try {
+            const response = await axios.get('http://43.200.238.249:5000/users/info', {
+              headers: {
+                'Authorization': `Bearer ${token}`
+              }
+            });
+            console.log('회원정보:', response.data);
+            setMyInfo(response.data);
+            setUserInfoList(prevUserInfoList => { //인원수 추출을 위해=>웹소켓 이후 수정
+                const newUserInfo = response.data;
+                const isDuplicate = prevUserInfoList.some(item => item.user_id === newUserInfo.user_id);
+
+                if (!isDuplicate) {
+                  return [...prevUserInfoList, newUserInfo];
+                }
+                return prevUserInfoList;
+              });
+          } catch (error) {
+            console.error('오류 발생:', error);
+          }
+        };
+        getUserInfo();
+      }, [token]);
 
     const handleEdit=()=>{
         navigate('/Edit');
@@ -265,7 +294,7 @@ function StartPlanRoom (){
                 <div>{`여행기간 : ${startDate}~${endDate}`}</div>
                 <MainImg src={travelPlan.travel_image} alt={Img}/>
                 <Users>
-                    <div>{`함께하는 사람 (총 @명)`}</div>
+                    <div>{`함께하는 사람 (총 ${userInfoList.length}명)`}</div>
                     <Invite onClick={openModal}>초대하기<LuLink /></Invite>
                     <Modal isOpen={modal} onClose={closeModal}>
                             <ModalInvite>초대하기</ModalInvite><br />
@@ -277,10 +306,10 @@ function StartPlanRoom (){
                 </Users>
                 <ProfileBg>
                     <ProfileBox>
-                        <ProfileImg src={Img} alt={Img} />
-                        <div>@나</div>
+                        <ProfileImg src={`http://43.200.238.249:5000${myInfo.profile_image}`} alt='my_prodile' />
+                        <div>{myInfo.name}</div>
                     </ProfileBox>
-                    <div class="vertical-line" />
+                    <div className="vertical-line" />
                     <ProfileBox>
                         <ProfileImg src={Img} alt={Img} />
                         <div>친구1</div>

@@ -116,7 +116,7 @@ const ToggleMyLocation = () => {
   useEffect(() => {
     console.log('Detail lists updated:', detailLists);
   }, [detailLists]);
-  
+
   const fetchLists = useCallback(async () => {
     try {
       const response = await axios.get('http://43.200.238.249:5000/users/lists', {
@@ -161,6 +161,7 @@ const ToggleMyLocation = () => {
   }, [token]);
 
   const handleListClick = useCallback((index) => {
+
     setOpenIndexes(prevIndexes => {
       const newIndexes = [...prevIndexes];
       newIndexes[index] = !newIndexes[index];

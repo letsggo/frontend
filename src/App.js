@@ -66,7 +66,7 @@ function App() {
     <>
       {MainNavBarPages.includes(location.pathname) ? (
         <MainNavbar />
-      ) : location.pathname === '/PlanRoom1' ? (
+      ) : location.pathname === '/PlanRoom1'|| location.pathname === '/PlanRoom2'? (
         <PrNavbar />
       ) : (
         <Navbar />

@@ -152,7 +152,7 @@ const EmptyList=styled.div`
 `;
 
 function MyLocationList() {
-  const [MyLocationLists, setMyLocationLists]=useState(['즐겨찾기']); 
+  const [MyLocationLists, setMyLocationLists]=useState([]); 
   const [isEmpty,setIsEmpty]=useState(true);
   const [isOpen,setIsOpen]=useState(false);
   const [input,setInput]=useState('');//새로 입력받은 즐겨찾기 장소 링큰
@@ -177,7 +177,7 @@ function MyLocationList() {
     setMyLocationLists([...MyLocationLists, newPlaces]); 
   };
   const handleSubmit = async () => {
-    console.log('handleSubmit');
+    console.log('MyLocationLists',MyLocationLists);
     console.log('Sending request with token:', token);
     console.log('Sending request to URL:', input);
     try {
@@ -205,7 +205,7 @@ function MyLocationList() {
             <Button onClick={openModal}> + 지도앱에서 즐겨찾기 불러오기</Button><br/><br/>
             <ListBox>
                 {isEmpty && <EmptyList><div>아직 불러온 즐겨찾기 목록이 없습니다.</div></EmptyList>}
-                {!isEmpty && <ToggleMyLocation selectedList={MyLocationLists}/>}
+                {!isEmpty && <ToggleMyLocation selectedLists={MyLocationLists} setSelectedLists={setMyLocationLists} />}
             </ListBox>
         </List>
         {isOpen && <ModalOverlay>

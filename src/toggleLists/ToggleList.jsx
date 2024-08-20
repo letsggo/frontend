@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
-import image from './이미지 업로드.png';
+import image from './즐겨찾기.svg';
 
 const ListItem = styled.div`
   padding: 10px;
@@ -139,7 +139,6 @@ const ToggleList = ({selectedLists,setSelectedLists,Right}) => {
   const [MyLists, setMyLists] = useState([]);
   const [beforeRename,setBeforeRename]=useState([]);
   const [renamedLists,setRenamedLists]=useState(selectedLists);
-  //const [selectedRLists, setSelectedRLists] = useState([]);
   const token = localStorage.getItem('token');
 
   useEffect(() => {
@@ -148,7 +147,7 @@ const ToggleList = ({selectedLists,setSelectedLists,Right}) => {
 
   useEffect(()=>{
     console.log('selectedLists2:',selectedLists);
-
+  
   },[selectedLists])
   const fetchLists = async () => {
     try {
@@ -313,7 +312,7 @@ const ToggleList = ({selectedLists,setSelectedLists,Right}) => {
         <div key={index}>
           <ListItem>
             <div onClick={() => handleListClick(index)}>{toggleIcon[index] || '▶'}</div>
-            <img src={image} alt={list.list_name} />
+            <img src={image} alt={skipVote} />
             {list}
             <Plus onClick={(event) => handleFix(index, event)} className='Plus'>⋮</Plus>
             {modalInfo.visible && modalInfo.index === index && (

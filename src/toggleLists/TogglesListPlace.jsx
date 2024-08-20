@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import image from './이미지 업로드.png';
+import PRplaceModal from '../modals/PRplcaeModal';
 
 const ListItem = styled.div`
   padding: 10px;
@@ -17,7 +17,7 @@ const ListItem = styled.div`
   img {
     width: 40px;
     height: 40px;
-    border-radius: 40px;
+    border-radius:10px;
   }
 `;
 const Plus = styled.button`
@@ -55,8 +55,19 @@ const Overlay = styled.div`
   background: rgba(0, 0, 0, 0);
   z-index: 999;
 `;
+
 const ToggleListPlace = ({ placeLists, setPlaceLists }) => {
   const [modalInfo, setModalInfo] = useState({ visible: false, index: null, left: 0, top: 0 });
+  const [modalOpen,setModalOpen]=useState(false);
+  const [modalPlace,setModalPlace]=useState({})
+  
+  const openModal2=(place)=>{
+    setModalOpen(true);
+    setModalPlace(place);
+  }
+  const closeModal2=()=>{
+    setModalOpen(false);
+  }
 
   const handleFix = (index, event) => {
     event.stopPropagation();
@@ -84,9 +95,9 @@ const ToggleListPlace = ({ placeLists, setPlaceLists }) => {
   return (
     <div>
       {placeLists.length > 0 && placeLists.map((list, index) => (
-        <ListItem key={index}>
-          <img src={image} alt={list} />
-          {list}
+        <ListItem key={index} onClick={() => openModal2(list)}>
+          <img src={list.location_img} alt={list.location_name} />
+          {list.location_name}
           <Plus onClick={(event) => handleFix(index, event)}>⋮</Plus>
           {modalInfo.visible && modalInfo.index === index && (
             <>
@@ -98,6 +109,7 @@ const ToggleListPlace = ({ placeLists, setPlaceLists }) => {
           )}
         </ListItem>
       ))}
+      <PRplaceModal isOpen={modalOpen} onClose={closeModal2} place={modalPlace} />
     </div>
   );
 };

@@ -23,6 +23,7 @@ const Left=styled.div`
     position:fixed;
     margin-left:-10px;
     width:340px;
+    z-index:1000;
 `;
 const Right=styled.div`
     width:340px;
@@ -134,7 +135,7 @@ const ModalTitle=styled.div`
 `;
 const ModalTitle3=styled.div`
     position:fixed;
-    top:200px;  
+    top:480px;  
     left:1300px;
     color:white;
 `;
@@ -201,7 +202,7 @@ const ModalOverlay = styled.div`
     left: 0px;
     right: 0;
     bottom: 0;
-    z-index: 1000 !important;
+    z-index: 1000;
 `;
 const ModalContent = styled.div`
     background: black;
@@ -211,6 +212,7 @@ const ModalContent = styled.div`
     position: relative;
     width:600px;
     height: 100px;
+    z-index:1001;
 `;
 const CloseButton = styled.button`
     position: absolute;
@@ -449,31 +451,12 @@ function PlanRoom1(){
                 }
             );
             console.log(response.data);
-            setPlaceLists([...placeLists, response.data.location_name]); 
+            setPlaceLists([...placeLists, response.data]); 
         } catch (error) {
             console.error('오류가 발생했습니다:', error);
         }
     };
-    const handleVote=async () => {
-        try {
 
-            const response = await axios.post(
-                'http://43.200.238.249:5000/travel-plans/candidates/vote',
-                {
-                    url: inputValue,
-                },
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                }
-            );
-            console.log(response.data);
-            setPlaceLists([...placeLists, response.data.location_name]); 
-        } catch (error) {
-            console.error('오류가 발생했습니다:', error);
-        }
-    };
     return(
         <Container>
             <Left>
@@ -583,7 +566,7 @@ function PlanRoom1(){
                     </ModalContent2>
                 </ModalContent>
             </ModalOverlay>
-        }       
+        }      
         </Container>
     );
 }

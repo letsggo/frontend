@@ -189,10 +189,10 @@ const ToggleListVote = ({ selectedLists, setSelectedLists, shareVoteDetails }) =
   };
 
   const handleSave = (index) => {
-    // setCadidateId(prevId=>prevId+1); // 후보지 ID 
-    // const user_id = 1; // user_id를 임의로 1로 설정
-    // const state = selectedDetails[index] ? true : false; // 투표 여부
-    // const skip = skippedList.includes(index); // 스킵 여부
+    setCadidateId(prevId=>prevId+1); // 후보지 ID 
+    const user_id = 1; // user_id를 임의로 1로 설정
+    const state = selectedDetails[index] ? true : false; // 투표 여부
+    const skip = skippedList.includes(index); // 스킵 여부
 
     shareVoteDetails(selectedDetails); //세부정보 공유
     const newVoteIng = [...voteIng];
@@ -200,40 +200,40 @@ const ToggleListVote = ({ selectedLists, setSelectedLists, shareVoteDetails }) =
     setVoteIng(newVoteIng);
     localStorage.setItem('voteIng', JSON.stringify(newVoteIng));
 
-    // handleVote({candidate_id, user_id, state, skip, ranked: 1 }); //userId임의로 정함
+    handleVote({candidate_id, user_id, state, skip, ranked: 1 }); //userId임의로 정함
   };
 
   /*투표 결과 저장*/
-  // const handleVote = async ({ candidate_id, user_id, state, skip, ranked }) => {
-  //   const token = localStorage.getItem('token'); // JWT 토큰을 가져옵니다.
+  const handleVote = async ({ candidate_id, user_id, state, skip, ranked }) => {
+    const token = localStorage.getItem('token'); // JWT 토큰을 가져옵니다.
   
-  //   const voteData = {
-  //     candidate_id,
-  //     user_id,
-  //     state,
-  //     skip,
-  //     ranked: ranked || null, // ranked는 null일 수 있으므로 기본값을 null로 설정합니다.
-  //   };
+    const voteData = {
+      candidate_id,
+      user_id,
+      state,
+      skip,
+      ranked: ranked || null, // ranked는 null일 수 있으므로 기본값을 null로 설정합니다.
+    };
   
-  //   try {
-  //     const response = await axios.post(
-  //       'http://43.200.238.249:5000/travel-plans/candidates/vote',
-  //       voteData,
-  //       {
-  //         headers: {
-  //           Authorization: `Bearer ${token}`,
-  //         },
-  //       }
-  //     );
+    try {
+      const response = await axios.post(
+        'http://43.200.238.249:5000/travel-plans/candidates/vote',
+        voteData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
   
-  //     // 서버로부터 응답을 받았을 때의 처리
-  //     console.log('투표 저장 성공:', response.data);
-  //     return response.data; // 필요한 경우 호출된 곳에서 응답 데이터를 사용할 수 있도록 반환
-  //   } catch (error) {
-  //     console.error('투표 저장 실패:', error.response ? error.response.data : error.message);
-  //     throw error; // 오류를 호출된 곳에서 처리할 수 있도록 예외를 던짐
-  //   }
-  // };
+      // 서버로부터 응답을 받았을 때의 처리
+      console.log('투표 저장 성공:', response.data);
+      return response.data; // 필요한 경우 호출된 곳에서 응답 데이터를 사용할 수 있도록 반환
+    } catch (error) {
+      console.error('투표 저장 실패:', error.response ? error.response.data : error.message);
+      throw error; // 오류를 호출된 곳에서 처리할 수 있도록 예외를 던짐
+    }
+  };
   return (
     <div>
       {selectedLists.map((list, index) => (

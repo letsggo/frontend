@@ -1,22 +1,27 @@
 import React, { useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom'; 
+import KakaoMap from '../components/KakaoMap'; // KakaoMap 컴포넌트 임포트
 import { planroomStyle } from '../styles/PlanRoom2style';
 /** @jsxImportSource @emotion/react */
 
-const PlanRoom2 = ({ selectedDates }) => {
-  const [zoomLevel, setZoomLevel] = useState(1);
+const PlanRoom2 = () => {
+  const navigate = useNavigate(); 
+  const location = useLocation(); 
+  const selectedDates = location.state?.selectedDates; // 전달된 날짜 정보 받기
+  const [zoomLevel, setZoomLevel] = useState(3); // 기본 줌 레벨 설정
   const [expandedAccommodation, setExpandedAccommodation] = useState(false);
   const [expandedCandidates, setExpandedCandidates] = useState(null);
 
   const handleZoomIn = () => {
-    setZoomLevel(prev => prev + 0.1);
+    setZoomLevel(prev => Math.min(prev + 1, 10)); // 최대 줌 레벨 제한
   };
 
   const handleZoomOut = () => {
-    setZoomLevel(prev => Math.max(prev - 0.1, 1));
+    setZoomLevel(prev => Math.max(prev - 1, 1)); // 최소 줌 레벨 제한
   };
 
   const handleCompletePlan = () => {
-    alert('여행 계획이 완료되었습니다!');
+    navigate('/planroomresult'); // PlanRoomResult 페이지로 이동
   };
 
   const handleAccommodationClick = () => {
@@ -32,13 +37,13 @@ const PlanRoom2 = ({ selectedDates }) => {
   return (
     <div css={planroomStyle} className="planroom">
       <h2 className="travel-title">여행 기간: {selectedDates}</h2>
-      <div className="map-container" style={{ transform: `scale(${zoomLevel})` }}>
-        <div className="map" />
-        <div className="zoom-controls">
-          <button className="zoom-button" onClick={handleZoomIn}>+</button>
-          <button className="zoom-button" onClick={handleZoomOut}>-</button>
-        </div>
+      <KakaoMap zoomLevel={zoomLevel} /> {/* KakaoMap 컴포넌트 추가 */}
+
+      <div className="zoom-controls">
+        <button className="zoom-button" onClick={handleZoomIn}>+</button>
+        <button className="zoom-button" onClick={handleZoomOut}>-</button>
       </div>
+
       <div className="info-section">
         <div className="location-info">
           <h3 className="section-title">장소 정보</h3>
