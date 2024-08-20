@@ -61,10 +61,13 @@ function MainNavbar() {
 
   const handleLogout = () => {
     const token = localStorage.getItem('token');
-    if (!token) {
+    const refreshToken = localStorage.getItem('refreshToken');
+    
+    if (!token || !refreshToken) {
         console.error('토큰이 존재하지 않습니다.');
         return;
     }
+    
     axios.post('http://43.200.238.249:5000/users/logout', {}, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -73,16 +76,17 @@ function MainNavbar() {
     .then(response => {
       if (response.status === 200) {
         localStorage.removeItem('token');
+        localStorage.removeItem('refreshToken'); 
         localStorage.removeItem('username');
         setIsLoggedIn(false);
-        navigate('/Login'); // 로그아웃 후 로그인 페이지로 이동
+        navigate('/'); 
       }
     })
     .catch(error => {
       console.error('로그아웃 실패:', error);
       alert('로그아웃에 실패했습니다. 다시 시도해주세요.');
     });
-  };
+  };  
 
   return (
     <NavbarContainer>
