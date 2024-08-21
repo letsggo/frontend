@@ -296,7 +296,7 @@ const Mypage = () => {
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [profileImage, setProfileImage] = useState(null);
-  const [profileImageFile, setProfileImageFile] = useState(null); // To handle file upload
+  const [profileImageFile, setProfileImageFile] = useState(null);
   const [isEditingNickname, setIsEditingNickname] = useState(false);
   const [isEditingPhone, setIsEditingPhone] = useState(false);
   const [isEditingEmail, setIsEditingEmail] = useState(false);
@@ -305,6 +305,7 @@ const Mypage = () => {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
+  const [userName, setUserName] = useState(''); 
 
   useEffect(() => {
     const fetchUserInfo = async () => {
@@ -324,6 +325,7 @@ const Mypage = () => {
         setPhone(userInfo.phone || '전화번호를 입력해주세요');
         setEmail(userInfo.email || '이메일을 입력해주세요');
         setProfileImage(userInfo.profile_image);
+        setUserName(userInfo.name);
       } catch (error) {
         console.error(
           'Error fetching user information:',
@@ -614,7 +616,7 @@ const Mypage = () => {
           <p
             style={{ fontSize: '20px', marginTop: '40px', textAlign: 'center' }}
           >
-            OOO님 저희 가볼까를 떠나신다니 너무 아쉬워요!
+            {userName}님 저희 가볼까를 떠나신다니 너무 아쉬워요!
           </p>
           <p
             style={{
@@ -623,7 +625,7 @@ const Mypage = () => {
               textAlign: 'center',
             }}
           >
-            서비스 탈퇴전 아래의 유의사항을 확인해주세요
+            서비스 탈퇴 전 아래의 유의사항을 확인해주세요.
           </p>
           <NoticeBox>
             <div style={{ color: '#F08080', fontWeight: '900' }}>유의사항</div>
@@ -631,12 +633,10 @@ const Mypage = () => {
               • 삭제된 계정의 데이터는 복구가 불가능합니다.
             </NoticeItem>
             <NoticeItem>
-              • 계정 삭제 시 보유하고 있던 크레딧은 모두 소멸되며 어떠한
-              경우에도 복구가 불가능합니다.
+              • 계정 삭제 시 보유하고 있던 크레딧은 모두 소멸되며 어떠한 경우에도 복구가 불가능합니다.
             </NoticeItem>
             <NoticeItem>
-              • 계정 삭제 시 파기 및 보존되는 정보는 개인정보처리 방침을
-              참고하여 주시기 바랍니다.
+              • 계정 삭제 시 파기 및 보존되는 정보는 개인정보처리 방침을 참고하여 주시기 바랍니다.
             </NoticeItem>
           </NoticeBox>
           <Checkbox>
