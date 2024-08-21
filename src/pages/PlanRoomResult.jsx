@@ -2,15 +2,6 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
-import {
-  MapContainer as LeafletMapContainer,
-  TileLayer,
-  Marker,
-  Polyline,
-  Popup,
-} from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
-import L from 'leaflet';
 import OutImage from '../buttonimage/outbutton.png';
 import prevImage from '../buttonimage/prebutton.png';
 import DownImage from '../buttonimage/down.png';
@@ -20,6 +11,8 @@ import TravelImage from '../buttonimage/travel.png';
 import RouteImage from '../buttonimage/route.png';
 import html2canvas from 'html2canvas';
 import * as XLSX from 'xlsx';
+import KakaoMap from '../components/KakaoMap'; // KakaoMap 컴포넌트 임포트
+
 // 전체
 const Container = styled.div`
   width: 90%;
@@ -87,7 +80,7 @@ const SectionTitle = styled.h2`
 
 const StyledMapContainer = styled.div`
   width: 100%;
-  height: 630px;
+  height: 620px;
   background-color: #f0f0f0;
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
   display: flex;
@@ -289,14 +282,6 @@ const ExdownImageContainer = styled.div`
   z-index: 1000;
 `;
 
-// 기본 마커 아이콘 설정
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
-  iconUrl: require('leaflet/dist/images/marker-icon.png'),
-  shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
-});
-
 // 장소와 동선 데이터 예제
 const locations = [
   { id: 1, name: '숙소 ', position: [37.5665, 126.978] },
@@ -493,28 +478,14 @@ function PlanRoomResult() {
         <MapSection>
           <SectionTitle>여행 장소</SectionTitle>
           <StyledMapContainer>
-            <LeafletMapContainer
-              center={[37.5665, 126.978]}
-              zoom={15}
-              style={{ height: '100%', width: '100%' }}
-            >
-              <TileLayer
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-              />
-              {locations.map((location) => (
-                <Marker key={location.id} position={location.position}>
-                  {location.name && <Popup>{location.name}</Popup>}
-                </Marker>
-              ))}
-              {activeRoute && (
-                <Polyline
-                  positions={routes[activeRoute]}
-                  color="blue"
-                  weight={5}
-                />
-              )}
-            </LeafletMapContainer>
+            <KakaoMap
+              center={{ lat: 37.5665, lng: 126.978 }} // 기본 위치 설정
+              zoom={15} // 기본 줌 레벨
+              locations={locations} // 위치 데이터
+              route={routes[activeRoute]} // 현재 활성화된 동선
+              width="600px"
+              height="620px"
+            />
           </StyledMapContainer>
         </MapSection>
         <InfoSection>
