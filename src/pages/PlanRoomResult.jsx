@@ -572,7 +572,7 @@ function PlanRoomResult() {
           <StyledMapContainer>
             <KakaoMap
               center={{ lat: 37.5512, lng: 126.9881 }} // 기본 위치 설정
-              zoom={5} // 기본 줌 레벨
+              zoom={7} // 기본 줌 레벨
               locations={testLocations} // 테스트용 위치 데이터
               //locations={combinedLocations} // 위치 데이터
               width="600px"
