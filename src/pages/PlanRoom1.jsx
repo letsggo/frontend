@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useCallback, useRef,useMemo } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+  useMemo,
+} from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import ToggleList from '../toggleLists/ToggleList';
@@ -32,8 +38,8 @@ const Right = styled.div`
   right: 0;
   z-index: 1000;
 `;
-const LeftToggle=styled.div`
-  height:750px;
+const LeftToggle = styled.div`
+  height: 750px;
   overflow-y: auto;
   flex-grow: 1;
 
@@ -46,8 +52,8 @@ const LeftToggle=styled.div`
     border-radius: 6px;
   }
 `;
-const RightToggle=styled.div`
-  height:720px;
+const RightToggle = styled.div`
+  height: 720px;
   overflow-y: auto;
   flex-grow: 1;
 
@@ -252,15 +258,15 @@ const CloseButton = styled.button`
 /*후보지 만들기*/
 const PlusButton = styled.button`
   background-color: #f08080;
-  color:white;
+  color: white;
   border: none;
-  border-radius:20px; 
+  border-radius: 20px;
   width: 200px;
   height: 40px;
   font-size: 16px;
   font-weight: 600;
   text-align: center;
-  margin-left:50px;
+  margin-left: 50px;
 `;
 /*채팅 모달*/
 const Overlay = styled.div`
@@ -497,107 +503,118 @@ function PlanRoom1() {
       console.error('오류가 발생했습니다:', error);
     }
   };
-/*후보지*/
+  /*후보지*/
 
   async function registerCandidate(listName) {
-      const url = 'http://43.200.238.249:5000/travel-plans/candidates/new';
-      
-      try {
-          const response = await axios.post(url, {
-              travel_id: travelId,
-              location_id: 1,
-              can_name: listName
-          }, {
-              headers: {
-                  'Authorization': `Bearer ${token}`,
-                  'Content-Type': 'application/json'
-              }
-          });
-          
-          console.log('후보지 등록 성공:', response.data);
-          return response.data;
-      } catch (error) {
-          console.error('후보지 등록 실패:', error.response ? error.response.data : error.message);
-          throw error;
-      }
+    const url = 'http://43.200.238.249:5000/travel-plans/candidates/new';
+
+    try {
+      const response = await axios.post(
+        url,
+        {
+          travel_id: travelId,
+          location_id: 1,
+          can_name: listName,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      console.log('후보지 등록 성공:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error(
+        '후보지 등록 실패:',
+        error.response ? error.response.data : error.message
+      );
+      throw error;
+    }
   }
 
   async function getCandidateList() {
     try {
-        const requests = selectedLists2.map(can_name => {
-            const url = `http://43.200.238.249:5000/travel-plans/candidates?can_name=${can_name}&travel_id=${travelId}`;
-            return axios.get(url, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                },
-            });
+      const requests = selectedLists2.map((can_name) => {
+        const url = `http://43.200.238.249:5000/travel-plans/candidates?can_name=${can_name}&travel_id=${travelId}`;
+        return axios.get(url, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         });
+      });
 
-        const responses = await Promise.all(requests);
+      const responses = await Promise.all(requests);
 
-        // 응답 데이터 검토
-        console.log("응답 데이터:", responses);
+      // 응답 데이터 검토
+      console.log('응답 데이터:', responses);
 
-        // responses.map(response => response.data)로 각 응답의 data를 가져옴
-        const candidates = responses.flatMap(response => response.data);
+      // responses.map(response => response.data)로 각 응답의 data를 가져옴
+      const candidates = responses.flatMap((response) => response.data);
 
-        console.log("후보 목록:", candidates);
+      console.log('후보 목록:', candidates);
 
-        return candidates; // 모든 후보 목록을 배열로 반환합니다.
+      return candidates; // 모든 후보 목록을 배열로 반환합니다.
     } catch (error) {
-        console.error('후보 목록 가져오기 실패:', error);
-        throw error;
+      console.error('후보 목록 가져오기 실패:', error);
+      throw error;
     }
-}
+  }
 
+  async function saveCandidateList() {
+    try {
+      const candidates = await getCandidateList();
+      const results = []; // 성공적으로 저장된 결과를 저장할 배열
 
-async function saveCandidateList() {
-  try {
-    const candidates = await getCandidateList();
-    const results = []; // 성공적으로 저장된 결과를 저장할 배열
+      for (let index = 0; index < candidates.length; index++) {
+        const candidate = candidates[index];
+        const skip = skippedList.includes(index); // can_id가 skippedList에 있는지 확인
 
-    for (let index = 0; index < candidates.length; index++) {
-      const candidate = candidates[index];
-      const skip = skippedList.includes(index); // can_id가 skippedList에 있는지 확인
+        if (skip) {
+          console.log(
+            `후보 ${candidate.can_id}은(는) 스킵되어 저장하지 않습니다.`
+          );
+          continue; // 스킵된 후보군은 저장하지 않음 (오류나서..)
+        }
 
-      if (skip) {
-        console.log(`후보 ${candidate.can_id}은(는) 스킵되어 저장하지 않습니다.`);
-        continue; // 스킵된 후보군은 저장하지 않음 (오류나서..)
+        const voteData = {
+          user_id: 1,
+          can_id: candidate.can_id,
+          state: true,
+          skip: skip, // skip 값을 voteData에 추가
+          can_name: candidate.can_name,
+          travel_id: travelId,
+        };
+
+        console.log('voteData:', voteData); // voteData 출력
+
+        const response = await axios.post(
+          'http://43.200.238.249:5000/travel-plans/candidates/vote',
+          voteData,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+          }
+        );
+
+        console.log('응답 데이터:', response.data);
+        results.push(response.data); // 성공적으로 저장된 결과를 배열에 추가
       }
 
-      const voteData = {
-        user_id: 1,
-        can_id: candidate.can_id,
-        state: true,
-        skip: skip, // skip 값을 voteData에 추가
-        can_name: candidate.can_name,
-        travel_id: travelId
-      };
-
-      console.log('voteData:', voteData); // voteData 출력
-
-      const response = await axios.post(
-        'http://43.200.238.249:5000/travel-plans/candidates/vote',
-        voteData,
-        {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        }
+      console.log('후보군 리스트가 등록되었습니다!');
+      return results; // 모든 결과를 반환
+    } catch (error) {
+      console.error(
+        '후보군 리스트 등록 실패:',
+        error.response ? error.response.data : error.message
       );
-
-      console.log('응답 데이터:', response.data);
-      results.push(response.data); // 성공적으로 저장된 결과를 배열에 추가
+      throw error;
     }
-
-    console.log("후보군 리스트가 등록되었습니다!");
-    return results; // 모든 결과를 반환
-  } catch (error) {
-    console.error('후보군 리스트 등록 실패:', error.response ? error.response.data : error.message);
-    throw error;
   }
-}
 
   return (
     <Container>
@@ -614,8 +631,19 @@ async function saveCandidateList() {
           </Button>
         </Place>
         <LeftToggle>
-          {<ToggleListPlace placeLists={placeLists} setPlaceLists={setPlaceLists}/>}
-          {<ToggleList selectedLists={selectedLists} setSelectedLists={setSelectedLists} Right={false}/>}
+          {
+            <ToggleListPlace
+              placeLists={placeLists}
+              setPlaceLists={setPlaceLists}
+            />
+          }
+          {
+            <ToggleList
+              selectedLists={selectedLists}
+              setSelectedLists={setSelectedLists}
+              Right={false}
+            />
+          }
         </LeftToggle>
         <PlaceSet>
           <ListButton onClick={openModal1}>나의 장소 불러오기</ListButton>
@@ -635,32 +663,35 @@ async function saveCandidateList() {
           </Button>
         </Candidate>
         <RightToggle>
-            {vote === 0 && (
-              <>
-                <ToggleList
-                  selectedLists={selectedLists2}
-                  setSelectedLists={setSelectedLists2}
-                  Right={true}
-                />
-                <PlusButton onClick={openModal3}>새로운 후보지 추가 +</PlusButton>
-              </>
-              )
-            }
-            {vote === 1 && 
-              <ToggleListVote
+          {vote === 0 && (
+            <>
+              <ToggleList
                 selectedLists={selectedLists2}
                 setSelectedLists={setSelectedLists2}
-                shareVoteDetails={shareVoteDetails}
-                travelId={travelId}
+                Right={true}
               />
-            }
+              <PlusButton onClick={openModal3}>새로운 후보지 추가 +</PlusButton>
+            </>
+          )}
+          {vote === 1 && (
+            <ToggleListVote
+              selectedLists={selectedLists2}
+              setSelectedLists={setSelectedLists2}
+              shareVoteDetails={shareVoteDetails}
+              travelId={travelId}
+            />
+          )}
         </RightToggle>
-        {vote === 0 && <GoToVoteButton 
-          onClick={() => { setVote(1)
-                          saveCandidateList()
-                  }}>
-                  투표 하러가기
-                  </GoToVoteButton>}
+        {vote === 0 && (
+          <GoToVoteButton
+            onClick={() => {
+              setVote(1);
+              saveCandidateList();
+            }}
+          >
+            투표 하러가기
+          </GoToVoteButton>
+        )}
         {vote === 1 && (
           <>
             <MakeRouteButton
