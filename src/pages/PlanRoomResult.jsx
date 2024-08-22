@@ -12,7 +12,7 @@ import RouteImage from '../buttonimage/route.png';
 import html2canvas from 'html2canvas';
 import * as XLSX from 'xlsx';
 import KakaoMap from '../components/KakaoMap'; // KakaoMap 컴포넌트 임포트
-
+const KAKAOMAP_API_KEY = 'fa893ceec1fa072ebbe1e891c1ebe0ef';
 // 전체
 const Container = styled.div`
   width: 90%;
@@ -283,6 +283,85 @@ const ExdownImageContainer = styled.div`
   background-size: contain;
   z-index: 1000;
 `;
+const testLocations = [
+  {
+    id: '1',
+    name: '서울타워',
+    lat: 37.5512,
+    lng: 126.9881,
+    address: '서울특별시 용산구 남산공원길 105',
+  },
+  {
+    id: '2',
+    name: '경복궁',
+    lat: 37.5789,
+    lng: 126.9769,
+    address: '서울특별시 종로구 세종로 1-1',
+  },
+  {
+    id: '3',
+    name: '부산 해운대 해수욕장',
+    lat: 35.1587,
+    lng: 129.1603,
+    address: '부산광역시 해운대구 우동 1015',
+  },
+  {
+    id: '4',
+    name: '제주 성산일출봉',
+    lat: 33.4598,
+    lng: 126.9436,
+    address: '제주특별자치도 서귀포시 성산읍 일출로 284-12',
+  },
+  {
+    id: '5',
+    name: '강릉 경포대',
+    lat: 37.8047,
+    lng: 128.9017,
+    address: '강원도 강릉시 창해로 365',
+  },
+  {
+    id: '6',
+    name: '대구 동성로',
+    lat: 35.8688,
+    lng: 128.5965,
+    address: '대구광역시 중구 동성로2가',
+  },
+  {
+    id: '7',
+    name: '전주 한옥마을',
+    lat: 35.8153,
+    lng: 127.148,
+    address: '전라북도 전주시 완산구 기린대로 99',
+  },
+  {
+    id: '8',
+    name: '인천 차이나타운',
+    lat: 37.4753,
+    lng: 126.6167,
+    address: '인천광역시 중구 선린동',
+  },
+];
+
+// Kakao Maps Geocoding API를 호출하여 주소를 좌표로 변환
+const geocodeAddress = async (address) => {
+  try {
+    const response = await axios.get(
+      `https://dapi.kakao.com/v2/local/search/address.json`,
+      {
+        params: { query: address },
+        headers: { Authorization: `KakaoAK ${KAKAOMAP_API_KEY}` },
+      }
+    );
+
+    console.log('API 응답:', response.data);
+
+    const { x, y } = response.data.documents[0].address;
+    return { lat: parseFloat(y), lng: parseFloat(x) };
+  } catch (error) {
+    console.error('주소를 좌표로 변환하는 데 실패했습니다:', error);
+    return null;
+  }
+};
 
 function PlanRoomResult() {
   const [activeRoute, setActiveRoute] = useState(1);
@@ -293,6 +372,7 @@ function PlanRoomResult() {
   const location = useLocation();
   const [travelPlan, setTravelPlan] = useState(null);
   const [routes, setRoutes] = useState([]);
+  const [locations, setLocations] = useState([]); // 지도에 표시할 위치 상태
 
   useEffect(() => {
     const fetchTravelPlan = async () => {
@@ -326,6 +406,7 @@ function PlanRoomResult() {
     fetchTravelPlan();
   }, [location.state]);
 
+  //동선 불러오기
   useEffect(() => {
     const fetchTravelRoutes = async () => {
       try {
@@ -345,13 +426,24 @@ function PlanRoomResult() {
           }
         );
 
-        setRoutes(response.data.routes);
+        const routes = response.data.routes;
+        setRoutes(routes);
+
+        // 주소를 좌표로 변환하여 위치 배열 업데이트
+        const locationsPromises = routes.flatMap((route) =>
+          route.map((place) => geocodeAddress(place.place_address))
+        );
+
+        const locations = await Promise.all(locationsPromises);
+        setLocations(locations.filter((loc) => loc !== null));
       } catch (error) {
         console.error('여행 동선 데이터 가져오기 오류:', error);
       }
     };
 
-    fetchTravelRoutes();
+    if (location.state?.travelId) {
+      fetchTravelRoutes();
+    }
   }, [location.state]);
 
   const combinedLocations = [...routes.flat()];
@@ -479,10 +571,10 @@ function PlanRoomResult() {
           <SectionTitle>여행 장소</SectionTitle>
           <StyledMapContainer>
             <KakaoMap
-              center={{ lat: 37.5665, lng: 126.978 }} // 기본 위치 설정
-              zoom={15} // 기본 줌 레벨
-              locations={combinedLocations} // 위치 데이터
-              route={routes[activeRoute]} // 현재 활성화된 동선
+              center={{ lat: 37.5512, lng: 126.9881 }} // 기본 위치 설정
+              zoom={5} // 기본 줌 레벨
+              locations={testLocations} // 테스트용 위치 데이터
+              //locations={combinedLocations} // 위치 데이터
               width="600px"
               height="620px"
             />
@@ -514,34 +606,69 @@ function PlanRoomResult() {
             <RouteContainer>
               {activeRoute !== null && (
                 <FlexWrap>
-                  {activeRouteLocations.map((location, index) => {
-                    const isIncludedInRoute = location !== undefined;
+                  {activeRouteLocations && activeRouteLocations.length > 0
+                    ? activeRouteLocations.map((location, index) => {
+                        const isIncludedInRoute = location !== undefined;
 
-                    return (
-                      isIncludedInRoute && ( // Only render if location is included in route
-                        <Item
-                          key={location.id}
-                          isIncludedInRoute={isIncludedInRoute}
-                          order={index + 1}
-                        >
-                          <Circle />
-                          <p
-                            style={{
-                              position: 'relative',
-                              top: '10px',
-                              fontWeight: '600',
-                            }}
+                        return (
+                          isIncludedInRoute && ( // Only render if location is included in route
+                            <Item
+                              key={location.id}
+                              isIncludedInRoute={isIncludedInRoute}
+                              order={index + 1}
+                            >
+                              <Circle
+                                style={{
+                                  backgroundColor:
+                                    index === 0 ? '#FFD700' : 'default',
+                                }}
+                              />
+                              <p
+                                style={{
+                                  position: 'relative',
+                                  top: '10px',
+                                  fontWeight: '600',
+                                }}
+                              >
+                                {location.name}
+                              </p>
+                            </Item>
+                          )
+                        );
+                      })
+                    : Array.from({ length: 8 }, (_, index) => {
+                        const isReverseOrder = index >= 3 && index <= 5; // 4, 5, 6번째 인덱스 (0부터 시작하므로 3, 4, 5)
+                        const reversedIndex = 6 - index; // 역순으로 계산된 인덱스
+
+                        return (
+                          <Item
+                            key={index}
+                            isIncludedInRoute={true} // 임의로 추가된 장소도 렌더링됨
+                            order={index + 1}
                           >
-                            {location.name}
-                          </p>
-                          {showTime &&
-                            index < activeRouteLocations.length - 1 && (
-                              <p>{/* 시간 표시 로직 */}</p>
-                            )}
-                        </Item>
-                      )
-                    );
-                  })}
+                            <Circle
+                              style={{
+                                backgroundColor:
+                                  index === 0 ? '#FFD700' : 'default', // 첫 번째 임의 장소의 동그라미를 노란색으로 설정
+                              }}
+                            />
+                            <p
+                              style={{
+                                position: 'relative',
+                                top: '10px',
+                                fontWeight: '600',
+                              }}
+                            >
+                              {index === 0
+                                ? '숙소1'
+                                : isReverseOrder
+                                ? `장소${reversedIndex + 3}` // 4, 5, 6 인덱스의 경우 역순으로 표시
+                                : `장소${index + 1}`}{' '}
+                              {/* 나머지 장소들은 순차적으로 표시 */}
+                            </p>
+                          </Item>
+                        );
+                      })}
                 </FlexWrap>
               )}
             </RouteContainer>
