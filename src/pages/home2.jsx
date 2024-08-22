@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PageContainer, Container, Title, Header, ButtonContainer, TopButton, SortDiv, NewTripButton } from '../styles/home2style';

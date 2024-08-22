@@ -569,4 +569,5 @@ function PlanRoomResult() {
     </Container>
   );
 }
+
 export default PlanRoomResult;
