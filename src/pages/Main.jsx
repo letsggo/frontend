@@ -1,93 +1,137 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
+
+// Styled Components
+
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 20px;
+  background-color: white;
+`;
+
+const Heading = styled.h1`
+  font-size: 50px;
+  margin-bottom: 20px;
+`;
+
+const Paragraph = styled.p`
+  font-size: 25px;
+  margin-bottom: 50px;
+  b {
+    color: #f08080;
+    font-size: 33px;
+  }
+`;
+
+const Button = styled.button`
+  padding: 15px 30px; /* 패딩을 늘려서 버튼의 크기를 키움 */
+  font-size: 1.5em; /* 폰트 크기를 늘려서 버튼 텍스트를 키움 */
+  background-color: #4ec3f3;
+  color: white;
+  font-weight: bold;
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+  margin-bottom: 40px;
+  min-width: 200px; /* 최소 너비를 설정하여 버튼의 가로 크기를 일정하게 유지 */
+  height: 60px; /* 버튼의 높이 설정 */
+`;
+
+const VideoContainer = styled.div`
+  margin-bottom: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const Video = styled.iframe`
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+`;
+
+const CardContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 40px;
+`;
+
+const LeftCard = styled.div`
+  background-color: #f08080;
+  color: white;
+  border-radius: 10px;
+  padding: 20px;
+  margin: 10px;
+  width: 300px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  p {
+    font-weight: bold;
+  }
+`;
+
+const CenterCard = styled.div`
+  background-color: #63caf4;
+  color: white;
+  border-radius: 10px;
+  padding: 20px;
+  margin: 10px;
+  width: 300px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  p {
+    font-weight: bold;
+  }
+`;
+
+const RightCard = styled.div`
+  background-color: #ffd700;
+  color: white;
+  border-radius: 10px;
+  padding: 20px;
+  margin: 10px;
+  width: 300px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  p {
+    font-weight: bold;
+  }
+`;
+
+const Footer = styled.footer`
+  margin-top: 40px;
+  padding: 20px;
+  background-color: white;
+  color: black;
+  text-align: center;
+  width: 100%;
+  font-size: 20px;
+`;
+
+const FooterContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+`;
+
+const FooterLine = styled.div`
+  border-bottom: 1px solid #495057;
+  width: 120%;
+  margin-bottom: 10px;
+`;
 
 const Main = () => {
-  const containerStyle = {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    textAlign: 'center',
-    padding: '20px',
-    backgroundColor: '#f8f9fa',
-  };
-
-  const headingStyle = {
-    fontSize: '2.5em',
-    marginBottom: '20px',
-  };
-
-  const paragraphStyle = {
-    fontSize: '1.2em',
-    marginBottom: '30px',
-  };
-
-  const buttonStyle = {
-    padding: '10px 20px',
-    fontSize: '1.2em',
-    backgroundColor: '#4EC3F3',
-    color: 'white',
-    fontWeight: 'bold',
-    border: 'none',
-    borderRadius: '30px',
-    cursor: 'pointer',
-    marginBottom: '40px',
-  };
-
-  const videoContainerStyle = {
-    marginBottom: '40px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  };
-
-  const videoStyle = {
-    borderRadius: '10px',
-    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
-  };
-
-  const cardContainerStyle = {
-    display: 'flex',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    marginTop: '40px',
-  };
-
-  const cardStyle = {
-    backgroundColor: '#343a40',
-    color: 'white',
-    borderRadius: '10px',
-    padding: '20px',
-    margin: '10px',
-    width: '300px',
-    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-  };
-
-  const footerStyle = {
-    marginTop: '40px',
-    padding: '20px',
-    backgroundColor: '#1F637F',
-    color: 'white',
-    textAlign: 'center',
-    width: '100%',
-    fontSize: '0.9em',
-  };
-
-  const footerContentStyle = {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    gap: '10px',
-  };
-
-  const footerLineStyle = {
-    borderBottom: '1px solid #495057',
-    width: '80%',
-    marginBottom: '10px',
-  };
-
   const navigate = useNavigate();
 
   const handleOutClick = () => {
@@ -95,18 +139,16 @@ const Main = () => {
   };
 
   return (
-    <div style={containerStyle}>
-      <h1 style={headingStyle}>국내 여행을 계획하고 있으신가요?</h1>
-      <p style={paragraphStyle}>
-        <b>가볼까</b>와 동행자와 함께 여행을 빠르고 쉽게 계획할 수 있어요!
-      </p>
-      <button style={buttonStyle} onClick={handleOutClick}>
-        여행 계획 하러 가기
-      </button>
+    <Container>
+      <Heading>국내 여행을 계획하고 있으신가요?</Heading>
+      <Paragraph>
+        <b>가볼까</b>와 동행자와 <b>함께 여행을 빠르고 쉽게 계획</b>할 수
+        있어요!
+      </Paragraph>
+      <Button onClick={handleOutClick}>여행 계획 하러 가기</Button>
 
-      <div style={videoContainerStyle}>
-        <iframe
-          style={videoStyle}
+      <VideoContainer>
+        <Video
           width="800"
           height="450"
           src="https://www.youtube.com/embed/EVQi_NvLNWI?si=XI_weZOYVVQgMO2H"
@@ -115,31 +157,54 @@ const Main = () => {
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
           referrerPolicy="strict-origin-when-cross-origin"
           allowFullScreen
-        ></iframe>
-      </div>
+        ></Video>
+      </VideoContainer>
 
-      <div style={cardContainerStyle}>
-        <div style={cardStyle}>
-          <h2>여행 동행자와 함께 여행 계획을!</h2>
+      <CardContainer>
+        <LeftCard>
+          <h2>기존에 사용하던 지도 APP을 활용할 수 있어요!</h2>
           <p>
-            가볼까에서는 모두 다함께 참여할 수 있어요! 더 이상 따로 찾고 따로
-            계획하지 않아도 돼요!
+            • 네이버지도, 카카오맵 등으로 찾은 장소를 url 복사로 간단하게
+            가져와요
           </p>
-        </div>
-        <div style={cardStyle}>
-          <h2>가볼까의 주요 장점 제목 222</h2>
-          <p>가볼까의 장점 설명글 가볼까의 장점 설명글 가볼까의 장점 설명글</p>
-        </div>
-        <div style={cardStyle}>
-          <h2>가볼까의 주요 장점 제목 444</h2>
-          <p>가볼까의 장점 설명글 가볼까의 장점 설명글 가볼까의 장점 설명글</p>
-        </div>
-      </div>
+          <p>• 저장해둔 나의 즐겨찾기 목록을 연동할 수 있어요</p>
+        </LeftCard>
+        <CenterCard>
+          <h2>실시간으로 동행자와 함께 자유로이 동선을 만들 수 있어요!</h2>
+          <p>
+            • '가볼까'에서 공동작업과 버블채팅으로 별도의 SNS 없이 여행 계획을
+            끝내요
+          </p>
+          <p>
+            • 동행자와 같이 후보지를 만들어 투표하고, 장소카드로 쉽게 여행
+            동선을 만들어요
+          </p>
+          <p>
+            • '여행기간'이나 '플랜B'등 원하는 방식에 맞춰 원하는 대로 동선을
+            만들어요
+          </p>
+        </CenterCard>
+        <RightCard>
+          <h2>'가볼까'의 핵심은 빠른 여행 계획 과정이에요!</h2>
+          <p>
+            • 서비스 내에서 일일히 장소를 다시 찾을 필요 없이 찾아둔 장소 바로
+            가져와요
+          </p>
+          <p>
+            • 단계별로 여행 계획 과정으로 더욱 빠르고 체계적으로 여행 동선
+            만들어요
+          </p>
+          <p>
+            • 원하는 대로 동선을 여러 개 만들고, 다양한 방식으로 동선 결과를 볼
+            수 있어요
+          </p>
+        </RightCard>
+      </CardContainer>
 
-      <footer style={footerStyle}>
-        <div style={footerContentStyle}>
+      <Footer>
+        <FooterContent>
           <div>UMC 6기 타이거지부 ‘가볼까’</div>
-          <div style={footerLineStyle}></div>
+          <FooterLine></FooterLine>
           <div>
             <strong>PM:</strong> 로진 | <strong>FE:</strong> 이서, 조이, 클로이
           </div>
@@ -147,11 +212,11 @@ const Main = () => {
             <strong>Design:</strong> 여니 | <strong>BE:</strong> 이노, 제타,
             쥬쥬
           </div>
-          <div style={footerLineStyle}></div>
+          <FooterLine></FooterLine>
           <div>© GABOLKKA ALL RIGHTS RESERVED.</div>
-        </div>
-      </footer>
-    </div>
+        </FooterContent>
+      </Footer>
+    </Container>
   );
 };
 
