@@ -13,7 +13,6 @@ const ModalContent = styled.div`
     color:black;
     padding: 20px;
     border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     position: relative;
     width:700px;
     height: 120px;
@@ -47,12 +46,9 @@ const Img=styled.div`
 const PRplaceModal = ({ isOpen, onClose, place, isPlace  }) => {    
     if (!isOpen) return null;   
     if(isPlace){
-        console.log('place:',place);
-        console.log('location_name:',place.location_name)
         return (
             <ModalOverlay>
                 <ModalContent>
-                    <CloseButton onClick={onClose}>X</CloseButton>
                     <img src={place.location_img} alt={place.location_name} />
                     <div>
                         <h3>{place.location_name}</h3>
@@ -65,7 +61,6 @@ const PRplaceModal = ({ isOpen, onClose, place, isPlace  }) => {
         return (
             <ModalOverlay>
                 <ModalContent>
-                    <CloseButton onClick={onClose}>X</CloseButton>
                     <Img src={grey} alt={place.name} />
                     <div>
                         <h3>{place.name}</h3>
