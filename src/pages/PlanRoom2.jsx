@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { FaArrowCircleDown, FaArrowCircleUp, FaPlus } from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom'; // 추가
+import { useLocation, useNavigate } from 'react-router-dom'; // 추가
 
 const Container = styled.div`
   display: flex;
@@ -17,25 +17,25 @@ const Left = styled.div`
 const Middle = styled.div`
   width: 570px;
   height: 770px;
-  background-color: #D9D9D9;
+  background-color: #d9d9d9;
   margin-left: 30px;
   display: flex;
-  justify-content: flex-start;  
-  align-items: flex-start;      
-  padding-top: 20px;            
+  justify-content: flex-start;
+  align-items: flex-start;
+  padding-top: 20px;
 `;
 
 const Right = styled.div`
   width: 400px;
   height: 770px;
-  
+
   border-radius: 5px;
-  background-color:#ECECEC;
+  background-color: #ececec;
   margin-left: 30px;
   overflow-y: auto;
   flex-grow: 1;
   padding: 10px;
-  position: relative; 
+  position: relative;
 
   &::-webkit-scrollbar {
     width: 6px;
@@ -56,7 +56,7 @@ const RouteButton = styled.button`
   color: white;
   font-size: 16px;
   cursor: pointer;
-  margin-bottom: 20px; 
+  margin-bottom: 20px;
 `;
 
 const Section = styled.div`
@@ -172,7 +172,8 @@ const PlanRoom2 = () => {
   const [openSections, setOpenSections] = useState({});
   const [timelineItems, setTimelineItems] = useState([]);
   const navigate = useNavigate();
-
+  const location = useLocation();
+  const travelId = location.state?.travelId;
   const toggleSection = (section) => {
     setOpenSections((prev) => ({
       ...prev,
@@ -181,7 +182,7 @@ const PlanRoom2 = () => {
   };
 
   const handleGoToResult = () => {
-    navigate('/planroomresult');
+    navigate('/planroomresult', { state: { travelId } });
   };
 
   const handleAddToTimeline = (item) => {
@@ -198,10 +199,8 @@ const PlanRoom2 = () => {
 
   return (
     <Container>
-      <Left>
-        {/* 다른 컴포넌트 */}
-      </Left>
-  
+      <Left>{/* 다른 컴포넌트 */}</Left>
+
       <Middle>
         <VoteResults>
           <h3>투표 결과로 선정된 장소</h3>
@@ -209,12 +208,20 @@ const PlanRoom2 = () => {
           <Section>
             <SectionHeader onClick={() => toggleSection('section1')}>
               <div>숙소</div>
-              {openSections['section1'] ? <FaArrowCircleUp /> : <FaArrowCircleDown />}
+              {openSections['section1'] ? (
+                <FaArrowCircleUp />
+              ) : (
+                <FaArrowCircleDown />
+              )}
             </SectionHeader>
             <SectionBody isOpen={openSections['section1']}>
               <div style={{ display: 'flex' }}>
-                <Circle onClick={() => handleAddToTimeline('숙소1')}>숙소1</Circle>
-                <Circle onClick={() => handleAddToTimeline('숙소2')}>숙소2</Circle>
+                <Circle onClick={() => handleAddToTimeline('숙소1')}>
+                  숙소1
+                </Circle>
+                <Circle onClick={() => handleAddToTimeline('숙소2')}>
+                  숙소2
+                </Circle>
               </div>
             </SectionBody>
           </Section>
@@ -222,13 +229,23 @@ const PlanRoom2 = () => {
           <Section>
             <SectionHeader onClick={() => toggleSection('section2')}>
               <div>후보군 리스트1</div>
-              {openSections['section2'] ? <FaArrowCircleUp /> : <FaArrowCircleDown />}
+              {openSections['section2'] ? (
+                <FaArrowCircleUp />
+              ) : (
+                <FaArrowCircleDown />
+              )}
             </SectionHeader>
             <SectionBody isOpen={openSections['section2']}>
               <div style={{ display: 'flex' }}>
-                <Square onClick={() => handleAddToTimeline('장소1')}>장소1</Square>
-                <Square onClick={() => handleAddToTimeline('장소2')}>장소2</Square>
-                <Square onClick={() => handleAddToTimeline('장소3')}>장소3</Square>
+                <Square onClick={() => handleAddToTimeline('장소1')}>
+                  장소1
+                </Square>
+                <Square onClick={() => handleAddToTimeline('장소2')}>
+                  장소2
+                </Square>
+                <Square onClick={() => handleAddToTimeline('장소3')}>
+                  장소3
+                </Square>
               </div>
             </SectionBody>
           </Section>
@@ -236,13 +253,23 @@ const PlanRoom2 = () => {
           <Section>
             <SectionHeader onClick={() => toggleSection('section3')}>
               <div>후보군 리스트2</div>
-              {openSections['section3'] ? <FaArrowCircleUp /> : <FaArrowCircleDown />}
+              {openSections['section3'] ? (
+                <FaArrowCircleUp />
+              ) : (
+                <FaArrowCircleDown />
+              )}
             </SectionHeader>
             <SectionBody isOpen={openSections['section3']}>
               <div style={{ display: 'flex' }}>
-                <Square onClick={() => handleAddToTimeline('장소4')}>장소4</Square>
-                <Square onClick={() => handleAddToTimeline('장소5')}>장소5</Square>
-                <Square onClick={() => handleAddToTimeline('장소6')}>장소6</Square>
+                <Square onClick={() => handleAddToTimeline('장소4')}>
+                  장소4
+                </Square>
+                <Square onClick={() => handleAddToTimeline('장소5')}>
+                  장소5
+                </Square>
+                <Square onClick={() => handleAddToTimeline('장소6')}>
+                  장소6
+                </Square>
               </div>
             </SectionBody>
           </Section>
@@ -250,13 +277,23 @@ const PlanRoom2 = () => {
           <Section>
             <SectionHeader onClick={() => toggleSection('section4')}>
               <div>후보군 리스트3</div>
-              {openSections['section4'] ? <FaArrowCircleUp /> : <FaArrowCircleDown />}
+              {openSections['section4'] ? (
+                <FaArrowCircleUp />
+              ) : (
+                <FaArrowCircleDown />
+              )}
             </SectionHeader>
             <SectionBody isOpen={openSections['section4']}>
               <div style={{ display: 'flex' }}>
-                <Square onClick={() => handleAddToTimeline('장소7')}>장소7</Square>
-                <Square onClick={() => handleAddToTimeline('장소8')}>장소8</Square>
-                <Square onClick={() => handleAddToTimeline('장소9')}>장소9</Square>
+                <Square onClick={() => handleAddToTimeline('장소7')}>
+                  장소7
+                </Square>
+                <Square onClick={() => handleAddToTimeline('장소8')}>
+                  장소8
+                </Square>
+                <Square onClick={() => handleAddToTimeline('장소9')}>
+                  장소9
+                </Square>
               </div>
             </SectionBody>
           </Section>
@@ -266,8 +303,8 @@ const PlanRoom2 = () => {
         <RouteButton onClick={handleGoToResult}>여행 동선 보러가기</RouteButton>
         <Timeline>
           {timelineItems.map((item, index) => (
-            <CircleButton 
-              key={index} 
+            <CircleButton
+              key={index}
               onContextMenu={(event) => handleRightClick(event, index)}
             >
               {item}

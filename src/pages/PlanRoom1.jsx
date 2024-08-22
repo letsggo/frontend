@@ -530,7 +530,7 @@ function PlanRoom1() {
               shareVoteDetails={shareVoteDetails}
             />
             <MakeRouteButton
-              disabled={!voteDone || selectedLists2.length === 0}
+              //disabled={!voteDone || selectedLists2.length === 0}
               onClick={handlePlanRoom2}
             >
               동선 만들러 가기
