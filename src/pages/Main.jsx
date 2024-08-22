@@ -151,9 +151,9 @@ const Main = () => {
 
       <VideoContainer>
         <Video
-          width="800"
-          height="450"
-          src="https://www.youtube.com/embed/EVQi_NvLNWI?si=XI_weZOYVVQgMO2H"
+          width="1200"
+          height="675"
+          src="https://www.youtube.com/embed/3jWSlRkMERY?si=lOEbvLQdxDtaU935"
           title="YouTube video player"
           frameBorder="0"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
