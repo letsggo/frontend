@@ -240,4 +240,3 @@ function MyLocationList() {
 }
 
 export default MyLocationList;
-
