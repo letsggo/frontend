@@ -1,5 +1,7 @@
+
 import React  from "react"; 
 import styled from "styled-components";
+import grey from './grey.png';
 
 const ModalOverlay = styled.div`
     position:fixed; 
@@ -37,21 +39,36 @@ const CloseButton = styled.button`
     cursor: pointer;
 `;
 
-const PRplaceModal = ({ isOpen, onClose, place  }) => {
+const PRplaceModal = ({ isOpen, onClose, place, isPlace  }) => {
     if (!isOpen) return null;
 
-    return (
-        <ModalOverlay>
-            <ModalContent>
-                <CloseButton onClick={onClose}>X</CloseButton>
-                <img src={place.location_img} alt={place.location_name}/>
-                <div>
-                    <h3>{place.location_name}</h3>
-                    <p>{place.location_address}</p>
-                </div>
-            </ModalContent>
-        </ModalOverlay>
-    );
+    if(isPlace){
+        return (
+            <ModalOverlay>
+                <ModalContent>
+                    <CloseButton onClick={onClose}>X</CloseButton>
+                    <img src={place.location_img} alt={place.location_name}/>
+                    <div>
+                        <h3>{place.location_name}</h3>
+                        <p>{place.location_address}</p>
+                    </div>
+                </ModalContent>
+            </ModalOverlay>
+        );
+    }else{
+        return (
+            <ModalOverlay>
+                <ModalContent>
+                    <CloseButton onClick={onClose}>X</CloseButton>
+                    <img src={grey} alt={place.name}/>
+                    <div>
+                        <h3>{place.name}</h3>
+                        <p>{place.address}</p>
+                    </div>
+                </ModalContent>
+            </ModalOverlay>
+        );
+    }
 };
 
 export default PRplaceModal;

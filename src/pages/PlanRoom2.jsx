@@ -1,100 +1,321 @@
 import React, { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom'; 
-import KakaoMap from '../components/KakaoMap'; // KakaoMap 컴포넌트 임포트
-import { planroomStyle } from '../styles/PlanRoom2style';
-/** @jsxImportSource @emotion/react */
+import styled from 'styled-components';
+import { FaArrowCircleDown, FaArrowCircleUp, FaPlus } from 'react-icons/fa';
+import { useLocation, useNavigate } from 'react-router-dom'; // 추가
+
+const Container = styled.div`
+  display: flex;
+  width: 100%;
+`;
+
+const Left = styled.div`
+  width: 600px;
+  margin-top: -50px;
+  margin-left: -90px;
+`;
+
+const Middle = styled.div`
+  width: 570px;
+  height: 770px;
+  background-color: #d9d9d9;
+  margin-left: 30px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  padding-top: 20px;
+`;
+
+const Right = styled.div`
+  width: 400px;
+  height: 770px;
+
+  border-radius: 5px;
+  background-color: #ececec;
+  margin-left: 30px;
+  overflow-y: auto;
+  flex-grow: 1;
+  padding: 10px;
+  position: relative;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: #d2d2d2;
+    border-radius: 6px;
+  }
+`;
+
+const RouteButton = styled.button`
+  width: 100%;
+  padding: 10px;
+  background-color: #63caf4;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  margin-bottom: 20px;
+`;
+
+const Section = styled.div`
+  margin-bottom: 20px;
+`;
+
+const SectionHeader = styled.div`
+  background-color: #333;
+  color: white;
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+`;
+
+const SectionBody = styled.div`
+  background-color: #f0f0f0;
+  display: ${({ isOpen }) => (isOpen ? 'block' : 'none')};
+  padding: 10px;
+`;
+
+const Circle = styled.div`
+  background-color: #d2d2d2;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 5px;
+`;
+
+const Square = styled.div`
+  background-color: #d2d2d2;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 5px;
+`;
+
+const VoteResults = styled.div`
+  width: 100%;
+`;
+
+const Timeline = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px;
+  position: relative;
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background-color: black;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+`;
+
+const CircleButton = styled.div`
+  background-color: #a0a0a0;
+  border-radius: 50%;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-weight: bold;
+  margin-bottom: 20px;
+  position: relative;
+  z-index: 1;
+`;
+
+const SquareButton = styled.div`
+  background-color: #a0a0a0;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-weight: bold;
+  margin-bottom: 20px;
+  position: relative;
+  z-index: 1;
+`;
+
+const PlusButton = styled.div`
+  background-color: white;
+  border: 2px solid black;
+  border-radius: 5px;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: black;
+  font-weight: bold;
+  margin-bottom: 20px;
+  position: relative;
+  z-index: 1;
+  cursor: pointer;
+`;
 
 const PlanRoom2 = () => {
-  const navigate = useNavigate(); 
-  const location = useLocation(); 
-  const selectedDates = location.state?.selectedDates; // 전달된 날짜 정보 받기
-  const [zoomLevel, setZoomLevel] = useState(3); // 기본 줌 레벨 설정
-  const [expandedAccommodation, setExpandedAccommodation] = useState(false);
-  const [expandedCandidates, setExpandedCandidates] = useState(null);
-
-  const handleZoomIn = () => {
-    setZoomLevel(prev => Math.min(prev + 1, 10)); // 최대 줌 레벨 제한
+  const [openSections, setOpenSections] = useState({});
+  const [timelineItems, setTimelineItems] = useState([]);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const travelId = location.state?.travelId;
+  const toggleSection = (section) => {
+    setOpenSections((prev) => ({
+      ...prev,
+      [section]: !prev[section],
+    }));
   };
 
-  const handleZoomOut = () => {
-    setZoomLevel(prev => Math.max(prev - 1, 1)); // 최소 줌 레벨 제한
+  const handleGoToResult = () => {
+    navigate('/planroomresult', { state: { travelId } });
   };
 
-  const handleCompletePlan = () => {
-    navigate('/planroomresult'); // PlanRoomResult 페이지로 이동
+  const handleAddToTimeline = (item) => {
+    setTimelineItems((prev) => [...prev, item]);
   };
 
-  const handleAccommodationClick = () => {
-    setExpandedAccommodation(prev => !prev);
-    setExpandedCandidates(null); // 후보군 리스트는 닫기
-  };
-
-  const handleCandidateClick = (id) => {
-    setExpandedCandidates(prev => (prev === id ? null : id));
-    setExpandedAccommodation(false); // 숙소 리스트는 닫기
+  const handleRightClick = (event, index) => {
+    event.preventDefault(); // 기본 컨텍스트 메뉴 방지
+    const confirmed = window.confirm('삭제하시겠습니까?');
+    if (confirmed) {
+      setTimelineItems((prev) => prev.filter((_, i) => i !== index));
+    }
   };
 
   return (
-    <div css={planroomStyle} className="planroom">
-      <h2 className="travel-title">여행 기간: {selectedDates}</h2>
-      <KakaoMap zoomLevel={zoomLevel} /> {/* KakaoMap 컴포넌트 추가 */}
+    <Container>
+      <Left>{/* 다른 컴포넌트 */}</Left>
 
-      <div className="zoom-controls">
-        <button className="zoom-button" onClick={handleZoomIn}>+</button>
-        <button className="zoom-button" onClick={handleZoomOut}>-</button>
-      </div>
-
-      <div className="info-section">
-        <div className="location-info">
-          <h3 className="section-title">장소 정보</h3>
-          <p className="section-description">드래그하여 원하는 리스트에 담아보세요</p>
-          <div className="location-content"></div>
-        </div>
-        <div className="voice-chat">
-          <h3 className="section-title">음성채팅</h3>
-          <div className="chat-options">
-            <div className="profile">A</div>
-            <div className="profile">B</div>
-            <div className="profile">C</div>
-          </div>
-        </div>
-      </div>
-
-      <div className="vote-result-place">
-        <h2 className="section-title">투표결과로 선정된 장소</h2>
-      </div>
-      <div className="travel-route">
-        <h2 className="section-title">여행동선</h2>
-      </div>
-
-      <div className="accommodation-tag" onClick={handleAccommodationClick}>숙소</div>
-      {expandedAccommodation && (
-        <div className="accommodation-subitems">
-          <div className="accommodation-item">숙소 1</div>
-          <div className="accommodation-item">숙소 2</div>
-        </div>
-      )}
-
-      {['후보군리스트1', '후보군리스트2', '후보군리스트3', '후보군리스트4'].map((tag, index) => (
-        <div key={index}>
-          <div className={`accommodation-tag${index + 2}`} onClick={() => handleCandidateClick(index)}>
-            {tag}
-          </div>
-          {expandedCandidates === index && (
-            <div className="accommodation-subitems">
-              {[...Array(3)].map((_, subIndex) => (
-                <div key={subIndex} className={`accommodation-item${index + 2}`}>
-                  장소이름
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      ))}
-
-      <button className="add-route-button">+ 여행 동선 추가하기</button>
-      <button className="complete-button" onClick={handleCompletePlan}>여행 계획 완료하기</button>
-    </div>
+      <Middle>
+        <VoteResults>
+          <h3>투표 결과로 선정된 장소</h3>
+          {/* 숙소 리스트 */}
+          <Section>
+            <SectionHeader onClick={() => toggleSection('section1')}>
+              <div>숙소</div>
+              {openSections['section1'] ? (
+                <FaArrowCircleUp />
+              ) : (
+                <FaArrowCircleDown />
+              )}
+            </SectionHeader>
+            <SectionBody isOpen={openSections['section1']}>
+              <div style={{ display: 'flex' }}>
+                <Circle onClick={() => handleAddToTimeline('숙소1')}>
+                  숙소1
+                </Circle>
+                <Circle onClick={() => handleAddToTimeline('숙소2')}>
+                  숙소2
+                </Circle>
+              </div>
+            </SectionBody>
+          </Section>
+          {/* 후보군 리스트1 */}
+          <Section>
+            <SectionHeader onClick={() => toggleSection('section2')}>
+              <div>후보군 리스트1</div>
+              {openSections['section2'] ? (
+                <FaArrowCircleUp />
+              ) : (
+                <FaArrowCircleDown />
+              )}
+            </SectionHeader>
+            <SectionBody isOpen={openSections['section2']}>
+              <div style={{ display: 'flex' }}>
+                <Square onClick={() => handleAddToTimeline('장소1')}>
+                  장소1
+                </Square>
+                <Square onClick={() => handleAddToTimeline('장소2')}>
+                  장소2
+                </Square>
+                <Square onClick={() => handleAddToTimeline('장소3')}>
+                  장소3
+                </Square>
+              </div>
+            </SectionBody>
+          </Section>
+          {/* 후보군 리스트2 */}
+          <Section>
+            <SectionHeader onClick={() => toggleSection('section3')}>
+              <div>후보군 리스트2</div>
+              {openSections['section3'] ? (
+                <FaArrowCircleUp />
+              ) : (
+                <FaArrowCircleDown />
+              )}
+            </SectionHeader>
+            <SectionBody isOpen={openSections['section3']}>
+              <div style={{ display: 'flex' }}>
+                <Square onClick={() => handleAddToTimeline('장소4')}>
+                  장소4
+                </Square>
+                <Square onClick={() => handleAddToTimeline('장소5')}>
+                  장소5
+                </Square>
+                <Square onClick={() => handleAddToTimeline('장소6')}>
+                  장소6
+                </Square>
+              </div>
+            </SectionBody>
+          </Section>
+          {/* 후보군 리스트3 */}
+          <Section>
+            <SectionHeader onClick={() => toggleSection('section4')}>
+              <div>후보군 리스트3</div>
+              {openSections['section4'] ? (
+                <FaArrowCircleUp />
+              ) : (
+                <FaArrowCircleDown />
+              )}
+            </SectionHeader>
+            <SectionBody isOpen={openSections['section4']}>
+              <div style={{ display: 'flex' }}>
+                <Square onClick={() => handleAddToTimeline('장소7')}>
+                  장소7
+                </Square>
+                <Square onClick={() => handleAddToTimeline('장소8')}>
+                  장소8
+                </Square>
+                <Square onClick={() => handleAddToTimeline('장소9')}>
+                  장소9
+                </Square>
+              </div>
+            </SectionBody>
+          </Section>
+        </VoteResults>
+      </Middle>
+      <Right>
+        <RouteButton onClick={handleGoToResult}>여행 동선 보러가기</RouteButton>
+        <Timeline>
+          {timelineItems.map((item, index) => (
+            <CircleButton
+              key={index}
+              onContextMenu={(event) => handleRightClick(event, index)}
+            >
+              {item}
+            </CircleButton>
+          ))}
+          <PlusButton onClick={() => handleAddToTimeline('추가 항목')}>
+            <FaPlus />
+          </PlusButton>
+        </Timeline>
+      </Right>
+    </Container>
   );
 };
 

@@ -1,16 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import axios from 'axios';
-import {
-  MapContainer as LeafletMapContainer,
-  TileLayer,
-  Marker,
-  Polyline,
-  Popup,
-} from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
-import L from 'leaflet';
 import OutImage from '../buttonimage/outbutton.png';
 import prevImage from '../buttonimage/prebutton.png';
 import DownImage from '../buttonimage/down.png';
@@ -20,6 +11,8 @@ import TravelImage from '../buttonimage/travel.png';
 import RouteImage from '../buttonimage/route.png';
 import html2canvas from 'html2canvas';
 import * as XLSX from 'xlsx';
+import KakaoMap from '../components/KakaoMap'; // KakaoMap 컴포넌트 임포트
+
 // 전체
 const Container = styled.div`
   width: 90%;
@@ -48,24 +41,26 @@ const Prevbt = styled.button`
   cursor: pointer;
 `;
 const Out = styled.button`
-  width: 200px; /* 원하는 너비로 조정 */
-  height: 50px; /* 원하는 높이로 조정 */
+  margin-left: 150px;
+  width: 50px;
+  height: 50px;
   background: url(${OutImage}) no-repeat center center;
-  background-size: contain; /* 이미지 크기를 버튼 크기에 맞춤 */
-  border: none; /* 버튼 테두리 제거 */
-  cursor: pointer; /* 커서 모양을 포인터로 변경 */
+  background-size: contain;
+  border: none;
+  cursor: pointer;
 `;
 
 const Title = styled.div`
-  font-size: 24px;
-  font-weight: bold;
+  font-size: 40px;
+  font-weight: 600;
   margin: 20px 0;
   text-align: center;
 `;
 
 const Subtitle = styled.div`
-  font-size: 18px;
+  font-size: 21px;
   margin-bottom: 20px;
+  font-weight: 500;
   text-align: center;
   width: 100%;
 `;
@@ -87,7 +82,7 @@ const SectionTitle = styled.h2`
 
 const StyledMapContainer = styled.div`
   width: 100%;
-  height: 630px;
+  height: 620px;
   background-color: #f0f0f0;
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
   display: flex;
@@ -289,66 +284,27 @@ const ExdownImageContainer = styled.div`
   z-index: 1000;
 `;
 
-// 기본 마커 아이콘 설정
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
-  iconUrl: require('leaflet/dist/images/marker-icon.png'),
-  shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
-});
-
-// 장소와 동선 데이터 예제
-const locations = [
-  { id: 1, name: '숙소 ', position: [37.5665, 126.978] },
-  { id: 2, name: '여행지 1', position: [37.5651, 126.9895] },
-  { id: 3, name: '여행지 2', position: [37.568, 126.98] },
-  { id: 4, name: '여행지 3', position: [37.57, 126.983] },
-  { id: 5, name: '여행지 4', position: [37.57, 126.988] },
-  { id: 6, name: '여행지 5', position: [37.572, 126.99] },
-  { id: 7, name: '여행지 6', position: [37.573, 126.992] },
-];
-
-const routes = {
-  1: [
-    [37.5665, 126.978],
-    [37.5651, 126.9895],
-    [37.568, 126.98],
-    [37.57, 126.983],
-    [37.57, 126.988],
-    [37.572, 126.99],
-    [37.573, 126.992],
-  ],
-  2: [
-    [37.5665, 126.978],
-    [37.5651, 126.9895],
-    [37.568, 126.98],
-  ],
-  // 추가 동선 데이터
-};
-
-const openDirections = (start, end) => {
-  const startPoint = start.join(',');
-  const endPoint = end.join(',');
-  // 구글 맵에서 길찾기
-  const url = `https://www.google.com/maps/dir/?api=1&origin=${startPoint}&destination=${endPoint}`;
-  window.open(url, '_blank');
-};
-
 function PlanRoomResult() {
   const [activeRoute, setActiveRoute] = useState(1);
   const [showTime, setShowTime] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isExcelDownload, setIsExcelDownload] = useState(false);
   const [isImageDownload, setIsImageDownload] = useState(false);
-
+  const location = useLocation();
   const [travelPlan, setTravelPlan] = useState(null);
-  const { travelId } = useParams(); // URL 파라미터에서 travelId 가져오기
+  const [routes, setRoutes] = useState([]);
 
-  // 서버에서 여행 계획 데이터를 가져오는 useEffect
   useEffect(() => {
     const fetchTravelPlan = async () => {
       try {
+        const travelId = location.state?.travelId;
         const token = localStorage.getItem('token');
+
+        if (!token) {
+          console.error('JWT 토큰이 없습니다');
+          return;
+        }
+
         const response = await axios.get(
           `http://43.200.238.249:5000/travel-plans/makeRoom/${travelId}`,
           {
@@ -357,6 +313,7 @@ function PlanRoomResult() {
             },
           }
         );
+
         setTravelPlan(response.data);
       } catch (error) {
         console.error(
@@ -367,7 +324,37 @@ function PlanRoomResult() {
     };
 
     fetchTravelPlan();
-  }, [travelId]);
+  }, [location.state]);
+
+  useEffect(() => {
+    const fetchTravelRoutes = async () => {
+      try {
+        const travelId = location.state?.travelId;
+        const routeTitle = '여행 첫날';
+        const token = localStorage.getItem('token');
+
+        if (!token) {
+          console.error('JWT 토큰이 없습니다');
+          return;
+        }
+
+        const response = await axios.get(
+          `http://43.200.238.249:5000/travel/travel-plans/routes/${travelId}/${routeTitle}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+
+        setRoutes(response.data.routes);
+      } catch (error) {
+        console.error('여행 동선 데이터 가져오기 오류:', error);
+      }
+    };
+
+    fetchTravelRoutes();
+  }, [location.state]);
+
+  const combinedLocations = [...routes.flat()];
 
   const handleRouteClick = (routeId) => {
     setActiveRoute(routeId);
@@ -397,14 +384,8 @@ function PlanRoomResult() {
     return () => clearTimeout(timer);
   }, [isExcelDownload]);
 
-  // 동선에 포함된 여행지만 필터링
-  const activeRouteLocations = activeRoute
-    ? routes[activeRoute].map((point) =>
-        locations.find(
-          (loc) => loc.position[0] === point[0] && loc.position[1] === point[1]
-        )
-      )
-    : [];
+  const activeRouteLocations =
+    (routes[activeRoute] && routes[activeRoute].locations) || [];
 
   const navigate = useNavigate();
 
@@ -417,12 +398,12 @@ function PlanRoomResult() {
   };
 
   const handleSaveClick = () => {
-    setIsModalOpen((prevState) => !prevState); // 현재 상태의 반대로 설정
+    setIsModalOpen((prevState) => !prevState);
   };
 
   const handleSaveAsImage = () => {
-    const element = document.querySelector('#map-container'); // 캡처할 요소 선택
-    html2canvas(element).then((canvas) => {
+    const mapContainer = document.querySelector('#map-container');
+    html2canvas(mapContainer).then((canvas) => {
       const dataURL = canvas.toDataURL('image/png');
       const link = document.createElement('a');
       link.href = dataURL;
@@ -434,42 +415,46 @@ function PlanRoomResult() {
   };
 
   const handleSaveAsExcel = () => {
-    // 현재 활성화된 동선에 포함된 여행지만 필터링
-    const filteredLocations = activeRoute
-      ? locations.filter((location) =>
-          routes[activeRoute].some(
-            (point) =>
-              point[0] === location.position[0] &&
-              point[1] === location.position[1]
-          )
-        )
-      : locations;
-
-    // 엑셀 파일에 포함할 데이터 생성
-    const data = filteredLocations.map((location) => ({
-      ID: location.id,
-      Name: location.name,
-    }));
-
-    // 워크북 및 워크시트 생성
-    const ws = XLSX.utils.json_to_sheet(data);
+    // Create a new workbook
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Locations');
 
-    // 엑셀 파일 생성 및 다운로드
+    // Check if there are any routes
+    if (routes.length === 0) {
+      // Create a worksheet with a message if no routes are available
+      const ws = XLSX.utils.json_to_sheet([{ Message: '동선이 없습니다' }]);
+
+      // Add the worksheet to the workbook
+      XLSX.utils.book_append_sheet(wb, ws, 'No Routes');
+    } else {
+      // Iterate over each route and create a sheet for each route
+      routes.forEach((route, routeIndex) => {
+        // Prepare data for the sheet
+        const data = route.map((place) => ({
+          Order: place.route_order,
+          Title: place.route_title, // Adding the title column
+          Name: place.place_name,
+          Address: place.place_address,
+        }));
+
+        // Create a worksheet
+        const ws = XLSX.utils.json_to_sheet(data);
+
+        // Add the worksheet to the workbook
+        XLSX.utils.book_append_sheet(
+          wb,
+          ws,
+          `Route ${routeIndex + 1} - ${
+            route[0]?.route_title || 'Unknown Title'
+          }`
+        );
+      });
+    }
+
+    // Save the workbook
     XLSX.writeFile(wb, 'travel-plan.xlsx');
 
     setIsModalOpen(false);
     setIsExcelDownload(true);
-  };
-
-  //장소위치조정
-  const getOrder = (index) => {
-    const itemsPerLine = 3;
-    const lineNumber = Math.floor(index / itemsPerLine);
-
-    // 첫 번째 줄은 중앙 정렬
-    return index;
   };
 
   return (
@@ -493,57 +478,51 @@ function PlanRoomResult() {
         <MapSection>
           <SectionTitle>여행 장소</SectionTitle>
           <StyledMapContainer>
-            <LeafletMapContainer
-              center={[37.5665, 126.978]}
-              zoom={15}
-              style={{ height: '100%', width: '100%' }}
-            >
-              <TileLayer
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-              />
-              {locations.map((location) => (
-                <Marker key={location.id} position={location.position}>
-                  {location.name && <Popup>{location.name}</Popup>}
-                </Marker>
-              ))}
-              {activeRoute && (
-                <Polyline
-                  positions={routes[activeRoute]}
-                  color="blue"
-                  weight={5}
-                />
-              )}
-            </LeafletMapContainer>
+            <KakaoMap
+              center={{ lat: 37.5665, lng: 126.978 }} // 기본 위치 설정
+              zoom={15} // 기본 줌 레벨
+              locations={combinedLocations} // 위치 데이터
+              route={routes[activeRoute]} // 현재 활성화된 동선
+              width="600px"
+              height="620px"
+            />
           </StyledMapContainer>
         </MapSection>
         <InfoSection>
           <InfoContainer id="map-container">
             <ButtonContainer>
-              <Button
-                onClick={() => handleRouteClick(1)}
-                className={activeRoute === 1 ? 'active' : ''}
-              >
-                여행 동선 1
-              </Button>
-              <Button
-                onClick={() => handleRouteClick(2)}
-                className={activeRoute === 2 ? 'active' : ''}
-              >
-                여행 동선 2
-              </Button>
-              {/* 추가 동선 버튼 */}
+              {routes.length > 0
+                ? routes.map((route, index) => (
+                    <Button
+                      key={index}
+                      onClick={() => handleRouteClick(index)}
+                      className={activeRoute === index ? 'active' : ''}
+                    >
+                      {route.route_title || ` ${index + 1}`}
+                    </Button>
+                  ))
+                : Array.from({ length: 3 }, (_, index) => (
+                    <Button
+                      key={index}
+                      onClick={() => handleRouteClick(index)}
+                      className={activeRoute === index ? 'active' : ''}
+                    >
+                      {`여행동선 ${index + 1}`}
+                    </Button>
+                  ))}
             </ButtonContainer>
             <RouteContainer>
-              {activeRoute && (
+              {activeRoute !== null && (
                 <FlexWrap>
                   {activeRouteLocations.map((location, index) => {
                     const isIncludedInRoute = location !== undefined;
+
                     return (
-                      <React.Fragment key={location.id}>
+                      isIncludedInRoute && ( // Only render if location is included in route
                         <Item
+                          key={location.id}
                           isIncludedInRoute={isIncludedInRoute}
-                          order={getOrder(index)} // 순서 설정
+                          order={index + 1}
                         >
                           <Circle />
                           <p
@@ -557,17 +536,10 @@ function PlanRoomResult() {
                           </p>
                           {showTime &&
                             index < activeRouteLocations.length - 1 && (
-                              <RouteButton
-                                onClick={() =>
-                                  openDirections(
-                                    activeRouteLocations[index].position,
-                                    activeRouteLocations[index + 1].position
-                                  )
-                                }
-                              />
+                              <p>{/* 시간 표시 로직 */}</p>
                             )}
                         </Item>
-                      </React.Fragment>
+                      )
                     );
                   })}
                 </FlexWrap>
