@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import PRplaceModal from '../modals/PRplcaeModal';
 
@@ -56,10 +56,14 @@ const Overlay = styled.div`
   z-index: 999;
 `;
 
-const ToggleListPlace = ({ placeLists, setPlaceLists }) => {
+const ToggleListPlace = ({ placeLists, setPlaceLists, isPlace }) => {
   const [modalInfo, setModalInfo] = useState({ visible: false, index: null, left: 0, top: 0 });
   const [modalOpen,setModalOpen]=useState(false);
   const [modalPlace,setModalPlace]=useState({})
+  
+  useEffect(()=>{
+    console.log(modalPlace);
+  },[modalPlace])
   
   const openModal2=(place)=>{
     setModalOpen(true);
@@ -109,7 +113,7 @@ const ToggleListPlace = ({ placeLists, setPlaceLists }) => {
           )}
         </ListItem>
       ))}
-      <PRplaceModal isOpen={modalOpen} onClose={closeModal2} place={modalPlace} />
+      <PRplaceModal isOpen={modalOpen} onClose={closeModal2} place={modalPlace} isPlace={true} />
     </div>
   );
 };

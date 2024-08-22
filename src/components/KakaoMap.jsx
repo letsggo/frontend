@@ -1,61 +1,63 @@
 import React, { useEffect } from 'react';
-import markerImage from './marker.png'; // 마커 이미지 파일 경로
 
-const KAKAOMAP_API_KEY = 'fa893ceec1fa072ebbe1e891c1ebe0ef';
+function KakaoMap({ width, height }) {
+    const KAKAOMAP_API_KEY = 'fa893ceec1fa072ebbe1e891c1ebe0ef';
 
-const KakaoMap = ({
-  width,
-  height,
-  center = { lat: 33.450701, lng: 126.570667 },
-  zoom = 3,
-  locations = [],
-}) => {
-  useEffect(() => {
-    const script = document.createElement('script');
-    script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${KAKAOMAP_API_KEY}&autoload=false`;
-    script.async = true;
+    useEffect(() => {
+        // 스크립트 태그 생성
+        const script = document.createElement('script');
+        script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${KAKAOMAP_API_KEY}&autoload=false`;
+        script.async = true;
 
-    script.onload = () => {
-      window.kakao.maps.load(() => {
-        const container = document.getElementById('map');
-        const options = {
-          center: new window.kakao.maps.LatLng(center.lat, center.lng),
-          level: zoom,
+        // 스크립트를 헤드에 추가
+        document.head.appendChild(script);
+
+        // Kakao Maps API 로드
+        script.onload = () => {
+            console.log('Script loaded successfully');
+
+            // kakao.maps.load 사용하여 API가 완전히 로드되었는지 확인
+            if (window.kakao && window.kakao.maps) {
+                window.kakao.maps.load(() => {
+                    console.log('Kakao Maps API is fully loaded');
+                    
+                    try {
+                        // 지도 생성
+                        const container = document.getElementById('map');
+                        const options = {
+                            center: new window.kakao.maps.LatLng(33.450701, 126.570667),
+                            level: 3
+                        };
+                        new window.kakao.maps.Map(container, options);
+                    } catch (error) {
+                        console.error('Error creating the map:', error);
+                    }
+                });
+            } else {
+                console.error('Kakao Maps API is not fully loaded or initialized');
+            }
         };
-        const map = new window.kakao.maps.Map(container, options);
 
-        // 마커 이미지 설정
-        const markerImageSize = new window.kakao.maps.Size(40, 40); // 이미지 사이즈 (픽셀)
-        const markerImageOption = {
-          offset: new window.kakao.maps.Point(27, 69),
-        }; // 이미지의 기준 점
-        const markerImageObject = new window.kakao.maps.MarkerImage(
-          markerImage,
-          markerImageSize,
-          markerImageOption
-        );
+        // 에러 처리
+        script.onerror = () => {
+            console.error('Failed to load Kakao Maps API script');
+        };
 
-        // 마커 추가
-        locations.forEach((location) => {
-          if (location.lat && location.lng) {
-            const markerPosition = new window.kakao.maps.LatLng(
-              location.lat,
-              location.lng
-            );
-            const marker = new window.kakao.maps.Marker({
-              position: markerPosition,
-              image: markerImageObject, // 사용자 정의 이미지 설정
-            });
-            marker.setMap(map);
-          }
-        });
-      });
-    };
+        // 클린업 함수: 컴포넌트가 언마운트될 때 스크립트를 제거합니다.
+        return () => {
+            const scriptTag = document.querySelector(`script[src="${script.src}"]`);
+            if (scriptTag) {
+                scriptTag.remove();
+            }
+        };
+    }, [KAKAOMAP_API_KEY]);
 
-    document.head.appendChild(script);
-  }, [center, zoom, locations]);
-
-  return <div id="map" style={{ width: width, height: height }}></div>;
-};
+    return (
+        <div style={{ position: 'relative', zIndex: 0 }}>
+            <div id="map" style={{ width: width, height: height }}></div>
+        </div>
+    );
+}
 
 export default KakaoMap;
+

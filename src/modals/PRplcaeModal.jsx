@@ -1,4 +1,3 @@
-
 import React  from "react"; 
 import styled from "styled-components";
 import grey from './grey.png';
@@ -26,6 +25,7 @@ const ModalContent = styled.div`
     }
     div{
         margin-left:30px;
+        display: block !important;
     }
 `;
 
@@ -38,16 +38,22 @@ const CloseButton = styled.button`
     font-size: 16px;
     cursor: pointer;
 `;
-
-const PRplaceModal = ({ isOpen, onClose, place, isPlace  }) => {
-    if (!isOpen) return null;
-
+const Img=styled.div`
+    width:120px;
+    height:120px;
+    background-color:grey;
+    border-radius:10px;
+`;
+const PRplaceModal = ({ isOpen, onClose, place, isPlace  }) => {    
+    if (!isOpen) return null;   
     if(isPlace){
+        console.log('place:',place);
+        console.log('location_name:',place.location_name)
         return (
             <ModalOverlay>
                 <ModalContent>
                     <CloseButton onClick={onClose}>X</CloseButton>
-                    <img src={place.location_img} alt={place.location_name}/>
+                    <img src={place.location_img} alt={place.location_name} />
                     <div>
                         <h3>{place.location_name}</h3>
                         <p>{place.location_address}</p>
@@ -60,7 +66,7 @@ const PRplaceModal = ({ isOpen, onClose, place, isPlace  }) => {
             <ModalOverlay>
                 <ModalContent>
                     <CloseButton onClick={onClose}>X</CloseButton>
-                    <img src={grey} alt={place.name}/>
+                    <Img src={grey} alt={place.name} />
                     <div>
                         <h3>{place.name}</h3>
                         <p>{place.address}</p>

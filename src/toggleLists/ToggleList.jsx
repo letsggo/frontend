@@ -159,6 +159,7 @@ const ToggleList = ({ selectedLists, setSelectedLists, Right, droppableId }) => 
   const [modalOpen, setModalOpen] = useState(false);
   const [modalPlace, setModalPlace] = useState({});
   const token = localStorage.getItem('token');
+  const [modalOpen2,setModalOpen2]=useState(false);
 
   useEffect(() => {
     fetchLists();
@@ -170,12 +171,14 @@ const ToggleList = ({ selectedLists, setSelectedLists, Right, droppableId }) => 
   useEffect(() => {
     console.log('selectedLists:', selectedLists);
   }, [selectedLists]);
+  useEffect(()=>{
+    console.log('place:',modalPlace);
+  },[modalPlace])
 
   const openModal2 = (place) => {
     setModalOpen(true);
     setModalPlace(place);
   };
-
   const closeModal2 = () => {
     setModalOpen(false);
   };
@@ -442,7 +445,7 @@ const ToggleList = ({ selectedLists, setSelectedLists, Right, droppableId }) => 
                                 ref={provided.innerRef}
                                 {...provided.draggableProps}
                                 {...provided.dragHandleProps}
-                                onClick={() => openModal2(detail)}
+                                onClick={()=>{openModal2(detail)}}
                                 style={{ 
                                   ...provided.draggableProps.style, 
                                   opacity: snapshot.isDragging ? 0.5 : 1 
@@ -453,6 +456,7 @@ const ToggleList = ({ selectedLists, setSelectedLists, Right, droppableId }) => 
                                   <div className='detail'>{detail.name}</div>
                                 </div>
                                 <Plus onClick={(event) => handleEdit(detailIndex, index, event)}>⋮</Plus>
+                                <PRplaceModal isOpen={modalOpen} onClose={closeModal2} place={modalPlace} isPlace={false} />
                                 {modalEdit.visible && modalEdit.index === detailIndex && (
                                   <>
                                     <Overlay onClick={() => closeModal(true)} />
@@ -487,7 +491,6 @@ const ToggleList = ({ selectedLists, setSelectedLists, Right, droppableId }) => 
                 </InputButton>
               </RenameModal>
             )}
-            <PRplaceModal isOpen={modalOpen} onClose={closeModal2} place={modalPlace} />
           </div>
         )}
       </Droppable>
