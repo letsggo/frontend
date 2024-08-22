@@ -24,11 +24,11 @@ const Main = () => {
   const buttonStyle = {
     padding: '10px 20px',
     fontSize: '1.2em',
-    backgroundColor: '#4EC3F3', 
-    color: 'white', 
-    fontWeight: 'bold', 
+    backgroundColor: '#4EC3F3',
+    color: 'white',
+    fontWeight: 'bold',
     border: 'none',
-    borderRadius: '30px', 
+    borderRadius: '30px',
     cursor: 'pointer',
     marginBottom: '40px',
   };
@@ -68,13 +68,12 @@ const Main = () => {
   const footerStyle = {
     marginTop: '40px',
     padding: '20px',
-    backgroundColor: '#1F637F', 
-    color: 'white', 
+    backgroundColor: '#1F637F',
+    color: 'white',
     textAlign: 'center',
     width: '100%',
     fontSize: '0.9em',
   };
-  
 
   const footerContentStyle = {
     display: 'flex',
@@ -145,7 +144,8 @@ const Main = () => {
             <strong>PM:</strong> 로진 | <strong>FE:</strong> 이서, 조이, 클로이
           </div>
           <div>
-            <strong>Design:</strong> 여니 | <strong>BE:</strong> 이노, 제타, 쥬쥬
+            <strong>Design:</strong> 여니 | <strong>BE:</strong> 이노, 제타,
+            쥬쥬
           </div>
           <div style={footerLineStyle}></div>
           <div>© GABOLKKA ALL RIGHTS RESERVED.</div>

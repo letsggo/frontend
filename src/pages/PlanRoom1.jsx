@@ -366,9 +366,9 @@ function PlanRoom1() {
   }, [voteDetails, selectedLists2]);
 
   const handlePlanRoom2 = () => {
-    if (voteDone && selectedLists2.length > 0) {
-      navigate('/PlanRoom2', { state: { travelId } });
-    }
+    //if (voteDone && selectedLists2.length > 0) {
+    navigate('/PlanRoom2', { state: { travelId } });
+    // }
   };
 
   /*커서 채팅*/
