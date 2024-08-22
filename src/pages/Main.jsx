@@ -2,8 +2,6 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
-// Styled Components
-
 const Container = styled.div`
   display: flex;
   flex-direction: column;
@@ -71,8 +69,10 @@ const LeftCard = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
   p {
     font-weight: bold;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2); /* 그림자 추가 */
   }
 `;
 
@@ -88,6 +88,7 @@ const CenterCard = styled.div`
   flex-direction: column;
   align-items: center;
   p {
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2); /* 그림자 추가 */
     font-weight: bold;
   }
 `;
@@ -104,6 +105,7 @@ const RightCard = styled.div`
   flex-direction: column;
   align-items: center;
   p {
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2); /* 그림자 추가 */
     font-weight: bold;
   }
 `;
@@ -162,7 +164,7 @@ const Main = () => {
 
       <CardContainer>
         <LeftCard>
-          <h2>기존에 사용하던 지도 APP을 활용할 수 있어요!</h2>
+          <h2>💙 기존에 사용하던 지도 APP을 활용할 수 있어요!</h2>
           <p>
             • 네이버지도, 카카오맵 등으로 찾은 장소를 url 복사로 간단하게
             가져와요
@@ -170,7 +172,7 @@ const Main = () => {
           <p>• 저장해둔 나의 즐겨찾기 목록을 연동할 수 있어요</p>
         </LeftCard>
         <CenterCard>
-          <h2>실시간으로 동행자와 함께 자유로이 동선을 만들 수 있어요!</h2>
+          <h2>💛 실시간으로 동행자와 자유로이 동선을 만들 수 있어요!</h2>
           <p>
             • '가볼까'에서 공동작업과 버블채팅으로 별도의 SNS 없이 여행 계획을
             끝내요
@@ -185,7 +187,7 @@ const Main = () => {
           </p>
         </CenterCard>
         <RightCard>
-          <h2>'가볼까'의 핵심은 빠른 여행 계획 과정이에요!</h2>
+          <h2>❤️ '가볼까'의 핵심은 빠른 여행 계획 과정이에요!</h2>
           <p>
             • 서비스 내에서 일일히 장소를 다시 찾을 필요 없이 찾아둔 장소 바로
             가져와요

@@ -452,9 +452,9 @@ function PlanRoom1() {
     setCursorPosition({ x: e.clientX, y: e.clientY });
   };
 
-  useEffect(()=>{
-    console.log('placeLists',placeLists);
-  },[placeLists])
+  useEffect(() => {
+    console.log('placeLists', placeLists);
+  }, [placeLists]);
   /*백 연결*/
   useEffect(() => {
     const fetchLists = async () => {
@@ -497,7 +497,7 @@ function PlanRoom1() {
           },
         }
       );
-      console.log('placeList response.data:',response.data);
+      console.log('placeList response.data:', response.data);
       setPlaceLists([...placeLists, response.data]);
     } catch (error) {
       console.error('오류가 발생했습니다:', error);
