@@ -374,6 +374,11 @@ function PlanRoomResult() {
   const [routes, setRoutes] = useState([]);
   const [locations, setLocations] = useState([]); // 지도에 표시할 위치 상태
 
+  const handleRouteButtonClick = (startLocation, endLocation) => {
+    const url = `https://www.google.com/maps/dir/?api=1&origin=${startLocation.lat},${startLocation.lng}&destination=${endLocation.lat},${endLocation.lng}`;
+    window.open(url, '_blank');
+  };
+
   useEffect(() => {
     const fetchTravelPlan = async () => {
       try {
@@ -512,11 +517,16 @@ function PlanRoomResult() {
 
     // Check if there are any routes
     if (routes.length === 0) {
-      // Create a worksheet with a message if no routes are available
-      const ws = XLSX.utils.json_to_sheet([{ Message: '동선이 없습니다' }]);
+      // Create a worksheet with test locations data if no routes are available
+      const data = testLocations.map((location) => ({
+        ID: location.id,
+        Name: location.name,
+        Address: location.address,
+      }));
+      const ws = XLSX.utils.json_to_sheet(data);
 
       // Add the worksheet to the workbook
-      XLSX.utils.book_append_sheet(wb, ws, 'No Routes');
+      XLSX.utils.book_append_sheet(wb, ws, 'Test Locations');
     } else {
       // Iterate over each route and create a sheet for each route
       routes.forEach((route, routeIndex) => {
@@ -632,6 +642,17 @@ function PlanRoomResult() {
                               >
                                 {location.name}
                               </p>
+                              {showTime &&
+                                index < activeRouteLocations.length - 1 && (
+                                  <RouteButton
+                                    onClick={() =>
+                                      handleRouteButtonClick(
+                                        activeRouteLocations[index],
+                                        activeRouteLocations[index + 1]
+                                      )
+                                    }
+                                  />
+                                )}
                             </Item>
                           )
                         );
