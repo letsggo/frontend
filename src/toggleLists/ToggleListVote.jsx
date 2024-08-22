@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import axios from 'axios'; // axios를 추가로 import합니다.
+import axios from 'axios';
 import image from './즐겨찾기.svg';
 
 const ListItem = styled.div`
@@ -64,7 +64,7 @@ const VoteButton = styled.button`
   margin-left: 10px;
 `;
 
-const ToggleListVote = ({ selectedLists, setSelectedLists, shareVoteDetails }) => {
+const ToggleListVote = ({ selectedLists, setSelectedLists, shareVoteDetails, travelId }) => {
   const [openIndexes, setOpenIndexes] = useState([]);
   const [toggleIcon, setIcon] = useState({});
   const [detailLists, setDetailLists] = useState({});
@@ -72,9 +72,13 @@ const ToggleListVote = ({ selectedLists, setSelectedLists, shareVoteDetails }) =
   const [voteIng, setVoteIng] = useState([]);
   const [skippedList, setSkippedList] = useState([]);
   const [listNameId, setListNameId] = useState({});
-  const [MyLists, setMyLists] = useState([]);
-  const[candidate_id,setCadidateId]=useState(0);
-  const token=localStorage.getItem('token');
+  const [myLists, setMyLists] = useState([]);
+  const [candidateId, setCandidateId] = useState(0); // 후보지 ID 초기화
+  const token = localStorage.getItem('token');
+
+  useEffect(()=>{
+    console.log('ToggleListVote props:', { travelId });
+  })
 
   useEffect(() => {
     const loadSkippedList = () => {
@@ -189,51 +193,88 @@ const ToggleListVote = ({ selectedLists, setSelectedLists, shareVoteDetails }) =
   };
 
   const handleSave = (index) => {
-    setCadidateId(prevId=>prevId+1); // 후보지 ID 
-    const user_id = 1; // user_id를 임의로 1로 설정
-    const state = selectedDetails[index] ? true : false; // 투표 여부
-    const skip = skippedList.includes(index); // 스킵 여부
+    // setCandidateId(prevId => prevId + 1); // 후보지 ID 증가
+    // const user_id = 1; // user_id를 임의로 1로 설정
+    // const state = selectedDetails[index] ? true : false; // 투표 여부
+    // const skip = skippedList.includes(index); // 스킵 여부
 
-    shareVoteDetails(selectedDetails); //세부정보 공유
+    shareVoteDetails(selectedDetails); // 세부정보 공유
     const newVoteIng = [...voteIng];
     newVoteIng[index] = false;
     setVoteIng(newVoteIng);
     localStorage.setItem('voteIng', JSON.stringify(newVoteIng));
 
-    handleVote({candidate_id, user_id, state, skip, ranked: 1 }); //userId임의로 정함
+    handleVote(); //{ candidate_id: candidateId, user_id, state, skip, ranked: 1 } 
   };
 
-  /*투표 결과 저장*/
-  const handleVote = async ({ candidate_id, user_id, state, skip, ranked }) => {
+  /* 투표 결과 저장 */
+  async function getCandidateList() {
+    console.log('travelId:',travelId)
+    try {
+      const requests = selectedLists.map(can_name => {
+        const url = `http://43.200.238.249:5000/travel-plans/candidates?can_name=${can_name}&travel_id=${travelId}`;
+        return axios.get(url, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          },
+        });
+      });
+
+      const responses = await Promise.all(requests);
+
+      // 응답 데이터 검토
+      console.log("응답 데이터:", responses);
+
+      // responses.map(response => response.data)로 각 응답의 data를 가져옴
+      const candidates = responses.flatMap(response => response.data);
+
+      console.log("후보 목록:", candidates);
+
+      return candidates; // 모든 후보 목록을 배열로 반환합니다.
+    } catch (error) {
+      console.error('후보 목록 가져오기 실패:', error);
+      throw error;
+    }
+  }
+
+  const handleVote = async () => {
+    console.log('travelId!!!:',travelId);
+    const candidates = await getCandidateList();
     const token = localStorage.getItem('token'); // JWT 토큰을 가져옵니다.
   
-    const voteData = {
-      candidate_id,
-      user_id,
-      state,
-      skip,
-      ranked: ranked || null, // ranked는 null일 수 있으므로 기본값을 null로 설정합니다.
-    };
+    for (let index = 0; index < candidates.length; index++) {
+      const candidate = candidates[index];
+
+      const voteData = {
+        user_id: 1,
+        can_id: candidate.can_id,
+        can_name: candidate.can_name,
+        travel_id: travelId
+      };
+
+      console.log('voteData:', voteData); // voteData 출력
   
-    try {
-      const response = await axios.post(
-        'http://43.200.238.249:5000/travel-plans/candidates/vote',
-        voteData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      try {
+        const response = await axios.post(
+          'http://43.200.238.249:5000/travel-plans/candidates/vote-complete',
+          voteData,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
   
-      // 서버로부터 응답을 받았을 때의 처리
-      console.log('투표 저장 성공:', response.data);
-      return response.data; // 필요한 경우 호출된 곳에서 응답 데이터를 사용할 수 있도록 반환
-    } catch (error) {
-      console.error('투표 저장 실패:', error.response ? error.response.data : error.message);
-      throw error; // 오류를 호출된 곳에서 처리할 수 있도록 예외를 던짐
+        // 서버로부터 응답을 받았을 때의 처리
+        console.log('투표 저장 성공:', response.data);
+        return response.data; // 필요한 경우 호출된 곳에서 응답 데이터를 사용할 수 있도록 반환
+      } catch (error) {
+        console.error('투표 저장 실패:', error.response ? error.response.data : error.message);
+        throw error; // 오류를 호출된 곳에서 처리할 수 있도록 예외를 던짐
+      }
     }
   };
+
   return (
     <div>
       {selectedLists.map((list, index) => (
@@ -269,6 +310,7 @@ const ToggleListVote = ({ selectedLists, setSelectedLists, shareVoteDetails }) =
 };
 
 export default ToggleListVote;
+
 
 
 

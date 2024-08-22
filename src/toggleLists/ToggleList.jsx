@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
 import image from './즐겨찾기.svg';
+import grey from './grey.png';
+import PRplaceModal from '../modals/PRplcaeModal';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 const ListItem = styled.div`
   padding: 10px;
@@ -15,11 +18,6 @@ const ListItem = styled.div`
   display: flex;
   position: relative;
   gap: 10px;
-  img {
-    width: 40px;
-    height: 40px;
-    border-radius: 40px;
-  }
   .Plus {
     margin-left: auto;
   }
@@ -28,6 +26,7 @@ const ListItem = styled.div`
 const SubList = styled.div`
   background-color: #f9f9f9;
   border-radius: 4px;
+  min-height: 100px; /* 빈 리스트라도 최소 높이 유지 */
 `;
 
 const Place = styled.div`
@@ -40,6 +39,22 @@ const Place = styled.div`
   padding: 10px 30px 10px 50px;
   display: flex;
   justify-content: space-between;
+  img {
+    width: 40px;
+    height: 40px;
+    border-radius: 5px;
+  }
+  div {
+    display: flex;
+  }
+  .detail {
+    width: 170px;
+    margin-left: 20px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: inline-block;
+  }
 `;
 
 const Plus = styled.button`
@@ -91,20 +106,22 @@ const RenameModal = styled.div`
   z-index: 100;
   pointer-events: auto;
 `;
+
 const CloseButton = styled.button`
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: transparent;
-    border: none;
-    font-size: 16px;
-    cursor: pointer;
-    color:black;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: transparent;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  color: black;
 `;
+
 const InputButton = styled.div`
   display: flex;
   position: relative;
-  margin-top:10px;
+  margin-top: 10px;
   input {
     width: 180px;
     height: 32px;
@@ -126,7 +143,7 @@ const InputButton = styled.div`
   }
 `;
 
-const ToggleList = ({selectedLists,setSelectedLists,Right}) => {
+const ToggleList = ({ selectedLists, setSelectedLists, Right, droppableId }) => {
   const [openIndexes, setOpenIndexes] = useState([]);
   const [modalInfo, setModalInfo] = useState({ visible: false, index: null, left: 0, top: 0 });
   const [modalEdit, setModalEdit] = useState({ visible: false, index: null, left: 0, top: 0 });
@@ -137,8 +154,10 @@ const ToggleList = ({selectedLists,setSelectedLists,Right}) => {
   const [skipVote, setSkipVote] = useState([]);
   const [listNameId, setListNameId] = useState({});
   const [MyLists, setMyLists] = useState([]);
-  const [beforeRename,setBeforeRename]=useState([]);
-  const [renamedLists,setRenamedLists]=useState(selectedLists);
+  const [beforeRename, setBeforeRename] = useState([]);
+  const [renamedLists, setRenamedLists] = useState(selectedLists);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalPlace, setModalPlace] = useState({});
   const token = localStorage.getItem('token');
 
   useEffect(() => {
@@ -146,9 +165,21 @@ const ToggleList = ({selectedLists,setSelectedLists,Right}) => {
   }, []);
 
   useEffect(()=>{
-    console.log('selectedLists2:',selectedLists);
-  
-  },[selectedLists])
+    console.log('detailed!!',detailLists)
+  },[detailLists])
+  useEffect(() => {
+    console.log('selectedLists:', selectedLists);
+  }, [selectedLists]);
+
+  const openModal2 = (place) => {
+    setModalOpen(true);
+    setModalPlace(place);
+  };
+
+  const closeModal2 = () => {
+    setModalOpen(false);
+  };
+
   const fetchLists = async () => {
     try {
       const response = await axios.get('http://43.200.238.249:5000/users/lists', {
@@ -161,7 +192,7 @@ const ToggleList = ({selectedLists,setSelectedLists,Right}) => {
       setListNameId(nameIdMap);
       setMyLists(response.data.map(list => ({
         list_name: list.list_name,
-        image: {image}
+        image: { image }
       })));
       setOpenIndexes(new Array(response.data.length).fill(false));
     } catch (error) {
@@ -175,15 +206,24 @@ const ToggleList = ({selectedLists,setSelectedLists,Right}) => {
         headers: { Authorization: `Bearer ${token}` }
       });
       const details = response.data;
-      const placeNames = details.places.map(place => place.place_name);
+      const places = details.places.map(place => ({
+        name: place.place_name,
+        address: place.address
+      }));
+      console.log('before detail:',detailLists)
       setDetailLists(prevDetails => ({
         ...prevDetails,
-        [listName]: placeNames
+        [listName]: places
       }));
+      console.log('after detail:',detailLists)
     } catch (error) {
       console.error('Error fetching list details:', error.response ? error.response.data : error.message);
     }
   };
+
+  useEffect(() => {
+    console.log('Updated detailLists:', detailLists);
+  }, [detailLists]);
 
   const handleListClick = (index) => {
     setOpenIndexes(prevIndexes => {
@@ -211,9 +251,9 @@ const ToggleList = ({selectedLists,setSelectedLists,Right}) => {
     setModalEdit({
       visible: true,
       index: detailIndex,
-      listIndex: listIndex,
+      listIndex,
       left: buttonRect.right - parentRect.left - 100,
-      top: buttonRect.top - parentRect.top,
+      top: buttonRect.top - parentRect.top + 150,
     });
   };
 
@@ -229,11 +269,22 @@ const ToggleList = ({selectedLists,setSelectedLists,Right}) => {
     });
   };
 
-  const handleDelete = () => {
-    const newSelectedLists = [...selectedLists];
-    newSelectedLists.splice(modalInfo.index, 1);
-    setSelectedLists(newSelectedLists);
-    closeModal();
+  const handleDelete = (isSubList) => {
+    if (isSubList) {
+      const listName = selectedLists[modalEdit.listIndex];
+      const newDetails = [...detailLists[listName]];
+      newDetails.splice(modalEdit.index, 1);  // 세부 항목 삭제
+
+      setDetailLists(prevDetails => ({
+        ...prevDetails,
+        [listName]: newDetails,
+      }));
+    } else {
+      const newSelectedLists = [...selectedLists];
+      newSelectedLists.splice(modalInfo.index, 1);
+      setSelectedLists(newSelectedLists);
+    }
+    closeModal(isSubList);
   };
 
   const closeModal = (isEdit) => {
@@ -248,7 +299,7 @@ const ToggleList = ({selectedLists,setSelectedLists,Right}) => {
     closeModal(false);
     const newSelectedLists = selectedLists.map((item) =>
       beforeRename.includes(item) ? renameValue : item
-  );
+    );
     setRenamedLists(newSelectedLists);
     setModalRename(false);
   };
@@ -298,79 +349,149 @@ const ToggleList = ({selectedLists,setSelectedLists,Right}) => {
     });
   };
 
-  
   const skippedList = JSON.parse(localStorage.getItem('skippedList') || '[]');
-  const mapLists= Right? renamedLists:selectedLists;
-  
-  useEffect(()=>{
-    localStorage.setItem('renamedLists',renamedLists);
-  },[renamedLists])
-  
+  const mapLists = Right ? renamedLists : selectedLists;
+
+  useEffect(() => {
+    localStorage.setItem('renamedLists', JSON.stringify(renamedLists));
+  }, [renamedLists]);
+
+  const onDragEnd = (result) => {
+    const { source, destination } = result;
+
+    if (!destination) return;
+
+    if (source.droppableId === destination.droppableId) {
+      const listIndex = parseInt(source.droppableId.replace('sublist-', ''), 10);
+      const listName = selectedLists[listIndex];
+      const listDetails = detailLists[listName] || [];
+
+      const [movedItem] = listDetails.splice(source.index, 1);
+      listDetails.splice(destination.index, 0, movedItem);
+
+      setDetailLists({
+        ...detailLists,
+        [listName]: listDetails
+      });
+
+    } else {
+      const sourceIndex = parseInt(source.droppableId.replace('sublist-', ''), 10);
+      const destinationIndex = parseInt(destination.droppableId.replace('sublist-', ''), 10);
+
+      const sourceListName = selectedLists[sourceIndex];
+      const destinationListName = selectedLists[destinationIndex];
+
+      const sourceListDetails = detailLists[sourceListName] || [];
+      const destinationListDetails = detailLists[destinationListName] || [];
+
+      const [movedItem] = sourceListDetails.splice(source.index, 1);
+      destinationListDetails.splice(destination.index, 0, movedItem);
+
+      setDetailLists({
+        ...detailLists,
+        [sourceListName]: sourceListDetails,
+        [destinationListName]: destinationListDetails
+      });
+    }
+  };
+
   return (
-    <div>
-      {mapLists.map((list, index) => (
-        <div key={index}>
-          <ListItem>
-            <div onClick={() => handleListClick(index)}>{toggleIcon[index] || '▶'}</div>
-            <img src={image} alt={skipVote} />
-            {list}
-            <Plus onClick={(event) => handleFix(index, event)} className='Plus'>⋮</Plus>
-            {modalInfo.visible && modalInfo.index === index && (
-              <>
-                <Overlay onClick={() => closeModal(false)} />
-                <Modal left={modalInfo.left} top={modalInfo.top}>
-                  <button onClick={() => handleDelete(false, listNameId[list.list_name])}>Delete</button><br />
-                  {Right && 
+    <DragDropContext onDragEnd={onDragEnd}>
+      <Droppable droppableId={droppableId} type="ITEM">
+        {(provided) => (
+          <div ref={provided.innerRef} {...provided.droppableProps}>
+            {mapLists.map((list, index) => (
+              <div key={index}>
+                <ListItem>
+                  <div onClick={() => handleListClick(index)}>
+                    {toggleIcon[index] || '▶'}
+                  </div>
+                  <img src={image} alt={skipVote} />
+                  {list}
+                  <Plus onClick={(event) => handleFix(index, event)} className='Plus'>⋮</Plus>
+                  {modalInfo.visible && modalInfo.index === index && (
                     <>
-                      <button onClick={() => {
-                        setModalRename(true)
-                        setBeforeRename(beforeRename.concat(list))}}>
-                          Rename
-                      </button><br />
-                      <button onClick={() => handleSkipVote(index)}>
-                        {skippedList.includes(index) ? 'Skip 취소' : '투표 Skip'}
-                      </button><br />
-                    </>
-                  }
-                </Modal>
-              </>
-            )}
-          </ListItem>
-          {openIndexes[index] && (
-            <SubList>
-              {detailLists[selectedLists[index]]?.map((detail, detailIndex) => (
-                <Place key={detailIndex}>
-                  {detail}
-                  <Plus onClick={(event) => handleEdit(detailIndex, index, event)}>⋮</Plus>
-                  {modalEdit.visible && modalEdit.index === detailIndex && (
-                    <>
-                      <Overlay onClick={() => closeModal(true)} />
-                      <Modal left={modalEdit.left} top={modalEdit.top}>
-                        <button onClick={() => handleDelete(true, listNameId[selectedLists[index]?.list_name])}>Delete</button>
+                      <Overlay onClick={() => closeModal(false)} />
+                      <Modal left={modalInfo.left} top={modalInfo.top}>
+                        <button onClick={() => handleDelete(false)}>Delete</button><br />
+                        {Right && 
+                          <>
+                            <button onClick={() => {
+                              setModalRename(true);
+                              setBeforeRename(beforeRename.concat(list));
+                            }}>
+                              Rename
+                            </button><br />
+                            <button onClick={() => handleSkipVote(index)}>
+                              {skippedList.includes(index) ? 'Skip 취소' : '투표 Skip'}
+                            </button><br />
+                          </>
+                        }
                       </Modal>
                     </>
                   )}
-                </Place>
-              ))}
-            </SubList>
-          )}
-        </div>
-      ))}
-      {modalRename && (
-        <RenameModal left={modalInfo.left+1000} top={modalInfo.top + 50}>
-          <div>후보지 이름 변경</div>
-          <CloseButton onClick={renameModalClose}>X</CloseButton>
-          <InputButton>
-            <input
-              type='text'
-              value={renameValue}
-              onChange={(e) => setRenameValue(e.target.value)}
-            />
-            <button onClick={handleRename}>변경하기</button>
-          </InputButton>
-        </RenameModal>
-      )}
-    </div>
+                </ListItem>
+                {openIndexes[index] && (
+                  <Droppable droppableId={`sublist-${index}`} type="SUBLIST">
+                    {(provided) => (
+                      <SubList ref={provided.innerRef} {...provided.droppableProps}>
+                        {detailLists[selectedLists[index]]?.map((detail, detailIndex) => (
+                          <Draggable key={detailIndex} draggableId={`${index}-${detailIndex}`} index={detailIndex}>
+                            {(provided, snapshot) => (
+                              <Place
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                {...provided.dragHandleProps}
+                                onClick={() => openModal2(detail)}
+                                style={{ 
+                                  ...provided.draggableProps.style, 
+                                  opacity: snapshot.isDragging ? 0.5 : 1 
+                                }}
+                              >
+                                <div>
+                                  <img src={grey} alt={image} />
+                                  <div className='detail'>{detail.name}</div>
+                                </div>
+                                <Plus onClick={(event) => handleEdit(detailIndex, index, event)}>⋮</Plus>
+                                {modalEdit.visible && modalEdit.index === detailIndex && (
+                                  <>
+                                    <Overlay onClick={() => closeModal(true)} />
+                                    <Modal left={modalEdit.left} top={modalEdit.top}>
+                                      <button onClick={() => handleDelete(true)}>Delete</button>
+                                      <br />
+                                    </Modal>
+                                  </>
+                                )}
+                              </Place>
+                            )}
+                          </Draggable>
+                        ))}
+                        {provided.placeholder}
+                      </SubList>
+                    )}
+                  </Droppable>
+                )}
+              </div>
+            ))}
+            {modalRename && (
+              <RenameModal left={modalInfo.left + 1000} top={modalInfo.top + 50}>
+                <div>후보지 이름 변경</div>
+                <CloseButton onClick={renameModalClose}>X</CloseButton>
+                <InputButton>
+                  <input
+                    type='text'
+                    value={renameValue}
+                    onChange={(e) => setRenameValue(e.target.value)}
+                  />
+                  <button onClick={handleRename}>변경하기</button>
+                </InputButton>
+              </RenameModal>
+            )}
+            <PRplaceModal isOpen={modalOpen} onClose={closeModal2} place={modalPlace} />
+          </div>
+        )}
+      </Droppable>
+    </DragDropContext>
   );
 };
 

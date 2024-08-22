@@ -1,4 +1,4 @@
-import React,{useState} from 'react';
+import React,{useEffect, useState} from 'react';
 import KakaoMap from '../components/KakaoMap';
 import styled from 'styled-components';
 import ToggleMyLocation from '../toggleLists/ToggleMyLocation';
@@ -159,6 +159,10 @@ function MyLocationList() {
   const [placeholder, setPlaceholder]=useState('공개로 설정된 즐겨찾기 URL을 입력해주세요');
   const token=localStorage.getItem('token');
 
+  useEffect(()=>{
+    console.log('MyLocationLists:',MyLocationLists)
+  },[MyLocationList])
+
   useState(()=>{
       if(MyLocationLists==='[]'){
         setIsEmpty(true);
@@ -190,7 +194,7 @@ function MyLocationList() {
           }
         }
       );
-      console.log('Response received:', response);
+      console.log('Response received:', response.data.placeList);
       handlePlace(response.data.placeList);  // 받아온 장소 목록으로 업데이트
       closeModal();
     } catch (error) {
